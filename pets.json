@@ -1,0 +1,32 @@
+[
+    {
+        "nome": "Rex",
+        "peso": "20kg",
+        "dono": "João",
+        "raca": "Labrador"
+    },
+    {
+        "nome": "Luna",
+        "peso": "5kg",
+        "dono": "Maria",
+        "raca": "Poodle"
+    },
+    {
+        "nome": "Thor",
+        "peso": "10kg",
+        "dono": "Carlos",
+        "raca": "Beagle"
+    },
+    {
+        "nome": "Mel",
+        "peso": "3kg",
+        "dono": "Ana",
+        "raca": "Chihuahua"
+    },
+    {
+        "nome": "Bidu",
+        "peso": "15kg",
+        "dono": "Pedro",
+        "raca": "Vira-lata"
+    }
+]
