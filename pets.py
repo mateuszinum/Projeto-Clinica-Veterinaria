@@ -22,7 +22,63 @@ def salvar_pets(pets):
         json.dump(pets, arquivo, indent=4, ensure_ascii=False)
 
 
-class MinhaJanela(QWidget):
+class TelaInicial(QWidget):
+    def __init__(self):
+        super().__init__()
+        uic.loadUi("tela_inicial.ui", self)
+        self.tela_login = None
+        self.loginBTN.clicked.connect(self.openTelaLogin)
+        self.tela_registrar = None
+        self.registrarBTN.clicked.connect(self.openTelaRegistrar)
+
+    def openTelaLogin(self):
+        if self.tela_login is None:
+            self.tela_login = TelaLogin(self)
+        self.tela_login.show()
+        self.hide()
+    
+    def openTelaRegistrar(self):
+        if self.tela_registrar is None:
+            self.tela_registrar = TelaRegistrar(self)
+        self.tela_registrar.show()
+        self.hide()
+
+
+class TelaLogin(QWidget):
+    def __init__(self, tela_inicial):
+        super().__init__()
+        uic.loadUi("tela_login.ui", self)
+        self.tela_inicial = tela_inicial
+        self.validarBTN.clicked.connect(self.openTelaProfissao)
+
+    def closeEvent(self, event):
+        self.tela_inicial.show()
+        super().closeEvent(event)
+    
+    def openTelaProfissao(self, profissao):
+        # abrir tela de recepcionista ou veterinário com base na profissão da pessoa
+        pass
+
+class TelaRegistrar(QWidget):
+    def __init__(self, tela_inicial):
+        super().__init__()
+        uic.loadUi("tela_registrar.ui", self)
+        self.tela_inicial = tela_inicial
+        self.registrarBTN.clicked.connect(self.validarANDsalvar)
+    
+    def closeEvent(self, event):
+        self.tela_inicial.show()
+        super().closeEvent(event)
+    
+    def validarANDsalvar(self):
+        # validar e salvar dados
+        self.tela_inicial.show()
+        self.hide()
+
+class TelaVeterinario(QWidget):
+    pass
+
+class TelaRecepcionista(QWidget):
     def __init__(self):
         super().__init__()
         uic.loadUi("tela_recepcionista.ui", self)
@@ -149,7 +205,7 @@ class MinhaJanela(QWidget):
 
 
 todosPets = carregar_pets()
-janela = MinhaJanela()
-janela.atualizar_interface()
+janela = TelaInicial()
+# janela.atualizar_interface()
 janela.show()
 app.exec()
