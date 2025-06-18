@@ -87,9 +87,9 @@ class TelaRecepcionista(QWidget):
         self.table.setHorizontalHeaderLabels(["Checkbox", "Nome", "Peso", "Dono", "Raça"])
         self.table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
 
-        self.addBTN.clicked.connect(self.adicionarPet)
-        self.editBTN.clicked.connect(self.editarPet)
-        self.delBTN.clicked.connect(self.deletarPet)
+        self.addPetBTN.clicked.connect(self.adicionarPet)
+        self.editPetBTN.clicked.connect(self.editarPet)
+        self.delPetBTN.clicked.connect(self.deletarPet)
         self.lineEdit.textChanged.connect(self.atualizar_interface)
 
     def abrir_formulario(self, pet=None):
