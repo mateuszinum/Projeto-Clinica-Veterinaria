@@ -65,6 +65,7 @@ class TelaRegistrar(QWidget):
         uic.loadUi("tela_registrar.ui", self)
         self.tela_inicial = tela_inicial
         self.registrarBTN.clicked.connect(self.validarANDsalvar)
+        self.lineEdit_2.setPlaceholderText("Enter CPF")
     
     def closeEvent(self, event):
         self.tela_inicial.show()
@@ -209,3 +210,8 @@ janela = TelaInicial()
 # janela.atualizar_interface()
 janela.show()
 app.exec()
+
+
+
+
+# https://www.youtube.com/watch?v=7DXxQV47jOU
