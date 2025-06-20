@@ -26,6 +26,7 @@ class TelaInicial(QWidget):
     def __init__(self):
         super().__init__()
         uic.loadUi("tela_inicial.ui", self)
+
         self.tela_login = None
         self.loginBTN.clicked.connect(self.openTelaLogin)
         self.tela_registrar = None
@@ -36,7 +37,7 @@ class TelaInicial(QWidget):
             self.tela_login = TelaLogin(self)
         self.tela_login.show()
         self.hide()
-    
+
     def openTelaRegistrar(self):
         if self.tela_registrar is None:
             self.tela_registrar = TelaRegistrar(self)
@@ -48,50 +49,105 @@ class TelaLogin(QWidget):
     def __init__(self, tela_inicial):
         super().__init__()
         uic.loadUi("tela_login.ui", self)
+
         self.tela_inicial = tela_inicial
         self.validarBTN.clicked.connect(self.openTelaProfissao)
 
     def closeEvent(self, event):
         self.tela_inicial.show()
         super().closeEvent(event)
-    
-    def openTelaProfissao(self, profissao):
-        # abrir tela de recepcionista ou veterinário com base na profissão da pessoa
-        pass
+
+    def openTelaProfissao(self):
+        self.tela_consulta = TelaConsulta()
+        self.tela_consulta.show()
+        self.hide()
+
 
 class TelaRegistrar(QWidget):
     def __init__(self, tela_inicial):
         super().__init__()
         uic.loadUi("tela_registrar.ui", self)
+
         self.tela_inicial = tela_inicial
         self.registrarBTN.clicked.connect(self.validarANDsalvar)
         self.lineEdit_2.setPlaceholderText("Enter CPF")
-    
+
     def closeEvent(self, event):
         self.tela_inicial.show()
         super().closeEvent(event)
-    
+
     def validarANDsalvar(self):
-        # validar e salvar dados
         self.tela_inicial.show()
         self.hide()
 
-class TelaVeterinario(QWidget):
-    pass
 
-class TelaRecepcionista(QWidget):
+class TelaConsulta(QWidget):
     def __init__(self):
         super().__init__()
-        uic.loadUi("tela_recepcionista.ui", self)
+        uic.loadUi("tela_recepcionista_consulta.ui", self)
+        
+        self.petsBTN.clicked.connect(self.openTelaPet)
+        self.tutoresBTN.clicked.connect(self.openTelaTutor)
+
+    def openTelaPet(self):
+        self.tela_pet = TelaPet()
+        self.tela_pet.show()
+        self.hide()
+
+    def openTelaTutor(self):
+        self.tela_tutor = TelaTutor()
+        self.tela_tutor.show()
+        self.hide()
+
+
+class TelaTutor(QWidget):
+    def __init__(self):
+        super().__init__()
+        uic.loadUi("tela_recepcionista_Tutor.ui", self)
+        
+        self.petsBTN.clicked.connect(self.openTelaPet)
+        self.consultasBTN.clicked.connect(self.openTelaConsulta)
+
+    def openTelaPet(self):
+        self.tela_pet = TelaPet()
+        self.tela_pet.show()
+        self.hide()
+
+    def openTelaConsulta(self):
+        self.tela_consulta = TelaConsulta()
+        self.tela_consulta.show()
+        self.hide()
+        
+
+class TelaPet(QWidget):
+    def __init__(self):
+        super().__init__()
+        uic.loadUi("tela_recepcionista_pet.ui", self)
 
         self.table.setColumnCount(5)
-        self.table.setHorizontalHeaderLabels(["Checkbox", "Nome", "Peso", "Dono", "Raça"])
+        self.table.setHorizontalHeaderLabels(["✔", "Nome", "Peso", "Dono", "Raça"])
         self.table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
 
         self.addPetBTN.clicked.connect(self.adicionarPet)
         self.editPetBTN.clicked.connect(self.editarPet)
         self.delPetBTN.clicked.connect(self.deletarPet)
+
+        self.consultasBTN.clicked.connect(self.openTelaConsulta)
+        self.tutoresBTN.clicked.connect(self.openTelaTutor)
+
         self.lineEdit.textChanged.connect(self.atualizar_interface)
+
+        self.atualizar_interface()
+
+    def openTelaTutor(self):
+        self.tela_tutor = TelaTutor()
+        self.tela_tutor.show()
+        self.hide()
+    
+    def openTelaConsulta(self):
+        self.tela_consulta = TelaConsulta()
+        self.tela_consulta.show()
+        self.hide()
 
     def abrir_formulario(self, pet=None):
         dialogo = QDialog(self)
@@ -179,7 +235,6 @@ class TelaRecepcionista(QWidget):
         if len(linhas) != 1:
             QMessageBox.warning(self, "Erro", "Selecione exatamente 1 pet para editar.")
             return
-
         linha = linhas[0]
         pet_atual = todosPets[linha]
         atualizado = self.abrir_formulario(pet_atual)
@@ -207,11 +262,5 @@ class TelaRecepcionista(QWidget):
 
 todosPets = carregar_pets()
 janela = TelaInicial()
-# janela.atualizar_interface()
 janela.show()
 app.exec()
-
-
-
-
-# https://www.youtube.com/watch?v=7DXxQV47jOU
