@@ -1,7 +1,7 @@
 import json
 from PyQt6 import uic
 from PyQt6.QtWidgets import *
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QStringListModel
 
 
 app = QApplication([])
@@ -89,6 +89,11 @@ class TelaConsulta(QWidget):
         self.petsBTN.clicked.connect(self.openTelaPet)
         self.tutoresBTN.clicked.connect(self.openTelaTutor)
 
+        opcoes = ["Almeida", "Beto", "Ciclano"]
+        completer = QCompleter(opcoes, self)
+        completer.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
+        self.input.setCompleter(completer)
+
     def openTelaPet(self):
         self.tela_pet = TelaPet()
         self.tela_pet.show()
@@ -127,7 +132,7 @@ class TelaPet(QWidget):
         self.table.setColumnCount(5)
         self.table.setHorizontalHeaderLabels(["✔", "Nome", "Peso", "Dono", "Raça"])
         self.table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
-
+        
         self.addPetBTN.clicked.connect(self.adicionarPet)
         self.editPetBTN.clicked.connect(self.editarPet)
         self.delPetBTN.clicked.connect(self.deletarPet)
