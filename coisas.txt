@@ -1,4 +1,6 @@
 fazer os validadores
 colocar o autopreenchimento nos cpf/telefone etc
+
 criar classe de pessoas
-criar a base do banco de dados
+
+criar a base do banco de dados FEITO
