@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>248</height>
+    <height>274</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -22,7 +22,7 @@
     </widget>
    </item>
    <item row="0" column="1">
-    <widget class="QLineEdit" name="lineEdit">
+    <widget class="QLineEdit" name="nome_input">
      <property name="text">
       <string/>
      </property>
@@ -36,7 +36,7 @@
     </widget>
    </item>
    <item row="1" column="1">
-    <widget class="QDateEdit" name="dateEdit"/>
+    <widget class="QDateEdit" name="data_input"/>
    </item>
    <item row="3" column="0">
     <widget class="QLabel" name="label_3">
@@ -46,7 +46,7 @@
     </widget>
    </item>
    <item row="3" column="1">
-    <widget class="QLineEdit" name="lineEdit_2">
+    <widget class="QLineEdit" name="cpf_input">
      <property name="inputMask">
       <string>999.999.999-99</string>
      </property>
@@ -66,7 +66,7 @@
     </widget>
    </item>
    <item row="4" column="1">
-    <widget class="QLineEdit" name="lineEdit_3">
+    <widget class="QLineEdit" name="email_input">
      <property name="placeholderText">
       <string/>
      </property>
@@ -80,7 +80,7 @@
     </widget>
    </item>
    <item row="5" column="1">
-    <widget class="QLineEdit" name="lineEdit_4"/>
+    <widget class="QLineEdit" name="senha_input"/>
    </item>
    <item row="6" column="0">
     <widget class="QLabel" name="label_6">
@@ -90,7 +90,7 @@
     </widget>
    </item>
    <item row="6" column="1">
-    <widget class="QLineEdit" name="lineEdit_5"/>
+    <widget class="QLineEdit" name="confirmar_senha_input"/>
    </item>
    <item row="7" column="0">
     <widget class="QLabel" name="label_7">
@@ -102,14 +102,14 @@
    <item row="7" column="1">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QCheckBox" name="checkBox_2">
+      <widget class="QCheckBox" name="recepcionista_check_input">
        <property name="text">
         <string>Recepcionista</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QCheckBox" name="checkBox">
+      <widget class="QCheckBox" name="veterianrio_check_input">
        <property name="text">
         <string>Veterinário(a)</string>
        </property>
@@ -145,7 +145,7 @@
     </widget>
    </item>
    <item row="2" column="1">
-    <widget class="QLineEdit" name="lineEdit_6">
+    <widget class="QLineEdit" name="telefone_input">
      <property name="inputMask">
       <string/>
      </property>

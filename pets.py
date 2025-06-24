@@ -69,8 +69,17 @@ class TelaRegistrar(QWidget):
         uic.loadUi("tela_registrar.ui", self)
 
         self.tela_inicial = tela_inicial
-        self.registrarBTN.clicked.connect(self.validarANDsalvar)
-        self.lineEdit_2.setPlaceholderText("Enter CPF")
+
+        # self.registrarBTN.clicked.connect(self.validarANDsalvar)
+        self.registrarBTN.clicked.connect(self.printar_valor)
+
+        # self.lineEdit_2.setPlaceholderText("Enter CPF")
+
+    def printar_valor(self):
+        nome = self.nome_input.text()
+        data = self.data_input.date().toString("dd/MM/yyyy")
+        
+        print(nome, data)
 
     def closeEvent(self, event):
         self.tela_inicial.show()

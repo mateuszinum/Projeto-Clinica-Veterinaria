@@ -65,8 +65,12 @@ cursor.execute('''
 cursor.execute('''
     CREATE TABLE IF NOT EXISTS Perfis (
         ID INTEGER PRIMARY KEY AUTOINCREMENT,
+        Nome TEXT NOT NULL,
         Login TEXT NOT NULL,
-        Senha_Hash TEXT NOT NULL,
+        Data_Nasc TEXT NOT NULL,
+        CPF TEXT NOT NULL,
+        Email TEXT NOT NULL,
+        Senha_Hash BLOB NOT NULL,
         Cargo_ID INTEGER,
         FOREIGN KEY (Cargo_ID) REFERENCES Cargos(ID)
         )
