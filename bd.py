@@ -26,6 +26,8 @@ cursor.execute('''
         Nome TEXT NOT NULL,
         Raca_Nome TEXT NOT NULL,       
         Raca_ID INTEGER,
+        Tutor_ID INTEGER,
+        FOREIGN KEY (Tutor_ID) REFERENCES Tutores(ID),
         FOREIGN KEY (Raca_ID) REFERENCES Racas(ID)
         )
 ''')
@@ -86,7 +88,8 @@ cursor.execute('''
         Data_Horario TEXT NOT NULL,
         FOREIGN KEY (Pet_ID) REFERENCES Pets(ID),
         FOREIGN KEY (Perfil_Medico_ID) REFERENCES Perfil(ID),
-        FOREIGN KEY (Consulta_Retorno_ID) REFERENCES Consultas(ID)
+        FOREIGN KEY (Consulta_Retorno_ID) REFERENCES Consultas(ID),
+        FOREIGN KEY (Relatorio_ID) REFERENCES Relatorios(ID)
         )
 ''')
 
