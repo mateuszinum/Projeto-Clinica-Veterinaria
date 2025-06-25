@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>276</width>
-    <height>216</height>
+    <width>269</width>
+    <height>223</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,8 +18,8 @@
     background-color: #dfedf0;
 }</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
-   <item>
+  <layout class="QFormLayout" name="formLayout_2">
+   <item row="0" column="0">
     <widget class="QLabel" name="label">
      <property name="styleSheet">
       <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
@@ -34,20 +34,7 @@
      </property>
     </widget>
    </item>
-   <item>
-    <spacer name="horizontalSpacer">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>40</width>
-       <height>20</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item>
+   <item row="2" column="0" colspan="2">
     <layout class="QFormLayout" name="formLayout">
      <item row="0" column="0">
       <widget class="QLabel" name="label_2">
@@ -74,12 +61,13 @@
      <item row="0" column="1">
       <widget class="QLineEdit" name="login_input">
        <property name="styleSheet">
-        <string notr="true"/>
+        <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
+    font-size: 12px;</string>
+       </property>
+       <property name="placeholderText">
+        <string>Insira CPF</string>
        </property>
       </widget>
-     </item>
-     <item row="2" column="1">
-      <widget class="QLineEdit" name="senha_input"/>
      </item>
      <item row="1" column="1">
       <widget class="QLabel" name="labelWarning1">
@@ -105,7 +93,6 @@ color: red</string>
        <property name="styleSheet">
         <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
     font-size: 12px;
-    font-weight: bold;
 color: red</string>
        </property>
        <property name="text">
@@ -113,9 +100,67 @@ color: red</string>
        </property>
       </widget>
      </item>
+     <item row="2" column="1">
+      <layout class="QHBoxLayout" name="horizontalLayout_4">
+       <item>
+        <widget class="QLineEdit" name="senha_input">
+         <property name="styleSheet">
+          <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
+    font-size: 12px;</string>
+         </property>
+         <property name="echoMode">
+          <enum>QLineEdit::Password</enum>
+         </property>
+         <property name="placeholderText">
+          <string>Insira Senha</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="revelarBTN">
+         <property name="maximumSize">
+          <size>
+           <width>40</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QPushButton {
+    background-color: #2f80ed;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-family: &quot;Arial&quot;, sans-serif;
+    font-size: 10px;
+}
+QPushButton:hover {
+    background-color: #1c64d1;
+}</string>
+         </property>
+         <property name="text">
+          <string>ver</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
     </layout>
    </item>
-   <item>
+   <item row="1" column="0" colspan="2">
+    <spacer name="horizontalSpacer">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>40</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="3" column="0" colspan="2">
     <spacer name="horizontalSpacer_2">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -128,7 +173,7 @@ color: red</string>
      </property>
     </spacer>
    </item>
-   <item>
+   <item row="4" column="0" colspan="2">
     <widget class="QPushButton" name="validarBTN">
      <property name="styleSheet">
       <string notr="true">QPushButton {

@@ -54,7 +54,38 @@ class TelaLogin(QWidget):
         uic.loadUi("tela_login.ui", self)
 
         self.tela_inicial = tela_inicial
+
+        self.login_input.textChanged.connect(self.formatarCPF)
         self.validarBTN.clicked.connect(self.validarDados)
+        self.revelarBTN.clicked.connect(self.revelaSenha)
+
+    def formatarCPF(self, texto):
+        numeros = re.sub(r'\D', '', texto)
+        tam = len(numeros)
+        numeros = numeros[:11]
+        novo_texto = ""
+
+        if tam > 0:
+            novo_texto += numeros[:3]
+
+        if tam > 3:
+            novo_texto += '.' + numeros[3:6]
+
+        if tam > 6:
+            novo_texto += '.' + numeros[6:9]
+
+        if tam > 9:
+            novo_texto += '-' + numeros[9:11]
+
+        self.login_input.blockSignals(True)
+        self.login_input.setText(novo_texto)
+        self.login_input.blockSignals(False)
+
+    def revelaSenha(self):
+        if self.senha_input.echoMode() == QLineEdit.EchoMode.Password:
+            self.senha_input.setEchoMode(QLineEdit.EchoMode.Normal)
+        else:
+            self.senha_input.setEchoMode(QLineEdit.EchoMode.Password)
 
     def validarDados(self):
         login = self.login_input.text()
@@ -75,7 +106,7 @@ class TelaLogin(QWidget):
             self.labelWarning2.setText("")
         
         if login and senha:
-            # valida dados
+            # valida dados no banco de dados
             self.openTelaProfissao()
 
             # if not valida_dados:
@@ -89,6 +120,7 @@ class TelaLogin(QWidget):
         super().closeEvent(event)
 
     def openTelaProfissao(self):
+        # checa qual é a profissão da pessoa e abre a tela correta
         self.tela_consulta = TelaConsulta()
         self.tela_consulta.show()
         self.hide()

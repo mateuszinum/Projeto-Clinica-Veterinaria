@@ -285,6 +285,20 @@ color:red</string>
          <height>40</height>
         </size>
        </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton {
+    background-color: #2f80ed;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-family: &quot;Arial&quot;, sans-serif;
+    font-size: 10px;
+}
+QPushButton:hover {
+    background-color: #1c64d1;
+}</string>
+       </property>
        <property name="text">
         <string>ver</string>
        </property>
@@ -339,6 +353,20 @@ color: red</string>
          <width>40</width>
          <height>40</height>
         </size>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton {
+    background-color: #2f80ed;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-family: &quot;Arial&quot;, sans-serif;
+    font-size: 10px;
+}
+QPushButton:hover {
+    background-color: #1c64d1;
+}</string>
        </property>
        <property name="text">
         <string>ver</string>
