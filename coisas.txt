@@ -4,3 +4,7 @@ colocar o autopreenchimento nos cpf/telefone etc
 criar classe de pessoas
 
 criar a base do banco de dados FEITO
+
+por algum motivo a tela de registrar muda o tamanho só na primeira vez que tenta registrar
+
+validar as informações de registrar na função checaErro()

@@ -1,9 +1,9 @@
 import json
 from PyQt6 import uic
 from PyQt6.QtWidgets import *
-from PyQt6.QtCore import Qt, QStringListModel
-from PyQt6.QtGui import QIntValidator
+from PyQt6.QtCore import Qt, QDate
 import re
+
 
 app = QApplication([])
 
@@ -42,6 +42,8 @@ class TelaInicial(QWidget):
     def openTelaRegistrar(self):
         if self.tela_registrar is None:
             self.tela_registrar = TelaRegistrar(self)
+        else:
+            self.tela_registrar.resetaJanela()
         self.tela_registrar.show()
         self.hide()
 
@@ -99,12 +101,18 @@ class TelaRegistrar(QWidget):
 
         self.tela_inicial = tela_inicial
 
-        self.cpf_input.textChanged.connect(self.formatar_cpf)
         self.telefone_input.textChanged.connect(self.formatar_telefone)
-        # self.registrarBTN.clicked.connect(self.validarANDsalvar)
-        self.registrarBTN.clicked.connect(self.printar_valor)
+        self.cpf_input.textChanged.connect(self.formatar_cpf)
+        self.revelarBTN1.clicked.connect(self.revelaSenha)
+        self.revelarBTN2.clicked.connect(self.revelaConfirmarSenha)
 
-        # self.lineEdit_2.setPlaceholderText("Enter CPF")
+        self.recepcionista_check_input.clicked.connect(lambda: self.veterinario_check_input.setChecked(False))
+        self.veterinario_check_input.clicked.connect(lambda: self.recepcionista_check_input.setChecked(False))
+
+        self.registrarBTN.clicked.connect(self.checaDados)
+
+
+        # self.registrarBTN.clicked.connect(self.printar_valor)
 
     def printar_valor(self):
         nome = self.nome_input.text()
@@ -114,10 +122,7 @@ class TelaRegistrar(QWidget):
 
     def formatar_telefone(self, texto):
         numeros = re.sub(r'\D', '', texto)[:11]
-
         tam = len(numeros)
-
-
         novo_texto = ""
 
         if tam >= 1:
@@ -138,13 +143,10 @@ class TelaRegistrar(QWidget):
 
     def formatar_cpf(self, texto):
         numeros = re.sub(r'\D', '', texto)
-        
         tam = len(numeros)
-
         numeros = numeros[:11]
-
-
         novo_texto = ""
+
         if tam > 0:
             novo_texto += numeros[:3]
 
@@ -160,30 +162,131 @@ class TelaRegistrar(QWidget):
         self.cpf_input.blockSignals(True)
         self.cpf_input.setText(novo_texto)
         self.cpf_input.blockSignals(False)
+        
+    def revelaSenha(self):
+        if self.senha_input.echoMode() == QLineEdit.EchoMode.Password:
+            self.senha_input.setEchoMode(QLineEdit.EchoMode.Normal)
+        else:
+            self.senha_input.setEchoMode(QLineEdit.EchoMode.Password)
+    
+    def revelaConfirmarSenha(self):
+        if self.confirmar_senha_input.echoMode() == QLineEdit.EchoMode.Password:
+            self.confirmar_senha_input.setEchoMode(QLineEdit.EchoMode.Normal)
+        else:
+            self.confirmar_senha_input.setEchoMode(QLineEdit.EchoMode.Password)
 
-
-
-    def registrar(self):
-        nome = self.nome_input.text()
-        data = self.data_input.date().toString("dd/MM/yyyy")
-        telefone = self.telefone_input.text()
-        cpf = self.cpf_input.text()
-        email = self.email_input.text()
-        senha = self.senha_input.text()
-        confirmar_senha = self.confirmar_senha_input.text()
+    # def registrar(self):
+    #     nome = self.nome_input.text()
+    #     data = self.data_input.date().toString("dd/MM/yyyy")
+    #     telefone = self.telefone_input.text()
+    #     cpf = self.cpf_input.text()
+    #     email = self.email_input.text()
+    #     senha = self.senha_input.text()
+    #     confirmar_senha = self.confirmar_senha_input.text()
         # cargo_id
 
         # def definir_cargo(self):
         #     if self.recepcionista_check_input: Arrumar
 
-
     def closeEvent(self, event):
         self.tela_inicial.show()
         super().closeEvent(event)
 
-    def validarANDsalvar(self):
-        self.tela_inicial.show()
-        self.hide()
+    def checaDados(self):
+        nome = self.nome_input.text()
+        data = self.data_input.date().toString("dd/MM/yyyy")
+        telefone = self.telefone_input.text()
+        cpf = self.cpf_input.text()
+        email = self.email_input.text()
+        recepcionista = self.recepcionista_check_input.isChecked()
+        veterinario = self.veterinario_check_input.isChecked()
+        senha = self.senha_input.text()
+        confirmar_senha = self.confirmar_senha_input.text()
+
+        self.validaDados(nome, telefone, cpf, email, recepcionista, veterinario, senha, confirmar_senha)
+
+        # if validou:
+            # self.tela_inicial.show()
+            # self.hide()
+    
+    def validaDados(self, nome, telefone, cpf, email, recepcionista, veterinario, senha, confirmar_senha): # falta validar as coisas
+        if not nome:
+            self.nome_input.setStyleSheet("border: 2px solid #e74c3c;")
+            self.labelWarning1.setText("Preencha o campo")
+        else:
+            self.nome_input.setStyleSheet("")
+            self.labelWarning1.setText("")
+        
+        if not telefone:
+            self.telefone_input.setStyleSheet("border: 2px solid #e74c3c;")
+            self.labelWarning2.setText("Preencha o campo")
+        else:
+            self.telefone_input.setStyleSheet("")
+            self.labelWarning2.setText("")
+        
+        if not cpf:
+            self.cpf_input.setStyleSheet("border: 2px solid #e74c3c;")
+            self.labelWarning3.setText("Preencha o campo")
+        else:
+            self.cpf_input.setStyleSheet("")
+            self.labelWarning3.setText("")
+        
+        if not email:
+            self.email_input.setStyleSheet("border: 2px solid #e74c3c;")
+            self.labelWarning4.setText("Preencha o campo")
+        else:
+            self.email_input.setStyleSheet("")
+            self.labelWarning4.setText("")
+        
+        if not recepcionista and not veterinario:
+            self.labelWarning7.setText("Preencha o campo")
+        else:
+            self.labelWarning7.setText("")
+        
+        if not senha:
+            self.senha_input.setStyleSheet("border: 2px solid #e74c3c;")
+            self.labelWarning5.setText("Preencha o campo")
+        else:
+            self.senha_input.setStyleSheet("")
+            self.labelWarning5.setText("")
+        
+        if not confirmar_senha:
+            self.confirmar_senha_input.setStyleSheet("border: 2px solid #e74c3c;")
+            self.labelWarning6.setText("Preencha o campo")
+        else:
+            self.confirmar_senha_input.setStyleSheet("")
+            self.labelWarning6.setText("")
+        
+        if senha != confirmar_senha:
+            self.senha_input.setStyleSheet("border: 2px solid #e74c3c;")
+            self.confirmar_senha_input.setStyleSheet("border: 2px solid #e74c3c;")
+            self.labelWarning5.setText("As senhas não coincidem")
+            self.labelWarning6.setText("As senhas não coincidem")
+
+    def resetaJanela(self):
+        self.nome_input.clear()
+        self.data_input.setDate(QDate(2000, 1, 1))
+        self.telefone_input.clear()
+        self.cpf_input.clear()
+        self.email_input.clear()
+        self.senha_input.clear()
+        self.confirmar_senha_input.clear()
+        self.recepcionista_check_input.setChecked(False)
+        self.veterinario_check_input.setChecked(False)
+        
+        self.nome_input.setStyleSheet("")
+        self.telefone_input.setStyleSheet("")
+        self.cpf_input.setStyleSheet("")
+        self.email_input.setStyleSheet("")
+        self.senha_input.setStyleSheet("")
+        self.confirmar_senha_input.setStyleSheet("")
+        self.labelWarning1.setText("")
+        self.labelWarning2.setText("")
+        self.labelWarning3.setText("")
+        self.labelWarning4.setText("")
+        self.labelWarning5.setText("")
+        self.labelWarning6.setText("")
+        self.labelWarning7.setText("")
 
 
 class TelaConsulta(QWidget):
