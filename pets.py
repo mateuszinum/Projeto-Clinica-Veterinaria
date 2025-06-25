@@ -134,6 +134,21 @@ class TelaRegistrar(QWidget):
         self.cpf_input.blockSignals(False)
 
 
+
+    def registrar(self):
+        nome = self.nome_input.text()
+        data = self.data_input.date().toString("dd/MM/yyyy")
+        telefone = self.telefone_input.text()
+        cpf = self.cpf_input.text()
+        email = self.email_input.text()
+        senha = self.senha_input.text()
+        confirmar_senha = self.confirmar_senha_input.text()
+        # cargo_id
+
+        # def definir_cargo(self):
+        #     if self.recepcionista_check_input: Arrumar
+
+
     def closeEvent(self, event):
         self.tela_inicial.show()
         super().closeEvent(event)
