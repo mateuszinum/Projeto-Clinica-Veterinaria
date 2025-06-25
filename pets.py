@@ -2,7 +2,8 @@ import json
 from PyQt6 import uic
 from PyQt6.QtWidgets import *
 from PyQt6.QtCore import Qt, QStringListModel
-
+from PyQt6.QtGui import QIntValidator
+import re
 
 app = QApplication([])
 
@@ -70,6 +71,8 @@ class TelaRegistrar(QWidget):
 
         self.tela_inicial = tela_inicial
 
+        self.cpf_input.textChanged.connect(self.formatar_cpf)
+        self.telefone_input.textChanged.connect(self.formatar_telefone)
         # self.registrarBTN.clicked.connect(self.validarANDsalvar)
         self.registrarBTN.clicked.connect(self.printar_valor)
 
@@ -80,6 +83,56 @@ class TelaRegistrar(QWidget):
         data = self.data_input.date().toString("dd/MM/yyyy")
         
         print(nome, data)
+
+    def formatar_telefone(self, texto):
+        numeros = re.sub(r'\D', '', texto)[:11]
+
+        tam = len(numeros)
+
+
+        novo_texto = ""
+
+        if tam >= 1:
+            novo_texto += "(" + numeros[:2]
+
+        if tam >= 3:
+            novo_texto += ') ' + numeros[2]
+
+        if tam >= 4:
+            novo_texto += ' ' + numeros[3:7]
+
+        if tam >= 8:
+            novo_texto += '-' + numeros[7:11]
+
+        self.telefone_input.blockSignals(True)
+        self.telefone_input.setText(novo_texto)
+        self.telefone_input.blockSignals(False)            
+
+    def formatar_cpf(self, texto):
+        numeros = re.sub(r'\D', '', texto)
+        
+        tam = len(numeros)
+
+        numeros = numeros[:11]
+
+
+        novo_texto = ""
+        if tam > 0:
+            novo_texto += numeros[:3]
+
+        if tam > 3:
+            novo_texto += '.' + numeros[3:6]
+
+        if tam > 6:
+            novo_texto += '.' + numeros[6:9]
+
+        if tam > 9:
+            novo_texto += '-' + numeros[9:11]
+
+        self.cpf_input.blockSignals(True)
+        self.cpf_input.setText(novo_texto)
+        self.cpf_input.blockSignals(False)
+
 
     def closeEvent(self, event):
         self.tela_inicial.show()
