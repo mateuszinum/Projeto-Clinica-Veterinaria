@@ -11,13 +11,26 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>Tela Inicial</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QWidget#Form {
+    background-color: #dfedf0;
+}</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QLabel" name="label">
+     <property name="styleSheet">
+      <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
+    font-size: 14px;
+    font-weight: bold;</string>
+     </property>
      <property name="text">
-      <string>Bem-vindo a Clínica</string>
+      <string>Bem-vindo a Clínica
+
+
+sla oq mais colocar aqui</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
@@ -26,6 +39,22 @@
    </item>
    <item>
     <widget class="QPushButton" name="loginBTN">
+     <property name="styleSheet">
+      <string notr="true">QPushButton {
+    background-color: #27ae60;
+    color: white;
+    border-radius: 4px;
+    border: none;
+    padding: 6px 12px;
+    font-family: &quot;Arial&quot;, sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+}
+QPushButton:hover {
+    background-color: #219150;
+}
+</string>
+     </property>
      <property name="text">
       <string>Login</string>
      </property>
@@ -33,6 +62,21 @@
    </item>
    <item>
     <widget class="QPushButton" name="registrarBTN">
+     <property name="styleSheet">
+      <string notr="true">QPushButton {
+    background-color: #2f80ed;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-family: &quot;Arial&quot;, sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+}
+QPushButton:hover {
+    background-color: #1c64d1;
+}</string>
+     </property>
      <property name="text">
       <string>Registrar</string>
      </property>

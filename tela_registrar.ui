@@ -6,23 +6,36 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>364</width>
-    <height>274</height>
+    <width>380</width>
+    <height>498</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>Tela Registrar</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QWidget#Form {
+    background-color: #dfedf0;
+}</string>
   </property>
   <layout class="QFormLayout" name="formLayout">
-   <item row="0" column="0">
+   <item row="2" column="0">
     <widget class="QLabel" name="label">
+     <property name="styleSheet">
+      <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
+    font-size: 14px;</string>
+     </property>
      <property name="text">
-      <string>Nome</string>
+      <string>Nome:</string>
      </property>
     </widget>
    </item>
-   <item row="0" column="1">
+   <item row="2" column="1">
     <widget class="QLineEdit" name="nome_input">
+     <property name="styleSheet">
+      <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
+    font-size: 12px;</string>
+     </property>
      <property name="text">
       <string/>
      </property>
@@ -31,25 +44,75 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="0">
+   <item row="4" column="0">
     <widget class="QLabel" name="label_2">
+     <property name="styleSheet">
+      <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
+    font-size: 14px;</string>
+     </property>
      <property name="text">
-      <string>Data Nascimento</string>
+      <string>Data Nascimento:</string>
      </property>
     </widget>
    </item>
-   <item row="1" column="1">
-    <widget class="QDateEdit" name="data_input"/>
+   <item row="4" column="1">
+    <widget class="QDateEdit" name="data_input">
+     <property name="styleSheet">
+      <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
+    font-size: 12px;</string>
+     </property>
+     <property name="wrapping">
+      <bool>false</bool>
+     </property>
+     <property name="buttonSymbols">
+      <enum>QAbstractSpinBox::PlusMinus</enum>
+     </property>
+     <property name="maximumDateTime">
+      <datetime>
+       <hour>23</hour>
+       <minute>59</minute>
+       <second>59</second>
+       <year>2010</year>
+       <month>12</month>
+       <day>31</day>
+      </datetime>
+     </property>
+     <property name="minimumDateTime">
+      <datetime>
+       <hour>0</hour>
+       <minute>0</minute>
+       <second>0</second>
+       <year>1920</year>
+       <month>9</month>
+       <day>14</day>
+      </datetime>
+     </property>
+     <property name="maximumDate">
+      <date>
+       <year>2010</year>
+       <month>12</month>
+       <day>31</day>
+      </date>
+     </property>
+    </widget>
    </item>
-   <item row="2" column="0">
+   <item row="6" column="0">
     <widget class="QLabel" name="label_8">
+     <property name="styleSheet">
+      <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
+    font-size: 14px;</string>
+     </property>
      <property name="text">
-      <string>Telefone</string>
+      <string>Telefone:</string>
      </property>
     </widget>
    </item>
-   <item row="2" column="1">
+   <item row="6" column="1">
     <widget class="QLineEdit" name="telefone_input">
+     <property name="styleSheet">
+      <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
+    font-size: 12px;</string>
+     </property>
      <property name="inputMask">
       <string/>
      </property>
@@ -58,15 +121,23 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="0">
+   <item row="8" column="0">
     <widget class="QLabel" name="label_3">
+     <property name="styleSheet">
+      <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
+    font-size: 14px;</string>
+     </property>
      <property name="text">
-      <string>CPF</string>
+      <string>CPF:</string>
      </property>
     </widget>
    </item>
-   <item row="3" column="1">
+   <item row="8" column="1">
     <widget class="QLineEdit" name="cpf_input">
+     <property name="styleSheet">
+      <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
+    font-size: 12px;</string>
+     </property>
      <property name="inputMask">
       <string/>
      </property>
@@ -78,29 +149,46 @@
      </property>
     </widget>
    </item>
-   <item row="4" column="0">
+   <item row="10" column="0">
     <widget class="QLabel" name="label_4">
+     <property name="styleSheet">
+      <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
+    font-size: 14px;</string>
+     </property>
      <property name="text">
-      <string>Email</string>
+      <string>Email:</string>
      </property>
     </widget>
    </item>
-   <item row="4" column="1">
+   <item row="10" column="1">
     <widget class="QLineEdit" name="email_input">
+     <property name="styleSheet">
+      <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
+    font-size: 12px;
+</string>
+     </property>
      <property name="placeholderText">
       <string>Insira Email</string>
      </property>
     </widget>
    </item>
-   <item row="5" column="0">
+   <item row="12" column="0">
     <widget class="QLabel" name="label_5">
+     <property name="styleSheet">
+      <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
+    font-size: 14px;</string>
+     </property>
      <property name="text">
-      <string>Senha</string>
+      <string>Senha:</string>
      </property>
     </widget>
    </item>
-   <item row="5" column="1">
+   <item row="12" column="1">
     <widget class="QLineEdit" name="senha_input">
+     <property name="styleSheet">
+      <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
+    font-size: 12px;</string>
+     </property>
      <property name="echoMode">
       <enum>QLineEdit::Password</enum>
      </property>
@@ -109,15 +197,23 @@
      </property>
     </widget>
    </item>
-   <item row="6" column="0">
+   <item row="14" column="0">
     <widget class="QLabel" name="label_6">
+     <property name="styleSheet">
+      <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
+    font-size: 14px;</string>
+     </property>
      <property name="text">
-      <string>Confirmar Senha</string>
+      <string>Confirmar Senha:</string>
      </property>
     </widget>
    </item>
-   <item row="6" column="1">
+   <item row="14" column="1">
     <widget class="QLineEdit" name="confirmar_senha_input">
+     <property name="styleSheet">
+      <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
+    font-size: 12px;</string>
+     </property>
      <property name="echoMode">
       <enum>QLineEdit::Password</enum>
      </property>
@@ -126,17 +222,25 @@
      </property>
     </widget>
    </item>
-   <item row="7" column="0">
+   <item row="16" column="0">
     <widget class="QLabel" name="label_7">
+     <property name="styleSheet">
+      <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
+    font-size: 14px;</string>
+     </property>
      <property name="text">
-      <string>Ocupação</string>
+      <string>Ocupação:</string>
      </property>
     </widget>
    </item>
-   <item row="7" column="1">
+   <item row="16" column="1">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <widget class="QCheckBox" name="recepcionista_check_input">
+       <property name="styleSheet">
+        <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
+    font-size: 12px;</string>
+       </property>
        <property name="text">
         <string>Recepcionista</string>
        </property>
@@ -144,6 +248,10 @@
      </item>
      <item>
       <widget class="QCheckBox" name="veterianrio_check_input">
+       <property name="styleSheet">
+        <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
+    font-size: 12px;</string>
+       </property>
        <property name="text">
         <string>Veterinário(a)</string>
        </property>
@@ -151,7 +259,121 @@
      </item>
     </layout>
    </item>
-   <item row="8" column="0" colspan="2">
+   <item row="3" column="1">
+    <widget class="QLabel" name="label_9">
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="1">
+    <widget class="QLabel" name="label_10">
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="1">
+    <widget class="QLabel" name="labelWarning1">
+     <property name="styleSheet">
+      <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
+    font-size: 12px;
+    font-weight: bold;
+color: red</string>
+     </property>
+     <property name="text">
+      <string>erro</string>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="1">
+    <widget class="QLabel" name="labelWarning2">
+     <property name="styleSheet">
+      <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
+    font-size: 12px;
+    font-weight: bold;
+color: red</string>
+     </property>
+     <property name="text">
+      <string>erro</string>
+     </property>
+    </widget>
+   </item>
+   <item row="11" column="1">
+    <widget class="QLabel" name="labelWarning3">
+     <property name="styleSheet">
+      <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
+    font-size: 12px;
+    font-weight: bold;
+color:red</string>
+     </property>
+     <property name="text">
+      <string>erro</string>
+     </property>
+    </widget>
+   </item>
+   <item row="13" column="1">
+    <widget class="QLabel" name="labelWarning4">
+     <property name="styleSheet">
+      <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
+    font-size: 12px;
+    font-weight: bold;
+color: red</string>
+     </property>
+     <property name="text">
+      <string>erro</string>
+     </property>
+    </widget>
+   </item>
+   <item row="15" column="1">
+    <widget class="QLabel" name="labelWarning5">
+     <property name="styleSheet">
+      <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
+    font-size: 12px;
+    font-weight: bold;
+color: red</string>
+     </property>
+     <property name="text">
+      <string>erro</string>
+     </property>
+    </widget>
+   </item>
+   <item row="17" column="1">
+    <widget class="QLabel" name="labelWarning6">
+     <property name="styleSheet">
+      <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
+    font-size: 12px;
+    font-weight: bold;
+color:red</string>
+     </property>
+     <property name="text">
+      <string>erro</string>
+     </property>
+    </widget>
+   </item>
+   <item row="19" column="0" colspan="2">
+    <widget class="QPushButton" name="registrarBTN">
+     <property name="styleSheet">
+      <string notr="true">QPushButton {
+    background-color: #27ae60;
+    color: white;
+    border-radius: 4px;
+    border: none;
+    padding: 6px 12px;
+    font-family: &quot;Arial&quot;, sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+}
+QPushButton:hover {
+    background-color: #219150;
+}</string>
+     </property>
+     <property name="text">
+      <string>Registrar</string>
+     </property>
+    </widget>
+   </item>
+   <item row="18" column="0" colspan="2">
     <spacer name="horizontalSpacer">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -164,10 +386,28 @@
      </property>
     </spacer>
    </item>
-   <item row="9" column="0" colspan="2">
-    <widget class="QPushButton" name="registrarBTN">
+   <item row="1" column="0" colspan="2">
+    <spacer name="horizontalSpacer_2">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>40</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="label_17">
+     <property name="styleSheet">
+      <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
+    font-size: 14px;
+    font-weight: bold;</string>
+     </property>
      <property name="text">
-      <string>Registrar</string>
+      <string>Insira as informações</string>
      </property>
     </widget>
    </item>

@@ -6,16 +6,26 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>292</width>
-    <height>204</height>
+    <width>276</width>
+    <height>216</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>Tela Login</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QWidget#Form {
+    background-color: #dfedf0;
+}</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QLabel" name="label">
+     <property name="styleSheet">
+      <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
+    font-size: 14px;
+    font-weight: bold;</string>
+     </property>
      <property name="text">
       <string>Insira os dados de Login</string>
      </property>
@@ -41,23 +51,67 @@
     <layout class="QFormLayout" name="formLayout">
      <item row="0" column="0">
       <widget class="QLabel" name="label_2">
+       <property name="styleSheet">
+        <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
+    font-size: 14px;</string>
+       </property>
        <property name="text">
         <string>Login:</string>
        </property>
       </widget>
      </item>
-     <item row="1" column="0">
+     <item row="2" column="0">
       <widget class="QLabel" name="label_3">
+       <property name="styleSheet">
+        <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
+    font-size: 14px;</string>
+       </property>
        <property name="text">
         <string>Senha:</string>
        </property>
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="QLineEdit" name="login_input"/>
+      <widget class="QLineEdit" name="login_input">
+       <property name="styleSheet">
+        <string notr="true"/>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QLineEdit" name="senha_input"/>
      </item>
      <item row="1" column="1">
-      <widget class="QLineEdit" name="senha_input"/>
+      <widget class="QLabel" name="labelWarning1">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
+    font-size: 12px;
+    font-weight: bold;
+color: red</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <widget class="QLabel" name="labelWarning2">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
+    font-size: 12px;
+    font-weight: bold;
+color: red</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
@@ -76,6 +130,22 @@
    </item>
    <item>
     <widget class="QPushButton" name="validarBTN">
+     <property name="styleSheet">
+      <string notr="true">QPushButton {
+    background-color: #27ae60;
+    color: white;
+    border-radius: 4px;
+    border: none;
+    padding: 6px 12px;
+    font-family: &quot;Arial&quot;, sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+}
+QPushButton:hover {
+    background-color: #219150;
+}
+</string>
+     </property>
      <property name="text">
       <string>Validar Login</string>
      </property>

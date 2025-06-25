@@ -52,7 +52,35 @@ class TelaLogin(QWidget):
         uic.loadUi("tela_login.ui", self)
 
         self.tela_inicial = tela_inicial
-        self.validarBTN.clicked.connect(self.openTelaProfissao)
+        self.validarBTN.clicked.connect(self.validarDados)
+
+    def validarDados(self):
+        login = self.login_input.text()
+        senha = self.senha_input.text()
+
+        if login == "":
+            self.login_input.setStyleSheet("border: 2px solid #e74c3c;")
+            self.labelWarning1.setText("Preencha o campo de login")
+        else:
+            self.login_input.setStyleSheet("")
+            self.labelWarning1.setText("")
+        
+        if senha == "":
+            self.senha_input.setStyleSheet("border: 2px solid #e74c3c;")
+            self.labelWarning2.setText("Preencha o campo de senha")
+        else:
+            self.senha_input.setStyleSheet("")
+            self.labelWarning2.setText("")
+        
+        if login and senha:
+            # valida dados
+            self.openTelaProfissao()
+
+            # if not valida_dados:
+            #     self.login_input.setStyleSheet("border: 2px solid #e74c3c;")
+            #     self.labelWarning1.setText("")
+            #     self.senha_input.setStyleSheet("border: 2px solid #e74c3c;")
+            #     self.labelWarning2.setText("Login ou senha inválidos")
 
     def closeEvent(self, event):
         self.tela_inicial.show()
