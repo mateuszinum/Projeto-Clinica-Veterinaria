@@ -51,7 +51,7 @@
          </spacer>
         </item>
         <item>
-         <widget class="QLineEdit" name="input">
+         <widget class="QLineEdit" name="tutorInput">
           <property name="styleSheet">
            <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
     font-size: 14px;
@@ -357,7 +357,7 @@ QPushButton:hover {
        </spacer>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton_3">
+       <widget class="QPushButton" name="sairBTN">
         <property name="styleSheet">
          <string notr="true">QPushButton {
     background-color: #e74c3c;
