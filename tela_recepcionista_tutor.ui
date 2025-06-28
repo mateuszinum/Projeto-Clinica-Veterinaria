@@ -84,7 +84,7 @@ background-color: #00bcd4</string>
       <item row="2" column="0">
        <layout class="QHBoxLayout" name="horizontalLayout_3">
         <item>
-         <widget class="QPushButton" name="addPetBTN">
+         <widget class="QPushButton" name="addTutorBTN">
           <property name="styleSheet">
            <string notr="true">QPushButton {
     background-color: #27ae60;
@@ -107,7 +107,7 @@ QPushButton:hover {
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="editPetBTN">
+         <widget class="QPushButton" name="editTutorBTN">
           <property name="styleSheet">
            <string notr="true">QPushButton {
     background-color: #2f80ed;
@@ -129,7 +129,7 @@ QPushButton:hover {
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="delPetBTN">
+         <widget class="QPushButton" name="delTutorBTN">
           <property name="styleSheet">
            <string notr="true">QPushButton {
     background-color: #e74c3c;

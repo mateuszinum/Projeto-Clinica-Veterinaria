@@ -1,8 +1,15 @@
-import json
+import re
+import os
+import shutil
 from PyQt6 import uic
 from PyQt6.QtWidgets import *
+from PyQt6.QtGui import QPixmap
 from PyQt6.QtCore import Qt, QDate
-import re
+
+
+FOTOS_TUTORES_DIR = 'fotos_tutores'
+if not os.path.exists(FOTOS_TUTORES_DIR):
+    os.makedirs(FOTOS_TUTORES_DIR)
 
 
 app = QApplication([])
@@ -93,7 +100,7 @@ class TelaLogin(QWidget):
 
     def openTelaProfissao(self):
         # checa qual é a profissão da pessoa e abre a tela correta
-        self.tela_consulta = TelaConsulta()
+        self.tela_consulta = TelaConsulta(self.tela_inicial)
         self.tela_consulta.show()
         self.hide()
 
@@ -119,12 +126,6 @@ class TelaRegistrar(QWidget):
 
         self.registrarBTN.clicked.connect(self.checaDados)
 
-    # def printar_valor(self):
-    #     nome = self.nome_input.text()
-    #     data = self.data_input.date().toString("dd/MM/yyyy")
-        
-    #     print(nome, data)
-
     def formatar_telefone(self, texto):
         numeros = re.sub(r'\D', '', texto)[:11]
         tam = len(numeros)
@@ -134,17 +135,14 @@ class TelaRegistrar(QWidget):
             novo_texto += "(" + numeros[:2]
 
         if tam >= 3:
-            novo_texto += ') ' + numeros[2]
-
-        if tam >= 4:
-            novo_texto += ' ' + numeros[3:7]
+            novo_texto += ') ' + numeros[2:7]
 
         if tam >= 8:
             novo_texto += '-' + numeros[7:11]
 
         self.telefone_input.blockSignals(True)
         self.telefone_input.setText(novo_texto)
-        self.telefone_input.blockSignals(False)            
+        self.telefone_input.blockSignals(False)
 
     def formatar_cpf(self, texto):
         numeros = re.sub(r'\D', '', texto)
@@ -180,19 +178,6 @@ class TelaRegistrar(QWidget):
         else:
             self.confirmar_senha_input.setEchoMode(QLineEdit.EchoMode.Password)
 
-    # def registrar(self):
-    #     nome = self.nome_input.text()
-    #     data = self.data_input.date().toString("dd/MM/yyyy")
-    #     telefone = self.telefone_input.text()
-    #     cpf = self.cpf_input.text()
-    #     email = self.email_input.text()
-    #     senha = self.senha_input.text()
-    #     confirmar_senha = self.confirmar_senha_input.text()
-        # cargo_id
-
-        # def definir_cargo(self):
-        #     if self.recepcionista_check_input: Arrumar
-
     def checaDados(self):
         dados = {
             "nome": self.nome_input.text(), "data": self.data_input.date().toString("dd/MM/yyyy"),
@@ -203,13 +188,12 @@ class TelaRegistrar(QWidget):
         }
 
         if self.validaDados(dados):
-            pass
             # conecta no banco de dados e adiciona o usuário
-
-            # self.tela_inicial.show()
-            # self.hide()
+            QMessageBox.information(self, "Sucesso", "Usuário registrado com sucesso!")
+            self.tela_inicial.show()
+            self.close()
     
-    def validaDados(self, dados): # falta validar as coisas
+    def validaDados(self, dados): # validar os dados
         campos = {
             "nome": (dados["nome"], self.nome_input, self.labelWarning1),
             "telefone": (dados["telefone"], self.telefone_input, self.labelWarning2),
@@ -224,10 +208,7 @@ class TelaRegistrar(QWidget):
                 warning.setText("Preencha o campo")
                 valido = False
             else:
-                if campo == "cpf" or campo == "email" or campo == "telefone" or campo == "senha":
-                    pass
-                    # funcoes que validam cada coisa
-
+                # colocar validações
                 widget.setStyleSheet("")
                 warning.setText("")
     
@@ -264,10 +245,12 @@ class TelaRegistrar(QWidget):
 
 
 class TelaConsulta(QWidget):
-    def __init__(self):
+    def __init__(self, tela_inicial):
         super().__init__()
         uic.loadUi("tela_recepcionista_consulta.ui", self)
         
+        self.tela_inicial = tela_inicial
+
         self.petsBTN.clicked.connect(self.openTelaPet)
         self.tutoresBTN.clicked.connect(self.openTelaTutor)
         self.sairBTN.clicked.connect(self.logout)
@@ -278,12 +261,12 @@ class TelaConsulta(QWidget):
         self.tutorInput.setCompleter(completer)
 
     def openTelaPet(self):
-        self.tela_pet = TelaPet()
+        self.tela_pet = TelaPet(self.tela_inicial)
         self.tela_pet.show()
         self.hide()
 
     def openTelaTutor(self):
-        self.tela_tutor = TelaTutor()
+        self.tela_tutor = TelaTutor(self.tela_inicial)
         self.tela_tutor.show()
         self.hide()
 
@@ -293,62 +276,205 @@ class TelaConsulta(QWidget):
 
 
 class TelaTutor(QWidget):
-    def __init__(self):
+    def __init__(self, tela_inicial):
         super().__init__()
         uic.loadUi("tela_recepcionista_Tutor.ui", self)
         
+        self.tela_inicial = tela_inicial
+
         self.petsBTN.clicked.connect(self.openTelaPet)
         self.consultasBTN.clicked.connect(self.openTelaConsulta)
         self.sairBTN.clicked.connect(self.logout)
 
-        self.addPetBTN.clicked.connect(self.adicionarTutor)
-        self.editPetBTN.clicked.connect(self.editarTutor)
-        self.delPetBTN.clicked.connect(self.deletarTutor)
-        self.lineEdit.textChanged.connect(self.atualizarTabela)
+        self.addTutorBTN.clicked.connect(self.adicionarTutor)
+        self.editTutorBTN.clicked.connect(self.editarTutor)
+        self.delTutorBTN.clicked.connect(self.deletarTutor)
+        self.tutorInput.textChanged.connect(self.atualizar_tabela)
 
         self.configurar_tabela()
         self.atualizar_tabela()
 
     def configurar_tabela(self):
-        self.table.setColumnCount(4)
-        self.table.setHorizontalHeaderLabels(['ID', 'Nome', 'Telefone', 'CPF'])
+        self.table.setColumnCount(5)
+        self.table.setHorizontalHeaderLabels(['ID', 'Nome', 'Telefone', 'CPF', 'Foto Path'])
         self.table.setColumnHidden(0, True)
+        self.table.setColumnHidden(4, True)
         self.table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         self.table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
 
     def atualizar_tabela(self):
-        # conecta no banco de dados e busca todos os tutores
-        row = 0
-        self.table.insertRow(row)
-        self.table.setItem(row, 0, QTableWidgetItem('id'))
-        self.table.setItem(row, 1, QTableWidgetItem('nome'))
-        self.table.setItem(row, 2, QTableWidgetItem('telefone'))
-        self.table.setItem(row, 3, QTableWidgetItem('cpf'))
-        self.table.setItem(row, 4, QTableWidgetItem('?'))
+        filtro = self.tutorInput.text()
+        # conecta no banco de dados e busca tutores com o filtro
+        tutores_db = [
+            {'id': 1, 'nome': 'João da Silva', 'telefone': '(11) 98765-4321', 'cpf': '123.456.789-00', 'foto_path': 'fotos_tutores/1.jpg'},
+            {'id': 2, 'nome': 'Maria Oliveira', 'telefone': '(21) 91234-5678', 'cpf': '111.222.333-44', 'foto_path': ''},
+        ]
 
-    # adicionar, editar e deletar tutor
+        self.table.setRowCount(0)
+        for tutor in tutores_db:
+            if filtro.lower() in tutor['nome'].lower():
+                row = self.table.rowCount()
+                self.table.insertRow(row)
+                self.table.setItem(row, 0, QTableWidgetItem(str(tutor['id'])))
+                self.table.setItem(row, 1, QTableWidgetItem(tutor['nome']))
+                self.table.setItem(row, 2, QTableWidgetItem(tutor['telefone']))
+                self.table.setItem(row, 3, QTableWidgetItem(tutor['cpf']))
+                self.table.setItem(row, 4, QTableWidgetItem(tutor['foto_path']))
 
+    def abrirFormularioTutor(self, tutor=None):
+        dialogo = QDialog(self)
+        dialogo.setWindowTitle(f"{'Editar' if tutor else 'Adicionar'} Tutor")
+        layout = QVBoxLayout()
+        formulario = QFormLayout()
+
+        nome_input = QLineEdit(tutor['nome'] if tutor else '')
+        telefone_input = QLineEdit(tutor['telefone'] if tutor else '')
+        cpf_input = QLineEdit(tutor['cpf'] if tutor else '')
+        
+        foto_layout = QHBoxLayout()
+        foto_label = QLabel("Nenhuma foto selecionada")
+        foto_preview = QLabel()
+        foto_preview.setFixedSize(100, 100)
+        foto_preview.setScaledContents(True)
+        dialogo.foto_path = tutor['foto_path'] if tutor else ''
+        
+        if dialogo.foto_path and os.path.exists(dialogo.foto_path):
+            foto_preview.setPixmap(QPixmap(dialogo.foto_path))
+            foto_label.setText(os.path.basename(dialogo.foto_path))
+
+        def selecionar_foto():
+            fname, _ = QFileDialog.getOpenFileName(self, 'Selecionar Foto', '', 'Imagens (*.png *.jpg *.jpeg)')
+            if fname:
+                dialogo.foto_path = fname
+                foto_preview.setPixmap(QPixmap(fname))
+                foto_label.setText(os.path.basename(fname))
+
+        botao_selecionar = QPushButton("Selecionar Foto")
+        botao_selecionar.clicked.connect(selecionar_foto)
+        foto_layout.addWidget(botao_selecionar)
+        foto_layout.addWidget(foto_label)
+        
+        formulario.addRow("Nome:", nome_input)
+        formulario.addRow("Telefone:", telefone_input)
+        formulario.addRow("CPF:", cpf_input)
+
+        layout.addLayout(formulario)
+        layout.addWidget(foto_preview)
+        layout.addLayout(foto_layout)
+        
+        botao_salvar = QPushButton("Salvar")
+        layout.addWidget(botao_salvar)
+        dialogo.setLayout(layout)
+
+        def salvar():
+            nome = nome_input.text().strip()
+            telefone = telefone_input.text().strip()
+            cpf = cpf_input.text().strip()
+
+            if not nome or not telefone or not cpf:
+                QMessageBox.warning(dialogo, "Erro", "Todos os campos devem ser preenchidos.")
+                return
+
+
+            novo_foto_path = dialogo.foto_path
+            if dialogo.foto_path and not dialogo.foto_path.startswith(FOTOS_TUTORES_DIR):
+                id_tutor = tutor['id'] if tutor else 'novo'
+                ext = os.path.splitext(dialogo.foto_path)[1]
+                novo_nome_arquivo = f"tutor_{id_tutor}_{QDate.currentDate().toString('yyyyMMdd')}{ext}"
+                novo_foto_path = os.path.join(FOTOS_TUTORES_DIR, novo_nome_arquivo)
+                shutil.copy(dialogo.foto_path, novo_foto_path)
+
+            dialogo.resultado = {
+                "nome": nome, "telefone": telefone, "cpf": cpf, "foto_path": novo_foto_path
+            }
+            dialogo.accept()
+
+        botao_salvar.clicked.connect(salvar)
+        if dialogo.exec():
+            return dialogo.resultado
+        return None
+
+    def adicionarTutor(self):
+        dados_tutor = self.abrirFormularioTutor()
+        if dados_tutor:
+            # conecta no banco de dados e adiciona o tutor
+
+            QMessageBox.information(self, "Sucesso", "Tutor adicionado com sucesso!")
+            self.atualizar_tabela()
+
+    def editarTutor(self):
+        linhas = self.table.selectionModel().selectedRows()
+        if not linhas or len(linhas) != 1:
+            QMessageBox.warning(self, "Seleção", "Por favor, selecione pelo menos um pet.")
+            return
+
+        tutor_atual = {
+            'id': int(self.table.item(linhas.row(), 0).text()),
+            'nome': self.table.item(linhas.row(), 1).text(),
+            'telefone': self.table.item(linhas.row(), 2).text(),
+            'cpf': self.table.item(linhas.row(), 3).text(),
+            'foto_path': self.table.item(linhas.row(), 4).text()
+        }
+        
+        dados_atualizados = self.abrirFormularioTutor(tutor_atual)
+        if dados_atualizados:
+            # conecta no banco de dados e atualiza o tutor
+
+            QMessageBox.information(self, "Sucesso", "Tutor atualizado com sucesso!")
+            self.atualizar_tabela()
+
+    def deletarTutor(self):
+        linhas = self.table.selectionModel().selectedRows()
+        if not linhas or len(linhas) != 1:
+            QMessageBox.warning(self, "Seleção", "Por favor, selecione pelo menos um pet.")
+            return
+
+        resposta = QMessageBox.question(self, "Confirmar", "Deseja realmente excluir os tutores selecionados?")
+
+        if resposta == QMessageBox.StandardButton.Yes:
+            for linha in sorted(linhas, reverse=True):
+                tutor_id = int(self.table.item(linha.row(), 0).text())
+                # conecta no banco de dados e deleta o tutor_id
+
+                # deleta a foto do tutor
+                foto_path = self.table.item(linha, 4).text()
+                if foto_path and os.path.exists(foto_path):
+                    os.remove(foto_path)
+
+            QMessageBox.information(self, "Sucesso", "Tutor deletado com sucesso!")
+            self.atualizar_tabela()
 
     def openTelaPet(self):
-        self.tela_pet = TelaPet()
+        self.tela_pet = TelaPet(self.tela_inicial)
         self.tela_pet.show()
         self.hide()
 
     def openTelaConsulta(self):
-        self.tela_consulta = TelaConsulta()
+        self.tela_consulta = TelaConsulta(self.tela_inicial)
         self.tela_consulta.show()
         self.hide()
 
     def logout(self):
         self.tela_inicial.show()
         self.close()
-        
+
 
 class TelaPet(QWidget):
-    def __init__(self):
+    def __init__(self, tela_inicial):
         super().__init__()
         uic.loadUi("tela_recepcionista_pet.ui", self)
         
+        self.tela_inicial = tela_inicial
+
+        # deletar isso dps
+        self.pets_db = [
+            {'id': 1, 'nome': 'Bolinha', 'raca': 'Poodle', 'id_tutor': 1, 'nome_tutor': 'João da Silva'},
+            {'id': 2, 'nome': 'Fofinho', 'raca': 'Siamês', 'id_tutor': 2, 'nome_tutor': 'Maria Oliveira'},
+            {'id': 3, 'nome': 'Rex', 'raca': 'Vira-lata', 'id_tutor': 1, 'nome_tutor': 'João da Silva'},
+            {'id': 4, 'nome': 'Miau', 'raca': 'Persa', 'id_tutor': 2, 'nome_tutor': 'Maria Oliveira'},
+            {'id': 5, 'nome': 'Trovão', 'raca': 'Golden Retriever', 'id_tutor': 1, 'nome_tutor': 'João da Silva'}
+        ]
+
         self.addPetBTN.clicked.connect(self.adicionarPet)
         self.editPetBTN.clicked.connect(self.editarPet)
         self.delPetBTN.clicked.connect(self.deletarPet)
@@ -369,28 +495,53 @@ class TelaPet(QWidget):
         self.table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         self.table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
 
-    # essa função que faz a tabela mudar toda vez que procura por um pet, conectar com o banco de dados
-    def atualizarTabela(self):
-        filtro = self.petInput.text()
+    def adicionarPet(self):
+        dados_pet = self.abrirFormulario()
+        if dados_pet:
+            # conecta no banco de dados e adiciona o pet
+            QMessageBox.information(self, "Sucesso", "Pet adicionado com sucesso!")
+            self.atualizarTabela()
 
-        # conecta no banco de dados e busca os pets com o filtro
-        pets = 'variavel com todos os pets'
-
-        # self.table.setRowCount(0)
-        # for pet in pets:
-        #     linha = self.table.rowCount()
-        #     self.table.insertRow(linha)
-        #     self.table.setItem(linha, 0, QTableWidgetItem(pet["nome"]))
-        #     self.table.setItem(linha, 1, QTableWidgetItem(pet["peso"]))
-        #     self.table.setItem(linha, 2, QTableWidgetItem(pet["dono"]))
-        #     self.table.setItem(linha, 3, QTableWidgetItem(pet["raca"]))
-
-    def getPetSelecionadoID(self):
+    def editarPet(self):
         linhas = self.table.selectionModel().selectedRows()
-        if len(linhas) != 1:
-            QMessageBox.warning(self, "Seleção", "Por favor, selecione exatamente um pet.")
-            return None
-        return int(self.table.item(linhas[0].row(), 0).text())
+        if not linhas or len(linhas) != 1:
+            QMessageBox.warning(self, "Seleção", "Por favor, selecione pelo menos um pet.")
+            return
+        
+        # pet_atual = 'variável que busca o pet no banco de dados pelo ID selecionado'
+        pet_atual = {"nome": "Rex", "peso": "10kg", "raca": "Vira-lata"}
+        dados_atualizado = self.abrirFormulario(pet_atual)
+        if dados_atualizado:
+            # conecta no banco de dados e atualiza o pet
+            QMessageBox.information(self, "Sucesso", "Pet atualizado com sucesso!")
+            self.atualizarTabela()
+
+    def deletarPet(self):
+        linhas = self.table.selectionModel().selectedRows()
+        if not linhas:
+            QMessageBox.warning(self, "Seleção", "Por favor, selecione pelo menos um pet.")
+            return
+        resposta = QMessageBox.question(self, "Confirmar", "Deseja realmente excluir os pets selecionados?")
+        if resposta == QMessageBox.StandardButton.Yes:
+            for linha in sorted(linhas, reverse=True):
+                pet_id = int(self.table.item(linha.row(), 0).text())
+                # conecta no banco de dados e deleta o pet pelo pet_id
+            QMessageBox.information(self, "Sucesso", "Pet deletado com sucesso!")
+            self.atualizarTabela()
+
+    def atualizarTabela(self):
+        filtro = self.petInput.text().lower()
+        # conecta no banco de dados e busca pets com o filtro
+
+        for pet in self.pets_db:
+            if filtro in pet['nome'].lower() or filtro in pet['nome_tutor'].lower():
+                linha = self.table.rowCount()
+                self.table.insertRow(linha)
+
+                self.table.setItem(linha, 0, QTableWidgetItem(str(pet["id"])))
+                self.table.setItem(linha, 1, QTableWidgetItem(pet["nome"]))
+                self.table.setItem(linha, 2, QTableWidgetItem(pet["raca"]))
+                self.table.setItem(linha, 3, QTableWidgetItem(pet["nome_tutor"]))
 
     def abrirFormulario(self, pet=None):
         dialogo = QDialog(self)
@@ -405,9 +556,11 @@ class TelaPet(QWidget):
         if pet:
             nome_input.setText(pet["nome"])
             peso_input.setText(pet["peso"])
-            # acessa banco de dados e adiciona todos os tutores com um for
-            # tutor_input.addItem(f'tutor['Nome'] (tutor['ID'])')
             raca_input.setText(pet["raca"])
+        
+        # tutores = conecta no banco de dados e busca todos os tutores
+        # for tutor in tutores():
+        #     tutor_input.addItem(f'tutor['nome'] (tutor['id'])')
 
         formulario = QFormLayout()
         formulario.addRow("Nome:", nome_input)
@@ -423,17 +576,14 @@ class TelaPet(QWidget):
         def salvar():
             nome = nome_input.text().strip()
             peso = peso_input.text().strip()
-            # dono = tutor_input.currentText().strip()
             raca = raca_input.text().strip()
             if not nome:
                 QMessageBox.warning(dialogo, "Erro", "Nome não pode estar vazio.")
                 return
             dialogo.accept()
             dialogo.resultado = {
-                "nome": nome,
-                "peso": peso,
-                "dono": 'PLACEHOLDER',
-                "raca": raca
+                "nome": nome, "peso": peso, "raca": raca,
+                # "id_tutor": 
             }
 
         botao_salvar.clicked.connect(salvar)
@@ -441,42 +591,13 @@ class TelaPet(QWidget):
             return dialogo.resultado
         return None
 
-    def adicionarPet(self):
-        dados_pet = self.abrirFormulario()
-        if dados_pet:
-            # conecta no bando de dados e adiciona o pet
-
-            self.atualizarTabela()
-
-    def editarPet(self):
-        pet_id = self.getPetSelecionadoID()
-        
-        # seleciona o pet no banco de dados
-        pet_atual = 'PLACEHOLDER'
-        atualizado = self.abrirFormulario(pet_atual)
-        if atualizado:
-
-            self.atualizarTabela()
-
-    def deletarPet(self):
-        linhas = self.table.selectionModel().selectedRows()
-        if len(linhas) == 0:
-            QMessageBox.warning(self, "Seleção", "Por favor, selecione pelo menos um pet.")
-            return
-        resposta = QMessageBox.question(self, "Confirmar", "Deseja realmente excluir os pets selecionados?")
-        if resposta == QMessageBox.StandardButton.Yes:
-            for linha in sorted(linhas, reverse=True):
-                pass
-                # deleta o pet do banco de dados
-            self.atualizarTabela()
-
     def openTelaTutor(self):
-        self.tela_tutor = TelaTutor()
+        self.tela_tutor = TelaTutor(self.tela_inicial)
         self.tela_tutor.show()
         self.hide()
     
     def openTelaConsulta(self):
-        self.tela_consulta = TelaConsulta()
+        self.tela_consulta = TelaConsulta(self.tela_inicial)
         self.tela_consulta.show()
         self.hide()
 

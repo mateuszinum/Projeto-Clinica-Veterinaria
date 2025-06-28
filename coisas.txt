@@ -3,8 +3,10 @@ colocar o autopreenchimento nos cpf/telefone etc
 
 criar classe de pessoas
 
-criar a base do banco de dados FEITO
+validar as informações de registrar
 
-por algum motivo a tela de registrar muda o tamanho só na primeira vez que tenta registrar
+ver se o crud dos tutores tá certinho
 
-validar as informações de registrar na função checaErro()
+mexer com as consultas
+
+quando voltar pra tela de login, apagar as informações do jeito que faz na tela de registrar
