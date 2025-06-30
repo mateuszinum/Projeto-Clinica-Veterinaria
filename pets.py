@@ -1,13 +1,14 @@
 import re
 import os
+import bcrypt
 import shutil
+import sqlite3
+import perfis as p
 from PyQt6 import uic
 from PyQt6.QtWidgets import *
-from PyQt6.QtGui import QPixmap
+from PyQt6.QtGui import QPixmap, QTextCharFormat, QColor, QFont
 from PyQt6.QtCore import Qt, QDate
-import sqlite3
-import bcrypt
-import perfis as p
+
 
 FOTOS_TUTORES_DIR = 'fotos_tutores'
 if not os.path.exists(FOTOS_TUTORES_DIR):
@@ -30,6 +31,9 @@ class TelaInicial(QWidget):
     def openTelaLogin(self):
         if self.tela_login is None:
             self.tela_login = TelaLogin(self)
+        
+        self.tela_login.resetaJanela()
+        
         self.tela_login.show()
         self.hide()
 
@@ -90,14 +94,14 @@ class TelaLogin(QWidget):
         self.labelWarning1.setText("" if login_text else "Preencha o campo de login")
         self.senha_input.setStyleSheet("" if senha_text else "border: 2px solid #e74c3c;")
         self.labelWarning2.setText("" if senha_text else "Preencha o campo de senha")
-        
+
         if login_text and senha_text:
             valida_dados = False
 
             conexao = sqlite3.connect('dados.db')
             cursor = conexao.cursor()
 
-            cursor.execute(f"SELECT Email, Senha FROM Perfis")
+            cursor.execute(f"SELECT Email, Senha_Hash FROM Perfis")
 
             dados = cursor.fetchall()
 
@@ -108,11 +112,10 @@ class TelaLogin(QWidget):
             for email, senha in dados:
                 if email == login_text and senha == hash_senha:
                     valida_dados = True
-                    cursor.execute("SELECT * FROM Perfis WHERE Email = ? AND Senha = ?", (email, senha))
+                    cursor.execute("SELECT * FROM Perfis WHERE Email = ? AND Senha_Hash = ?", (email, senha))
                     perfil = cursor.fetchall()
                     self.perfil = p.Perfil(perfil["Nome"], senha_text, perfil["Cargo_ID"], perfil["Data_Nasc"], perfil["CPF"], perfil["Email"])
                     self.openTelaProfissao()
-
 
             if not valida_dados:
                 self.login_input.setStyleSheet("border: 2px solid #e74c3c;")
@@ -120,18 +123,29 @@ class TelaLogin(QWidget):
                 self.senha_input.setStyleSheet("border: 2px solid #e74c3c;")
                 self.labelWarning2.setText("Login ou senha inválidos")
 
-
+        self.openTelaProfissao()
 
     def openTelaProfissao(self):
         if self.perfil.cargo_id == 1:
-            #Abri Tela recepcionista
-            pass
+            self.tela_consulta = TelaConsulta(self.tela_inicial)
+            self.tela_consulta.show()
+            self.hide()
         else:
-            #Abrir tela medico
-            pass
-        self.tela_consulta = TelaConsulta(self.tela_inicial)
-        self.tela_consulta.show()
-        self.hide()
+            self.tela_veterinario = TelaVeterinario(self.tela_inicial)
+            self.tela_veterinario.show()
+            self.hide()
+
+    def resetaJanela(self):
+        self.login_input.clear()
+        self.senha_input.clear()
+        
+        self.labelWarning1.setText("")
+        self.labelWarning2.setText("")
+
+        self.login_input.setStyleSheet("")
+        self.senha_input.setStyleSheet("")
+
+        self.senha_input.setEchoMode(QLineEdit.EchoMode.Password)
 
     def closeEvent(self, event):
         self.tela_inicial.show()
@@ -209,22 +223,22 @@ class TelaRegistrar(QWidget):
 
     def checaDados(self):
         dados = {
-            "nome": self.nome_input.text(), "data": self.data_input.date().toString("dd/MM/yyyy"),
-            "telefone": self.telefone_input.text(), "cpf": self.cpf_input.text(),
-            "email": self.email_input.text(), "recepcionista": self.recepcionista_check_input.isChecked(),
-            "veterinario": self.veterinario_check_input.isChecked(), "senha": self.senha_input.text(),
+            "nome": self.nome_input.text(), 
+            "data": self.data_input.date().toString("dd/MM/yyyy"),
+            "telefone": self.telefone_input.text(), 
+            "cpf": self.cpf_input.text(),
+            "email": self.email_input.text(), 
+            "recepcionista": self.recepcionista_check_input.isChecked(),
+            "veterinario": self.veterinario_check_input.isChecked(), 
+            "senha": self.senha_input.text(),
             "confirmar_senha": self.confirmar_senha_input.text()
         }
 
         if self.validaDados(dados):
-            
-            
-            
-            # Depois de verificar td certinho faz esse proximo passo aq, como n sei exatamente como tu vai fazer, 
-            # deixei aq pra tu completar depois
-            # mas qualquer coisa eu faço depois q tu terminar
-            # perfil = p.Perfil() # Coloca nos paramentros, nome, senha, o id do cargo(recepcionista = 1, medico = 2), data_nasc, cpf, email
-            # perfil.salvar_dados()
+
+            cargo_id = 1 if dados["recepcionista"] else 2
+            perfil = p.Perfil(dados["nome"], dados["senha"], cargo_id, dados["data"], dados["cpf"], dados["email"])
+            perfil.salvar_dados()
             QMessageBox.information(self, "Sucesso", "Usuário registrado com sucesso!")
             self.tela_inicial.show()
             self.close()
@@ -338,18 +352,79 @@ class TelaRegistrar(QWidget):
 class TelaConsulta(QWidget):
     def __init__(self, tela_inicial):
         super().__init__()
+
         uic.loadUi("tela_recepcionista_consulta.ui", self)
         
         self.tela_inicial = tela_inicial
+        self.tutores_map = {}
+        self.datas_marcadas = set()
+
+        self.formato_data_consulta = QTextCharFormat()
+        self.formato_data_consulta.setForeground(QColor("red"))
+        self.formato_data_consulta.setFontWeight(QFont.Weight.Bold)
 
         self.petsBTN.clicked.connect(self.openTelaPet)
         self.tutoresBTN.clicked.connect(self.openTelaTutor)
         self.sairBTN.clicked.connect(self.logout)
 
-        opcoes = ["Almeida", "Beto", "Ciclano"]
-        completer = QCompleter(opcoes, self)
+        self.configurar_autocompletador()
+
+    def conectar_db(self):
+        return sqlite3.connect('dados.db')
+
+    def configurar_autocompletador(self):
+        conexao = self.conectar_db()
+        cursor = conexao.cursor()
+        
+        cursor.execute("SELECT ID, Nome FROM Tutores")
+        tutores_bd = cursor.fetchall()
+        conexao.close()
+
+        nomes_tutores = []
+        for tutor_id, nome in tutores_bd:
+            self.tutores_map[nome] = tutor_id
+            nomes_tutores.append(nome)
+
+        completer = QCompleter(nomes_tutores, self)
         completer.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
         self.tutorInput.setCompleter(completer)
+
+        completer.activated.connect(self.marcar_datas_por_tutor)
+
+    def resetar_formatacao_calendario(self):
+        formato_padrao = QTextCharFormat()
+        for data in self.datas_marcadas:
+            self.calendarWidget.setDateTextFormat(data, formato_padrao)
+        self.datas_marcadas.clear()
+
+    def marcar_datas_por_tutor(self, nome_tutor):
+        self.resetar_formatacao_calendario()
+
+        if nome_tutor not in self.tutores_map:
+            return
+
+        tutor_id = self.tutores_map[nome_tutor]
+
+        conexao = self.conectar_db()
+        cursor = conexao.cursor()
+
+        query = """
+            SELECT DISTINCT c.Data_Horario
+            FROM Consultas c
+            JOIN Pets p ON c.Pet_ID = p.ID
+            WHERE p.Tutor_ID = ?
+        """
+        cursor.execute(query, (tutor_id,))
+        consultas = cursor.fetchall()
+        conexao.close()
+
+        for (data_horario_str,) in consultas:
+            data_str = data_horario_str.split(' ')[0]
+            q_date = QDate.fromString(data_str, "dd/MM/yyyy")
+
+            if q_date.isValid():
+                self.calendarWidget.setDateTextFormat(q_date, self.formato_data_consulta)
+                self.datas_marcadas.add(q_date)
 
     def openTelaPet(self):
         self.tela_pet = TelaPet(self.tela_inicial)
@@ -364,7 +439,6 @@ class TelaConsulta(QWidget):
     def logout(self):
         self.tela_inicial.show()
         self.close()
-
 
 class TelaTutor(QWidget):
     def __init__(self, tela_inicial):
@@ -465,7 +539,6 @@ class TelaTutor(QWidget):
             if not nome or not telefone or not cpf:
                 QMessageBox.warning(dialogo, "Erro", "Todos os campos devem ser preenchidos.")
                 return
-
 
             novo_foto_path = dialogo.foto_path
             if dialogo.foto_path and not dialogo.foto_path.startswith(FOTOS_TUTORES_DIR):
@@ -700,6 +773,25 @@ class TelaPet(QWidget):
         self.tela_inicial.show()
         self.close()
 
+
+class TelaVeterinario(QWidget):
+    def __init__(self, tela_inicial):
+        super().__init__()
+        uic.loadUi("tela_veterinario.ui", self)
+
+        self.tela_inicial = tela_inicial
+
+        self.consultasBTN.clicked.connect(self.openTelaConsulta)
+        self.sairBTN.clicked.connect(self.logout)
+
+    def openTelaConsulta(self):
+        self.tela_consulta = TelaConsulta(self.tela_inicial)
+        self.tela_consulta.show()
+        self.hide()
+
+    def logout(self):
+        self.tela_inicial.show()
+        self.close()
 
 janela = TelaInicial()
 janela.show()

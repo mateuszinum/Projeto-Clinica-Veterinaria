@@ -27,7 +27,7 @@ class Perfil():
         conexao = sqlite3.connect('dados.db')
         cursor = conexao.cursor()
 
-        cursor.execute(f"INSERT INTO Perfis (Nome, Data_Nasc, CPF, Email, Senha_Hash, Cargo_ID) VALUES (?, ?, ?, ?, ?, ?, ?)", (self. nome, self.data_nasc, self.cpf, self.email, self.get_senha_hash(), self.cargo_id))
+        cursor.execute(f"INSERT INTO Perfis (Nome, Data_Nasc, CPF, Email, Senha_Hash, Cargo_ID) VALUES (?, ?, ?, ?, ?, ?)", (self. nome, self.data_nasc, self.cpf, self.email, self.get_senha_hash(), self.cargo_id))
 
         conexao.commit()
 
