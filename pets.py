@@ -689,7 +689,7 @@ class TelaTutor(QWidget):
                 conexao.commit()
 
                 # deleta a foto do tutor
-                foto_path = self.table.item(linha, 4).text()
+                foto_path = self.table.item(linha.row(), 4).text()
                 if foto_path and os.path.exists(foto_path):
                     os.remove(foto_path)
 
