@@ -443,6 +443,9 @@ class TelaTutor(QWidget):
         self.table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         self.table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
 
+        self.table.horizontalHeader().setStretchLastSection(True)
+        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+
     def atualizar_tabela(self):
         filtro = self.tutorInput.text().strip()
 
@@ -473,12 +476,58 @@ class TelaTutor(QWidget):
     def abrirFormularioTutor(self, tutor=None):
         dialogo = QDialog(self)
         dialogo.setWindowTitle(f"{'Editar' if tutor else 'Adicionar'} Tutor")
+        dialogo.setStyleSheet(f"background-color: #93cbd9;")
         layout = QVBoxLayout()
         formulario = QFormLayout()
 
         nome_input = QLineEdit(tutor['nome'] if tutor else '')
         telefone_input = QLineEdit(tutor['telefone'] if tutor else '')
         cpf_input = QLineEdit(tutor['cpf'] if tutor else '')
+
+        # Funções de Formatação
+        def formatar_telefone():
+            texto = telefone_input.text()
+            numeros = re.sub(r'\D', '', texto)[:11]
+            tam = len(numeros)
+            novo_texto = ""
+
+            if tam >= 1:
+                novo_texto += "(" + numeros[:2]
+
+            if tam >= 3:
+                novo_texto += ') ' + numeros[2:7]
+
+            if tam >= 8:
+                novo_texto += '-' + numeros[7:11]
+
+            telefone_input.blockSignals(True)
+            telefone_input.setText(novo_texto)
+            telefone_input.blockSignals(False)
+
+        def formatar_cpf(texto):
+            numeros = re.sub(r'\D', '', texto)
+            tam = len(numeros)
+            numeros = numeros[:11]
+            novo_texto = ""
+
+            if tam > 0:
+                novo_texto += numeros[:3]
+
+            if tam > 3:
+                novo_texto += '.' + numeros[3:6]
+
+            if tam > 6:
+                novo_texto += '.' + numeros[6:9]
+
+            if tam > 9:
+                novo_texto += '-' + numeros[9:11]
+
+            cpf_input.blockSignals(True)
+            cpf_input.setText(novo_texto)
+            cpf_input.blockSignals(False)
+
+        telefone_input.textChanged.connect(formatar_telefone)
+        cpf_input.textChanged.connect(lambda texto: formatar_cpf(texto))
         
         foto_layout = QHBoxLayout()
         foto_label = QLabel("Nenhuma foto selecionada")
@@ -498,7 +547,15 @@ class TelaTutor(QWidget):
                 foto_preview.setPixmap(QPixmap(fname))
                 foto_label.setText(os.path.basename(fname))
 
+        if not dialogo.foto_path or not os.path.exists(dialogo.foto_path):
+            caminho_padrao = os.path.join(FOTOS_TUTORES_DIR, "default-icon.jpg")
+            dialogo.foto_path = caminho_padrao
+            pixmap_padrao = QPixmap(caminho_padrao)
+            foto_preview.setPixmap(pixmap_padrao)
+            foto_label.setText("default-icon.jpg")
+
         botao_selecionar = QPushButton("Selecionar Foto")
+        botao_selecionar.setStyleSheet(f'background-color: #2f80ed; color: white; padding: 6px 12px; border-radius: 4px; border: none; font-size: 14px; font-weight: bold;')
         botao_selecionar.clicked.connect(selecionar_foto)
         foto_layout.addWidget(botao_selecionar)
         foto_layout.addWidget(foto_label)
@@ -508,10 +565,15 @@ class TelaTutor(QWidget):
         formulario.addRow("CPF:", cpf_input)
 
         layout.addLayout(formulario)
-        layout.addWidget(foto_preview)
+        imagem_layout = QHBoxLayout()
+        imagem_layout.addStretch()
+        imagem_layout.addWidget(foto_preview)
+        imagem_layout.addStretch()
+        layout.addLayout(imagem_layout)
         layout.addLayout(foto_layout)
         
         botao_salvar = QPushButton("Salvar")
+        botao_salvar.setStyleSheet(f'background-color: #27ae60; color: white; padding: 6px 12px; border-radius: 4px; border: none; font-size: 14px; font-weight: bold;')
         layout.addWidget(botao_salvar)
         dialogo.setLayout(layout)
 
@@ -555,17 +617,19 @@ class TelaTutor(QWidget):
             self.atualizar_tabela()
 
     def editarTutor(self):
-        linhas = self.table.selectionModel().selectedRows()
-        if not linhas or len(linhas) != 1:
-            QMessageBox.warning(self, "Seleção", "Por favor, selecione pelo menos um pet.")
+        linha = self.table.selectionModel().selectedRows()
+        if not linha or len(linha) != 1:
+            QMessageBox.warning(self, "Seleção", "Por favor, selecione pelo menos um tutor.")
             return
 
+        linhaSelecionada = linha[0].row()
+
         tutor_atual = {
-            'id': int(self.table.item(linhas.row(), 0).text()),
-            'nome': self.table.item(linhas.row(), 1).text(),
-            'telefone': self.table.item(linhas.row(), 2).text(),
-            'cpf': self.table.item(linhas.row(), 3).text(),
-            'foto_path': self.table.item(linhas.row(), 4).text()
+            'id': int(self.table.item(linhaSelecionada, 0).text()),
+            'nome': self.table.item(linhaSelecionada, 1).text(),
+            'telefone': self.table.item(linhaSelecionada, 2).text(),
+            'cpf': self.table.item(linhaSelecionada, 3).text(),
+            'foto_path': self.table.item(linhaSelecionada, 4).text()
         }
         
         dados_atualizados = self.abrirFormularioTutor(tutor_atual)
@@ -577,7 +641,13 @@ class TelaTutor(QWidget):
                 UPDATE Tutores
                 SET Nome = ?, Telefone = ?, CPF = ?, Foto_Path = ?
                 WHERE ID = ?
-            """, (dados_atualizados['nome'], dados_atualizados['telefone'], dados_atualizados['cpf'], dados_atualizados['foto_path']))
+            """, (
+            dados_atualizados['nome'],
+            dados_atualizados['telefone'],
+            dados_atualizados['cpf'],
+            dados_atualizados['foto_path'],
+            tutor_atual['id']
+            ))
 
             conexao.commit()
 
