@@ -24,7 +24,7 @@ cursor.execute('''
     CREATE TABLE IF NOT EXISTS Pets (
         ID INTEGER PRIMARY KEY AUTOINCREMENT,
         Nome TEXT NOT NULL,
-        Raca_Nome TEXT NOT NULL,       
+        Peso TEXT NOT NULL,     
         Raca_ID INTEGER,
         Tutor_ID INTEGER,
         FOREIGN KEY (Tutor_ID) REFERENCES Tutores(ID),
