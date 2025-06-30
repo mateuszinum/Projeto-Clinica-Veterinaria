@@ -792,7 +792,8 @@ class TelaPet(QWidget):
 
         dados_atualizado = self.abrirFormulario(pet_atual)
         if dados_atualizado:
-            cursor.execute("UPDATE Pets SET Nome = ?, Peso = ?, Raca_ID = ?, Tutor_ID = ? WHERE ID = ?", ())
+            cursor.execute("UPDATE Pets SET Nome = ?, Peso = ?, Raca_ID = ?, Tutor_ID = ? WHERE ID = ?", (dados_atualizado['nome'], dados_atualizado['peso'], dados_atualizado['raca_id'], dados_atualizado['id_tutor'], pet_id))
+            conexao.commit()
             QMessageBox.information(self, "Sucesso", "Pet atualizado com sucesso!")
             self.atualizarTabela()
 
@@ -805,7 +806,10 @@ class TelaPet(QWidget):
         if resposta == QMessageBox.StandardButton.Yes:
             for linha in sorted(linhas, reverse=True):
                 pet_id = int(self.table.item(linha.row(), 0).text())
-                # conecta no banco de dados e deleta o pet pelo pet_id
+
+                cursor.execute("DELETE FROM Pets WHERE ID = ?", (pet_id,))
+                conexao.commit()
+
             QMessageBox.information(self, "Sucesso", "Pet deletado com sucesso!")
             self.atualizarTabela()
 
@@ -846,29 +850,23 @@ class TelaPet(QWidget):
 
         peso_input = QLineEdit()
         
-        validador = QDoubleValidator(0.0, 999.99, 2)  # min, max, decimais
-        peso_input.setValidator(validador)
-
         def formatar_peso(texto):
-            texto_limpo = ''.join(c for c in texto if c.isdigit() or c in ',.')
+            texto_limpo = re.sub(r'[^0-9.]', '', texto)
 
-            texto_limpo = texto_limpo.replace('.', ',')
+            partes = texto_limpo.split('.')
 
-            partes = texto_limpo.split(',')
             if len(partes) > 1:
                 inteiro = partes[0]
                 decimal = ''.join(partes[1:])[:2]  
-                texto_limpo = inteiro + ',' + decimal
+                texto_limpo = inteiro + '.' + decimal
+
             else:
                 texto_limpo = partes[0]
 
-            texto_formatado = texto_limpo + " kg" if texto_limpo else ""
-
             peso_input.blockSignals(True)
-            peso_input.setText(texto_formatado)
+            peso_input.setText(texto_limpo)
             peso_input.blockSignals(False)
-
-
+            
         peso_input.textChanged.connect(formatar_peso)       
 
         raca_input = QComboBox()
