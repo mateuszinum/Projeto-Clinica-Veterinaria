@@ -21,6 +21,7 @@ cursor.execute('''
         )
 ''')
 
+
 cursor.execute('''
     CREATE TABLE IF NOT EXISTS Pets (
         ID INTEGER PRIMARY KEY AUTOINCREMENT,
