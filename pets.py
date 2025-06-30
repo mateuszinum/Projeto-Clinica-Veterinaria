@@ -5,7 +5,9 @@ from PyQt6 import uic
 from PyQt6.QtWidgets import *
 from PyQt6.QtGui import QPixmap
 from PyQt6.QtCore import Qt, QDate
-
+import sqlite3
+import bcrypt
+import perfis as p
 
 FOTOS_TUTORES_DIR = 'fotos_tutores'
 if not os.path.exists(FOTOS_TUTORES_DIR):
@@ -43,6 +45,7 @@ class TelaInicial(QWidget):
 class TelaLogin(QWidget):
     def __init__(self, tela_inicial):
         super().__init__()
+        self.perfil = None
         uic.loadUi("tela_login.ui", self)
 
         self.tela_inicial = tela_inicial
@@ -89,17 +92,43 @@ class TelaLogin(QWidget):
         self.labelWarning2.setText("" if senha_text else "Preencha o campo de senha")
         
         if login_text and senha_text:
-            # valida dados no banco de dados
-            self.openTelaProfissao()
+            valida_dados = False
 
-            # if not valida_dados:
-            #     self.login_input.setStyleSheet("border: 2px solid #e74c3c;")
-            #     self.labelWarning1.setText("")
-            #     self.senha_input.setStyleSheet("border: 2px solid #e74c3c;")
-            #     self.labelWarning2.setText("Login ou senha inválidos")
+            conexao = sqlite3.connect('dados.db')
+            cursor = conexao.cursor()
+
+            cursor.execute(f"SELECT Email, Senha FROM Perfis")
+
+            dados = cursor.fetchall()
+
+            senha_bytes = senha_text.encode('utf-8')
+            salt = bcrypt.gensalt()
+            hash_senha = bcrypt.hashpw(senha_bytes, salt)
+                
+            for email, senha in dados:
+                if email == login_text and senha == hash_senha:
+                    valida_dados = True
+                    cursor.execute("SELECT * FROM Perfis WHERE Email = ? AND Senha = ?", (email, senha))
+                    perfil = cursor.fetchall()
+                    self.perfil = p.Perfil(perfil["Nome"], senha_text, perfil["Cargo_ID"], perfil["Data_Nasc"], perfil["CPF"], perfil["Email"])
+                    self.openTelaProfissao()
+
+
+            if not valida_dados:
+                self.login_input.setStyleSheet("border: 2px solid #e74c3c;")
+                self.labelWarning1.setText("")
+                self.senha_input.setStyleSheet("border: 2px solid #e74c3c;")
+                self.labelWarning2.setText("Login ou senha inválidos")
+
+
 
     def openTelaProfissao(self):
-        # checa qual é a profissão da pessoa e abre a tela correta
+        if self.perfil.cargo_id == 1:
+            #Abri Tela recepcionista
+            pass
+        else:
+            #Abrir tela medico
+            pass
         self.tela_consulta = TelaConsulta(self.tela_inicial)
         self.tela_consulta.show()
         self.hide()
@@ -188,49 +217,111 @@ class TelaRegistrar(QWidget):
         }
 
         if self.validaDados(dados):
-            # conecta no banco de dados e adiciona o usuário
+            
+            
+            
+            # Depois de verificar td certinho faz esse proximo passo aq, como n sei exatamente como tu vai fazer, 
+            # deixei aq pra tu completar depois
+            # mas qualquer coisa eu faço depois q tu terminar
+            # perfil = p.Perfil() # Coloca nos paramentros, nome, senha, o id do cargo(recepcionista = 1, medico = 2), data_nasc, cpf, email
+            # perfil.salvar_dados()
             QMessageBox.information(self, "Sucesso", "Usuário registrado com sucesso!")
             self.tela_inicial.show()
             self.close()
     
-    def validaDados(self, dados): # validar os dados
+    def validaDados(self, dados):
         campos = {
-            "nome": (dados["nome"], self.nome_input, self.labelWarning1),
-            "telefone": (dados["telefone"], self.telefone_input, self.labelWarning2),
-            "cpf": (dados["cpf"], self.cpf_input, self.labelWarning3),
-            "email": (dados["email"], self.email_input, self.labelWarning4)
+            "nome": (dados["nome"], self.nome_input, self.labelWarning1, None),
+            "telefone": (dados["telefone"], self.telefone_input, self.labelWarning2, self.validar_telefone),
+            "cpf": (dados["cpf"], self.cpf_input, self.labelWarning3, self.validar_cpf),
+            "email": (dados["email"], self.email_input, self.labelWarning4, self.validar_email)
         }
         valido = True
 
-        for campo, (valor, widget, warning) in campos.items():
+        for campo, (valor, widget, warning, funcao_validacao) in campos.items():
             if not valor:
                 widget.setStyleSheet("border: 2px solid #e74c3c;")
                 warning.setText("Preencha o campo")
                 valido = False
+
+            elif funcao_validacao and not funcao_validacao(valor):
+                widget.setStyleSheet("border: 2px solid #e74c3c;")
+
+                if campo == 'cpf':
+                    warning.setText("CPF inválido")
+                elif campo == 'telefone':
+                    warning.setText("Telefone inválido")
+                elif campo == 'email':
+                    warning.setText("Formato de e-mail inválido")
+
+                valido = False
             else:
-                # colocar validações
                 widget.setStyleSheet("")
                 warning.setText("")
-    
+
         if not dados["recepcionista"] and not dados["veterinario"]:
             self.labelWarning7.setText("Escolha um cargo")
             valido = False
         else:
             self.labelWarning7.setText("")
 
-        if (not dados["senha"] or not dados["confirmar_senha"]) or dados["senha"] != dados["confirmar_senha"]:
+        resultado_validacao, mensagem_validacao = self.validar_senha(dados["senha"])
+        if not resultado_validacao:
+            self.senha_input.setStyleSheet("border: 2px solid #e74c3c;")
+            self.confirmar_senha_input.setStyleSheet("border: 2px solid #e74c3c;")
+            self.labelWarning5.setText(mensagem_validacao)
+            self.labelWarning6.setText("")
+            valido = False
+
+        elif dados["senha"] != dados["confirmar_senha"]:
             self.senha_input.setStyleSheet("border: 2px solid #e74c3c;")
             self.confirmar_senha_input.setStyleSheet("border: 2px solid #e74c3c;")
             self.labelWarning5.setText("As senhas não coincidem")
             self.labelWarning6.setText("As senhas não coincidem")
             valido = False
+
         else:
-            self.senha_input.setStyleSheet("")
-            self.confirmar_senha_input.setStyleSheet("")
-            self.labelWarning5.setText("")
-            self.labelWarning6.setText("")
+            if dados["senha"]:
+                self.senha_input.setStyleSheet("")
+                self.confirmar_senha_input.setStyleSheet("")
+                self.labelWarning5.setText("")
+                self.labelWarning6.setText("")
         
         return valido
+
+    def validar_cpf(self, cpf):
+        return len(cpf) == 14
+
+    def validar_telefone(self, telefone):
+        return len(telefone) == 15
+
+    def validar_email(self, email):
+        padrao = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        return re.match(padrao, email) is not None
+
+    def validar_senha(self, senha):
+        mensagem = ""
+        valido = True
+        if len(senha) < 8:
+            mensagem += "A senha deve ter pelo menos 8 caracteres."
+            valido = False
+        if not re.search(r'[A-Z]', senha):
+            mensagem += "\nA senha deve conter pelo menos uma letra maiúscula."
+            valido = False
+        if not re.search(r'[a-z]', senha):
+            mensagem += "\nA senha deve conter pelo menos uma letra minúscula."
+            valido = False
+        if not re.search(r'\d', senha):
+            mensagem += "\nA senha deve conter pelo menos um número."
+            valido = False
+        if not re.search(r'[\W_]', senha):
+            mensagem += "\nA senha deve conter pelo menos um símbolo especial."
+            valido = False
+        
+        if not valido:
+            return False, mensagem
+    
+        return True, ""
 
     def resetaJanela(self):
         for widget in self.findChildren(QLineEdit): widget.clear(); widget.setStyleSheet("")
@@ -397,7 +488,11 @@ class TelaTutor(QWidget):
     def adicionarTutor(self):
         dados_tutor = self.abrirFormularioTutor()
         if dados_tutor:
-            # conecta no banco de dados e adiciona o tutor
+            conexao = sqlite3.connect('dados.db')
+            cursor = conexao.cursor()
+
+            cursor.execute("INSERT INTO Tutores (Nome, Telefone, CPF, Foto_Path) VALUES (?, ?, ?, ?)", (dados_tutor["nome"], dados_tutor["telefone"], dados_tutor["cpf"], dados_tutor["foto_path"]))
+            conexao.commit()
 
             QMessageBox.information(self, "Sucesso", "Tutor adicionado com sucesso!")
             self.atualizar_tabela()

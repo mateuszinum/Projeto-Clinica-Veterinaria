@@ -2,9 +2,8 @@ import bcrypt
 import sqlite3
 
 class Perfil():
-    def __init__(self, nome, login, senha, cargo_id, data_nasc, cpf, email):
+    def __init__(self, nome, senha, cargo_id, data_nasc, cpf, email):
         self.nome = nome
-        self.login = login
         self. data_nasc = data_nasc
         self.cpf = cpf
         self.email = email
@@ -28,7 +27,7 @@ class Perfil():
         conexao = sqlite3.connect('dados.db')
         cursor = conexao.cursor()
 
-        cursor.execute(f"INSERT INTO Perfis (Nome, Login, Data_Nasc, CPF, Email, Senha_Hash, Cargo_ID) VALUES (?, ?, ?, ?, ?, ?, ?)", (self. nome, self.login, self.data_nasc, self.cpf, self.email, self.get_senha_hash(), self.cargo_id))
+        cursor.execute(f"INSERT INTO Perfis (Nome, Data_Nasc, CPF, Email, Senha_Hash, Cargo_ID) VALUES (?, ?, ?, ?, ?, ?, ?)", (self. nome, self.data_nasc, self.cpf, self.email, self.get_senha_hash(), self.cargo_id))
 
         conexao.commit()
 

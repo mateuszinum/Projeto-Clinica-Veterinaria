@@ -8,8 +8,8 @@ cursor.execute('''
         ID INTEGER PRIMARY KEY AUTOINCREMENT,
         Nome TEXT NOT NULL,
         Telefone TEXT NOT NULL,
-        Email TEXT NOT NULL,
-        CPF TEXT NOT NULL
+        CPF TEXT NOT NULL,
+        Foto_Path TEXT NOT NULL
         )
 ''')
 
@@ -68,7 +68,6 @@ cursor.execute('''
     CREATE TABLE IF NOT EXISTS Perfis (
         ID INTEGER PRIMARY KEY AUTOINCREMENT,
         Nome TEXT NOT NULL,
-        Login TEXT NOT NULL,
         Data_Nasc TEXT NOT NULL,
         CPF TEXT NOT NULL,
         Email TEXT NOT NULL,
@@ -100,7 +99,7 @@ cursor.execute(f'SELECT * FROM Cargos')
 cargos_bd = cursor.fetchall()
 
 if len(cargos_bd) == 0:
-    cargos = ['Secretário', 'Médico_Veterinário']
+    cargos = ['Recepcionista', 'Médico_Veterinário']
     for cargo in cargos:
         cursor.execute('INSERT INTO Cargos (Nome) VALUES (?)', (cargo,))
     
@@ -109,7 +108,7 @@ if len(cargos_bd) == 0:
         cursor.execute('INSERT INTO Permissoes (Nome) VALUES (?)', (permissao,))
     
     cargos_permissoes = {
-        'Secretário': ['ver_consultas', 'CRUD'],
+        'Recepcionista': ['ver_consultas', 'CRUD'],
         'Médico_Veterinário': ['ver_consultas', 'add_diagnostico']
     }
 
