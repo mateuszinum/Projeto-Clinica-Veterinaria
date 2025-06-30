@@ -747,6 +747,9 @@ class TelaPet(QWidget):
         self.table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         self.table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
 
+        self.table.horizontalHeader().setStretchLastSection(True)
+        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+
     def adicionarPet(self):
         dados_pet = self.abrirFormulario()
         if dados_pet:
@@ -805,6 +808,7 @@ class TelaPet(QWidget):
     def abrirFormulario(self, pet=None):
         dialogo = QDialog(self)
         dialogo.setWindowTitle(f"{'Editar' if pet else 'Adicionar'} Pet")
+        dialogo.setStyleSheet(f"background-color: #93cbd9;")
         layout = QVBoxLayout()
 
         conexao = sqlite3.connect('dados.db')
@@ -833,6 +837,7 @@ class TelaPet(QWidget):
         formulario.addRow("Raça:", raca_input)
 
         botao_salvar = QPushButton("Salvar")
+        botao_salvar.setStyleSheet(f'background-color: #27ae60; color: white; padding: 6px 12px; border-radius: 4px; border: none; font-size: 14px; font-weight: bold;')
         layout.addLayout(formulario)
         layout.addWidget(botao_salvar)
         dialogo.setLayout(layout)
