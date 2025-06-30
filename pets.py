@@ -6,6 +6,7 @@ import sqlite3
 import perfis as p
 from PyQt6 import uic
 from PyQt6.QtWidgets import *
+from datetime import datetime
 from PyQt6.QtGui import QPixmap, QTextCharFormat, QColor, QFont
 from PyQt6.QtCore import Qt, QDate
 
@@ -822,21 +823,101 @@ class TelaPet(QWidget):
 
 
 class TelaVeterinario(QWidget):
-    def __init__(self, tela_inicial):
+    def __init__(self, tela_inicial, perfil_logado):
         super().__init__()
         uic.loadUi("tela_veterinario.ui", self)
 
         self.tela_inicial = tela_inicial
+        self.perfil_logado = perfil_logado 
 
-        self.consultasBTN.clicked.connect(self.openTelaConsulta)
-        self.sairBTN.clicked.connect(self.logout)
+        self.configurar_tela()
 
-    def openTelaConsulta(self):
-        self.tela_consulta = TelaConsulta(self.tela_inicial)
-        self.tela_consulta.show()
-        self.hide()
+    def configurar_tela(self):
+        self.tabelaConsultasHoje.setColumnCount(5)
+        self.tabelaConsultasHoje.setHorizontalHeaderLabels(["ID", "Horário", "Pet", "Tutor", "Status"])
+        self.tabelaConsultasHoje.setColumnHidden(0, True)
+        self.tabelaConsultasHoje.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
+        self.tabelaConsultasHoje.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+        self.tabelaConsultasHoje.setColumnWidth(2, 180)
+        self.tabelaConsultasHoje.setColumnWidth(3, 180)
 
-    def logout(self):
+        self.realizarDiagnosticoBTN.clicked.connect(self.realizar_diagnostico)
+        self.sairBTN.clicked.connect(self.sair)
+        
+        self.tabelaConsultasHoje.itemSelectionChanged.connect(self.atualizar_status_botao_diagnostico)
+
+        self.atualizar_status_botao_diagnostico()
+        
+        self.carregar_consultas_de_hoje()
+
+    def carregar_consultas_de_hoje(self):
+        self.tabelaConsultasHoje.setRowCount(0)
+        hoje_str = QDate.currentDate().toString("dd/MM/yyyy")
+        
+        conexao = sqlite3.connect('dados.db')
+        cursor = conexao.cursor()
+        query = """
+            SELECT c.ID, c.Data_Horario, p.Nome AS PetNome, t.Nome AS TutorNome, c.Relatorio_ID
+            FROM Consultas c
+            JOIN Pets p ON c.Pet_ID = p.ID
+            JOIN Tutores t ON p.Tutor_ID = t.ID
+            WHERE c.Perfil_Medico_ID = ? AND c.Data_Horario LIKE ?
+            ORDER BY c.Data_Horario
+        """
+        cursor.execute(query, (self.perfil_logado.id, f'{hoje_str}%'))
+        consultas = cursor.fetchall()
+        conexao.close()
+        
+        for consulta in consultas:
+            consulta_id, data_hora, pet_nome, tutor_nome, relatorio_id = consulta
+            
+            hora = datetime.strptime(data_hora, '%d/%m/%Y %H:%M').strftime('%H:%M')
+            status = "Concluído" if relatorio_id else "Pendente"
+            
+            row = self.tabelaConsultasHoje.rowCount()
+            self.tabelaConsultasHoje.insertRow(row)
+            self.tabelaConsultasHoje.setItem(row, 0, QTableWidgetItem(str(consulta_id)))
+            self.tabelaConsultasHoje.setItem(row, 1, QTableWidgetItem(hora))
+            self.tabelaConsultasHoje.setItem(row, 2, QTableWidgetItem(pet_nome))
+            self.tabelaConsultasHoje.setItem(row, 3, QTableWidgetItem(tutor_nome))
+            self.tabelaConsultasHoje.setItem(row, 4, QTableWidgetItem(status))
+
+    def atualizar_status_botao_diagnostico(self):
+        itens_selecionados = self.tabelaConsultasHoje.selectedItems()
+        
+        if not itens_selecionados:
+            self.realizarDiagnosticoBTN.setEnabled(False)
+            return
+
+        linha_selecionada = self.tabelaConsultasHoje.currentRow()
+        status = self.tabelaConsultasHoje.item(linha_selecionada, 4).text()
+        
+        self.realizarDiagnosticoBTN.setEnabled(status == "Pendente")
+
+    def realizar_diagnostico(self):
+        linha_selecionada = self.tabelaConsultasHoje.currentRow()
+        if linha_selecionada < 0: 
+            return
+
+        consulta_id = int(self.tabelaConsultasHoje.item(linha_selecionada, 0).text())
+
+        diagnostico, ok = QInputDialog.getMultiLineText(self, "Realizar Diagnóstico", "Digite a descrição e o diagnóstico do paciente:")
+        
+        if ok and diagnostico.strip():
+            conexao = sqlite3.connect('dados.db')
+            cursor = conexao.cursor()
+            cursor.execute("INSERT INTO Relatorios (Descricao, Diagnostico) VALUES (?, ?)", (diagnostico, diagnostico))
+            relatorio_id = cursor.lastrowid
+            
+            cursor.execute("UPDATE Consultas SET Relatorio_ID = ? WHERE ID = ?", (relatorio_id, consulta_id))
+            
+            conexao.commit()
+            conexao.close()
+            
+            QMessageBox.information(self, "Sucesso", "Diagnóstico salvo com sucesso!")
+            self.carregar_consultas_de_hoje()
+
+    def sair(self):
         self.tela_inicial.show()
         self.close()
 

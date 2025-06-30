@@ -48,6 +48,34 @@ background-color: #00bcd4</string>
       </widget>
      </item>
      <item>
+      <widget class="QPushButton" name="pushButton">
+       <property name="maximumSize">
+        <size>
+         <width>40</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton {
+    background-color: #02aec4;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-family: &quot;Arial&quot;, sans-serif;
+    font-size: 12px;
+    font-weight: bold;
+}
+QPushButton:hover {
+    background-color: #0398ab;
+}</string>
+       </property>
+       <property name="text">
+        <string>🔎</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <spacer name="horizontalSpacer_3">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
