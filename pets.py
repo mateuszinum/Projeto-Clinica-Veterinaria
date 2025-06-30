@@ -586,7 +586,16 @@ class TelaTutor(QWidget):
         
         dados_atualizados = self.abrirFormularioTutor(tutor_atual)
         if dados_atualizados:
-            # conecta no banco de dados e atualiza o tutor
+            conexao = sqlite3.connect('dados.db')
+            cursor = conexao.cursor()
+
+            cursor.execute("""
+                UPDATE Tutores
+                SET Nome = ?, Telefone = ?, CPF = ?, Foto_Path = ?
+                WHERE ID = ?
+            """, (dados_atualizados['nome'], dados_atualizados['telefone'], dados_atualizados['cpf'], dados_atualizados['foto_path']))
+
+            conexao.commit()
 
             QMessageBox.information(self, "Sucesso", "Tutor atualizado com sucesso!")
             self.atualizar_tabela()
@@ -602,14 +611,35 @@ class TelaTutor(QWidget):
         if resposta == QMessageBox.StandardButton.Yes:
             for linha in sorted(linhas, reverse=True):
                 tutor_id = int(self.table.item(linha.row(), 0).text())
-                # conecta no banco de dados e deleta o tutor_id
+                conexao = sqlite3.connect('dados.db')
+                cursor = conexao.cursor()
+
+                cursor.execute("""
+                    SELECT ID FROM Pets WHERE Tutor_ID = ?
+                """, (tutor_id,))
+
+                ids_pets = [linha[0] for linha in cursor.fetchall()]
+
+                for ids in ids_pets:
+                    cursor.execute("""
+                        DELETE FROM Pets WHERE ID = ?
+                    """, (ids, ))
+
+                    conexao.commit()
+
+                cursor.execute("""
+                    DELETE From Tutores
+                    WHERE ID = ?
+                """, (tutor_id,))
+
+                conexao.commit()
 
                 # deleta a foto do tutor
                 foto_path = self.table.item(linha, 4).text()
                 if foto_path and os.path.exists(foto_path):
                     os.remove(foto_path)
 
-            QMessageBox.information(self, "Sucesso", "Tutor deletado com sucesso!")
+            QMessageBox.information(self, "Sucesso", "Tutor e seus Pets deletados com sucesso!")
             self.atualizar_tabela()
 
     def openTelaPet(self):
@@ -666,7 +696,11 @@ class TelaPet(QWidget):
     def adicionarPet(self):
         dados_pet = self.abrirFormulario()
         if dados_pet:
-            # conecta no banco de dados e adiciona o pet
+            conexao = sqlite3.connect('dados.db')
+            cursor = conexao.cursor()
+
+            cursor.execute("INSERT INTO Pets (Nome, Peso, Raca_ID, Tutor_ID) VALUES (?, ?, ?, ?)")
+
             QMessageBox.information(self, "Sucesso", "Pet adicionado com sucesso!")
             self.atualizarTabela()
 
@@ -716,6 +750,9 @@ class TelaPet(QWidget):
         dialogo.setWindowTitle(f"{'Editar' if pet else 'Adicionar'} Pet")
         layout = QVBoxLayout()
 
+        conexao = sqlite3.connect('dados.db')
+        cursor = conexao.cursor()
+
         nome_input = QLineEdit()
         peso_input = QLineEdit()
         raca_input = QLineEdit()
@@ -726,9 +763,11 @@ class TelaPet(QWidget):
             peso_input.setText(pet["peso"])
             raca_input.setText(pet["raca"])
         
-        # tutores = conecta no banco de dados e busca todos os tutores
-        # for tutor in tutores():
-        #     tutor_input.addItem(f'tutor['nome'] (tutor['id'])')
+        cursor.execute("SELECT Nome, ID FROM Tutores")
+        tutores = cursor.fetchall()
+
+        for nome, tutor_id in tutores:
+            tutor_input.addItem(f'{nome} ({tutor_id})')
 
         formulario = QFormLayout()
         formulario.addRow("Nome:", nome_input)
@@ -745,12 +784,20 @@ class TelaPet(QWidget):
             nome = nome_input.text().strip()
             peso = peso_input.text().strip()
             raca = raca_input.text().strip()
+            tutor_id = tutor_input.text().strip()
+
+            cursor.execute("""
+                SELECT ID From Racas WHERE Nome = ?
+            """, (raca,))
+
+            raca_id = cursor.fetchall()[0]
+
             if not nome:
                 QMessageBox.warning(dialogo, "Erro", "Nome não pode estar vazio.")
                 return
             dialogo.accept()
             dialogo.resultado = {
-                "nome": nome, "peso": peso, "raca": raca,
+                "nome": nome, "peso": peso, "raca_id": raca_id,
                 # "id_tutor": 
             }
 
