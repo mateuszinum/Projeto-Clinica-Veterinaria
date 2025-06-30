@@ -10,6 +10,8 @@ from datetime import datetime
 from PyQt6.QtGui import QPixmap, QTextCharFormat, QColor, QFont
 from PyQt6.QtCore import Qt, QDate
 
+conexao = sqlite3.connect('dados.db')
+cursor = conexao.cursor()
 
 FOTOS_TUTORES_DIR = 'fotos_tutores'
 if not os.path.exists(FOTOS_TUTORES_DIR):
@@ -697,10 +699,9 @@ class TelaPet(QWidget):
     def adicionarPet(self):
         dados_pet = self.abrirFormulario()
         if dados_pet:
-            conexao = sqlite3.connect('dados.db')
-            cursor = conexao.cursor()
+            cursor.execute("INSERT INTO Pets (Nome, Peso, Raca_ID, Tutor_ID) VALUES (?, ?, ?, ?)", (dados_pet['nome'], dados_pet['peso'], dados_pet['raca_id'], dados_pet['id_tutor']))
 
-            cursor.execute("INSERT INTO Pets (Nome, Peso, Raca_ID, Tutor_ID) VALUES (?, ?, ?, ?)")
+            conexao.commit()
 
             QMessageBox.information(self, "Sucesso", "Pet adicionado com sucesso!")
             self.atualizarTabela()
@@ -710,7 +711,10 @@ class TelaPet(QWidget):
         if not linhas or len(linhas) != 1:
             QMessageBox.warning(self, "Seleção", "Por favor, selecione pelo menos um pet.")
             return
-        
+
+
+        cursor.execute("SELECT Nome, Peso, Raca_ID FROM Pets WHERE ID = ?", ())
+
         # pet_atual = 'variável que busca o pet no banco de dados pelo ID selecionado'
         pet_atual = {"nome": "Rex", "peso": "10kg", "raca": "Vira-lata"}
         dados_atualizado = self.abrirFormulario(pet_atual)
