@@ -86,15 +86,14 @@ class TelaLogin(QWidget):
             dados = cursor.fetchall()
 
             senha_bytes = senha_text.encode('utf-8')
-            salt = bcrypt.gensalt()
-            hash_senha = bcrypt.hashpw(senha_bytes, salt)
-                
+
             for email, senha in dados:
-                if email == login_text and senha == hash_senha:
+                if email == login_text and bcrypt.checkpw(senha_bytes, senha):
                     valida_dados = True
                     cursor.execute("SELECT * FROM Perfis WHERE Email = ? AND Senha_Hash = ?", (email, senha))
-                    perfil = cursor.fetchall()
-                    self.perfil = p.Perfil(perfil["Nome"], senha_text, perfil["Cargo_ID"], perfil["Data_Nasc"], perfil["CPF"], perfil["Email"])
+                    perfil = cursor.fetchall()[0]
+                    print(perfil)
+                    self.perfil = p.Perfil(perfil[1], senha_text, perfil[6], perfil[2], perfil[3], perfil[4])
                     self.openTelaProfissao()
 
             if not valida_dados:
