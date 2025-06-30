@@ -7,7 +7,7 @@ import perfis as p
 from PyQt6 import uic
 from PyQt6.QtWidgets import *
 from datetime import datetime
-from PyQt6.QtGui import QPixmap, QTextCharFormat, QColor, QFont
+from PyQt6.QtGui import QPixmap, QTextCharFormat, QColor, QFont, QDoubleValidator
 from PyQt6.QtCore import Qt, QDate
 
 conexao = sqlite3.connect('dados.db')
@@ -718,19 +718,6 @@ class TelaPet(QWidget):
         
         self.tela_inicial = tela_inicial
 
-        cursor.execute("SELECT * FROM Pets")
-        self.pets_db = cursor.fetchall()
-        print(self.pets_db, 111)
-
-        # deletar isso dps
-        # self.pets_db = [
-        #     {'id': 1, 'nome': 'Bolinha', 'raca': 'Poodle', 'id_tutor': 1, 'nome_tutor': 'João da Silva'},
-        #     {'id': 2, 'nome': 'Fofinho', 'raca': 'Siamês', 'id_tutor': 2, 'nome_tutor': 'Maria Oliveira'},
-        #     {'id': 3, 'nome': 'Rex', 'raca': 'Vira-lata', 'id_tutor': 1, 'nome_tutor': 'João da Silva'},
-        #     {'id': 4, 'nome': 'Miau', 'raca': 'Persa', 'id_tutor': 2, 'nome_tutor': 'Maria Oliveira'},
-        #     {'id': 5, 'nome': 'Trovão', 'raca': 'Golden Retriever', 'id_tutor': 1, 'nome_tutor': 'João da Silva'}
-        # ]
-
         self.addPetBTN.clicked.connect(self.adicionarPet)
         self.editPetBTN.clicked.connect(self.editarPet)
         self.delPetBTN.clicked.connect(self.deletarPet)
@@ -771,20 +758,16 @@ class TelaPet(QWidget):
             return
         
         model = linha[0].model()
-        index_coluna = model.index(linha[0].row(), 1)  # 2 é o número da coluna que você quer
+        index_coluna = model.index(linha[0].row(), 0)  # 2 é o número da coluna que você quer
         pet_id = index_coluna.data()
-        print(pet_id)
         
-        cursor.execute("SELECT Nome, Peso, Raca_ID FROM Pets WHERE ID = ?", (pet_id,))
+        cursor.execute("SELECT Nome, Peso, Raca_ID, Tutor_ID FROM Pets WHERE ID = ?", (pet_id,))
 
         pet_atual = cursor.fetchall()[0]
-        print(pet_atual)
 
-        # pet_atual = 'variável que busca o pet no banco de dados pelo ID selecionado'
-        pet_atual = {"nome": "Rex", "peso": "10kg", "raca": "Vira-lata"}
         dados_atualizado = self.abrirFormulario(pet_atual)
         if dados_atualizado:
-            # conecta no banco de dados e atualiza o pet
+            cursor.execute("UPDATE Pets SET Nome = ?, Peso = ?, Raca_ID = ?, Tutor_ID = ? WHERE ID = ?", ())
             QMessageBox.information(self, "Sucesso", "Pet atualizado com sucesso!")
             self.atualizarTabela()
 
@@ -805,15 +788,25 @@ class TelaPet(QWidget):
         filtro = self.petInput.text().lower()
         # conecta no banco de dados e busca pets com o filtro
 
+        cursor.execute("SELECT * FROM Pets")
+        self.pets_db = cursor.fetchall()
+
+        self.table.setRowCount(0)
         for pet in self.pets_db:
-            if filtro in pet[1].lower() or filtro in pet['nome_tutor'].lower():
+            cursor.execute("SELECT Nome FROM Tutores WHERE ID = ?", (pet[4],))
+            tutor_nome = cursor.fetchall()[0][0]
+            if filtro in pet[1].lower() or filtro in tutor_nome.lower():
                 linha = self.table.rowCount()
                 self.table.insertRow(linha)
+                
+                cursor.execute("SELECT Nome FROM Racas WHERE ID = ?", (pet[3],))
+                raca_nome = cursor.fetchall()[0][0]
 
-                self.table.setItem(linha, 0, QTableWidgetItem(str(pet["id"])))
-                self.table.setItem(linha, 1, QTableWidgetItem(pet["nome"]))
-                self.table.setItem(linha, 2, QTableWidgetItem(pet["raca"]))
-                self.table.setItem(linha, 3, QTableWidgetItem(pet["nome_tutor"]))
+                self.table.setItem(linha, 0, QTableWidgetItem(str(pet[0])))
+                self.table.setItem(linha, 1, QTableWidgetItem(pet[1]))
+                self.table.setItem(linha, 2, QTableWidgetItem(pet[2]))
+                self.table.setItem(linha, 3, QTableWidgetItem(raca_nome))
+                self.table.setItem(linha, 4, QTableWidgetItem(tutor_nome))
 
     def abrirFormulario(self, pet=None):
         dialogo = QDialog(self)
@@ -825,30 +818,57 @@ class TelaPet(QWidget):
         cursor = conexao.cursor()
 
         nome_input = QLineEdit()
-        peso_input = QLineEdit()
-        # raca_input = QLineEdit()
-        raca_input = QComboBox()
-        tutor_input = QComboBox()
 
-        if pet:
-            nome_input.setText(pet["nome"])
-            peso_input.setText(pet["peso"])
-            # raca_input.setText(pet["raca"])
+        peso_input = QLineEdit()
         
-        cursor.execute("SELECT Nome, ID FROM Tutores")
-        tutores = cursor.fetchall()
-        lista_id_tutor = {}
-        for tutor, id in tutores:
-            tutor_input.addItem(f'{tutor}')
-            lista_id_tutor[tutor] = id
+        validador = QDoubleValidator(0.0, 999.99, 2)  # min, max, decimais
+        peso_input.setValidator(validador)
+
+        def formatar_peso(texto):
+            texto_limpo = ''.join(c for c in texto if c.isdigit() or c in ',.')
+
+            texto_limpo = texto_limpo.replace('.', ',')
+
+            partes = texto_limpo.split(',')
+            if len(partes) > 1:
+                inteiro = partes[0]
+                decimal = ''.join(partes[1:])[:2]  
+                texto_limpo = inteiro + ',' + decimal
+            else:
+                texto_limpo = partes[0]
+
+            texto_formatado = texto_limpo + " kg" if texto_limpo else ""
+
+            peso_input.blockSignals(True)
+            peso_input.setText(texto_formatado)
+            peso_input.blockSignals(False)
+
+
+        peso_input.textChanged.connect(formatar_peso)       
+
+        raca_input = QComboBox()
 
         cursor.execute("SELECT Nome, ID FROM Racas")
         racas = cursor.fetchall()
 
-        lista_id_raca = {}
-        for raca, id in racas:
-            raca_input.addItem(f'{raca}')
-            lista_id_raca[raca] = id
+        for raca_nome, raca_id in racas:
+            raca_input.addItem(raca_nome, userData=raca_id)
+
+        tutor_input = QComboBox()
+            
+        cursor.execute("SELECT Nome, ID FROM Tutores")
+        tutores = cursor.fetchall()
+
+        for tutor_nome, tutor_id in tutores:
+            tutor_input.addItem(tutor_nome, userData=tutor_id)
+        
+        if pet:
+            nome_input.setText(pet[0])
+            peso_input.setText(str(pet[1]))
+            raca_input.setCurrentIndex(raca_input.findData(pet[2]))
+            tutor_input.setCurrentIndex(tutor_input.findData(pet[3]))
+
+
 
         formulario = QFormLayout()
         formulario.addRow("Nome:", nome_input)
@@ -865,14 +885,9 @@ class TelaPet(QWidget):
         def salvar():
             nome = nome_input.text().strip()
             peso = peso_input.text().strip()
-            raca_id = lista_id_raca[raca_input.currentText().strip()]
-            tutor_id = lista_id_tutor[tutor_input.currentText().strip()]
+            raca_id = raca_input.currentData()
+            tutor_id = tutor_input.currentData()
 
-            # cursor.execute("""
-            #     SELECT ID FROM Racas WHERE Nome = ?
-            # """, (raca,))
-
-            # raca_id = cursor.fetchall()[0]
 
             if not nome:
                 QMessageBox.warning(dialogo, "Erro", "Nome não pode estar vazio.")
