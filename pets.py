@@ -710,7 +710,8 @@ class TelaPet(QWidget):
         if not linhas or len(linhas) != 1:
             QMessageBox.warning(self, "Seleção", "Por favor, selecione pelo menos um pet.")
             return
-        
+
+
         cursor.execute("SELECT Nome, Peso, Raca_ID FROM Pets WHERE ID = ?", ())
 
         # pet_atual = 'variável que busca o pet no banco de dados pelo ID selecionado'
