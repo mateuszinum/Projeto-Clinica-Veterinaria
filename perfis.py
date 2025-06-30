@@ -4,7 +4,7 @@ import sqlite3
 class Perfil():
     def __init__(self, nome, senha, cargo_id, data_nasc, cpf, email):
         self.nome = nome
-        self. data_nasc = data_nasc
+        self.data_nasc = data_nasc
         self.cpf = cpf
         self.email = email
         self.__senha_hash = self.gerar_senha_hash(senha)

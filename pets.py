@@ -57,31 +57,8 @@ class TelaLogin(QWidget):
 
         self.tela_inicial = tela_inicial
 
-        self.login_input.textChanged.connect(self.formatarCPF)
         self.validarBTN.clicked.connect(self.validarDados)
         self.revelarBTN.clicked.connect(self.revelaSenha)
-
-    def formatarCPF(self, texto):
-        numeros = re.sub(r'\D', '', texto)
-        tam = len(numeros)
-        numeros = numeros[:11]
-        novo_texto = ""
-
-        if tam > 0:
-            novo_texto += numeros[:3]
-
-        if tam > 3:
-            novo_texto += '.' + numeros[3:6]
-
-        if tam > 6:
-            novo_texto += '.' + numeros[6:9]
-
-        if tam > 9:
-            novo_texto += '-' + numeros[9:11]
-
-        self.login_input.blockSignals(True)
-        self.login_input.setText(novo_texto)
-        self.login_input.blockSignals(False)
 
     def revelaSenha(self):
         if self.senha_input.echoMode() == QLineEdit.EchoMode.Password:
@@ -125,8 +102,6 @@ class TelaLogin(QWidget):
                 self.labelWarning1.setText("")
                 self.senha_input.setStyleSheet("border: 2px solid #e74c3c;")
                 self.labelWarning2.setText("Login ou senha inválidos")
-
-        self.openTelaProfissao()
 
     def openTelaProfissao(self):
         if self.perfil.cargo_id == 1:
