@@ -597,7 +597,7 @@ class TelaTutor(QWidget):
             dialogo.resultado = {
                 "nome": nome, "telefone": telefone, "cpf": cpf, "foto_path": novo_foto_path
             }
-            dialogo.accept()
+            dialogo.accept() 
 
         botao_salvar.clicked.connect(salvar)
         if dialogo.exec():
@@ -718,14 +718,18 @@ class TelaPet(QWidget):
         
         self.tela_inicial = tela_inicial
 
+        cursor.execute("SELECT * FROM Pets")
+        self.pets_db = cursor.fetchall()
+        print(self.pets_db, 111)
+
         # deletar isso dps
-        self.pets_db = [
-            {'id': 1, 'nome': 'Bolinha', 'raca': 'Poodle', 'id_tutor': 1, 'nome_tutor': 'João da Silva'},
-            {'id': 2, 'nome': 'Fofinho', 'raca': 'Siamês', 'id_tutor': 2, 'nome_tutor': 'Maria Oliveira'},
-            {'id': 3, 'nome': 'Rex', 'raca': 'Vira-lata', 'id_tutor': 1, 'nome_tutor': 'João da Silva'},
-            {'id': 4, 'nome': 'Miau', 'raca': 'Persa', 'id_tutor': 2, 'nome_tutor': 'Maria Oliveira'},
-            {'id': 5, 'nome': 'Trovão', 'raca': 'Golden Retriever', 'id_tutor': 1, 'nome_tutor': 'João da Silva'}
-        ]
+        # self.pets_db = [
+        #     {'id': 1, 'nome': 'Bolinha', 'raca': 'Poodle', 'id_tutor': 1, 'nome_tutor': 'João da Silva'},
+        #     {'id': 2, 'nome': 'Fofinho', 'raca': 'Siamês', 'id_tutor': 2, 'nome_tutor': 'Maria Oliveira'},
+        #     {'id': 3, 'nome': 'Rex', 'raca': 'Vira-lata', 'id_tutor': 1, 'nome_tutor': 'João da Silva'},
+        #     {'id': 4, 'nome': 'Miau', 'raca': 'Persa', 'id_tutor': 2, 'nome_tutor': 'Maria Oliveira'},
+        #     {'id': 5, 'nome': 'Trovão', 'raca': 'Golden Retriever', 'id_tutor': 1, 'nome_tutor': 'João da Silva'}
+        # ]
 
         self.addPetBTN.clicked.connect(self.adicionarPet)
         self.editPetBTN.clicked.connect(self.editarPet)
@@ -762,10 +766,16 @@ class TelaPet(QWidget):
         if not linha or len(linha) != 1:
             QMessageBox.warning(self, "Seleção", "Por favor, selecione pelo menos um pet.")
             return
-
-        print(linha)
         
-        cursor.execute("SELECT Nome, Peso, Raca_ID FROM Pets WHERE ID = ?", ())
+        model = linha[0].model()
+        index_coluna = model.index(linha[0].row(), 1)  # 2 é o número da coluna que você quer
+        pet_id = index_coluna.data()
+        print(pet_id)
+        
+        cursor.execute("SELECT Nome, Peso, Raca_ID FROM Pets WHERE ID = ?", (pet_id,))
+
+        pet_atual = cursor.fetchall()[0]
+        print(pet_atual)
 
         # pet_atual = 'variável que busca o pet no banco de dados pelo ID selecionado'
         pet_atual = {"nome": "Rex", "peso": "10kg", "raca": "Vira-lata"}
@@ -793,7 +803,7 @@ class TelaPet(QWidget):
         # conecta no banco de dados e busca pets com o filtro
 
         for pet in self.pets_db:
-            if filtro in pet['nome'].lower() or filtro in pet['nome_tutor'].lower():
+            if filtro in pet[1].lower() or filtro in pet['nome_tutor'].lower():
                 linha = self.table.rowCount()
                 self.table.insertRow(linha)
 
@@ -812,19 +822,29 @@ class TelaPet(QWidget):
 
         nome_input = QLineEdit()
         peso_input = QLineEdit()
-        raca_input = QLineEdit()
+        # raca_input = QLineEdit()
+        raca_input = QComboBox()
         tutor_input = QComboBox()
 
         if pet:
             nome_input.setText(pet["nome"])
             peso_input.setText(pet["peso"])
-            raca_input.setText(pet["raca"])
+            # raca_input.setText(pet["raca"])
         
         cursor.execute("SELECT Nome, ID FROM Tutores")
         tutores = cursor.fetchall()
+        lista_id_tutor = {}
+        for tutor, id in tutores:
+            tutor_input.addItem(f'{tutor}')
+            lista_id_tutor[tutor] = id
 
-        for nome, tutor_id in tutores:
-            tutor_input.addItem(f'{nome} ({tutor_id})')
+        cursor.execute("SELECT Nome, ID FROM Racas")
+        racas = cursor.fetchall()
+
+        lista_id_raca = {}
+        for raca, id in racas:
+            raca_input.addItem(f'{raca}')
+            lista_id_raca[raca] = id
 
         formulario = QFormLayout()
         formulario.addRow("Nome:", nome_input)
@@ -840,14 +860,14 @@ class TelaPet(QWidget):
         def salvar():
             nome = nome_input.text().strip()
             peso = peso_input.text().strip()
-            raca = raca_input.text().strip()
-            tutor_id = tutor_input.text().strip()
+            raca_id = lista_id_raca[raca_input.currentText().strip()]
+            tutor_id = lista_id_tutor[tutor_input.currentText().strip()]
 
-            cursor.execute("""
-                SELECT ID From Racas WHERE Nome = ?
-            """, (raca,))
+            # cursor.execute("""
+            #     SELECT ID FROM Racas WHERE Nome = ?
+            # """, (raca,))
 
-            raca_id = cursor.fetchall()[0]
+            # raca_id = cursor.fetchall()[0]
 
             if not nome:
                 QMessageBox.warning(dialogo, "Erro", "Nome não pode estar vazio.")
@@ -855,7 +875,7 @@ class TelaPet(QWidget):
             dialogo.accept()
             dialogo.resultado = {
                 "nome": nome, "peso": peso, "raca_id": raca_id,
-                # "id_tutor": 
+                 "id_tutor": tutor_id 
             }
 
         botao_salvar.clicked.connect(salvar)
