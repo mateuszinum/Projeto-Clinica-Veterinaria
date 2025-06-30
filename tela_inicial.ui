@@ -15,7 +15,7 @@
   </property>
   <property name="styleSheet">
    <string notr="true">QWidget#Form {
-    background-color: #dfedf0;
+    background-color: #93cbd9;
 }</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
@@ -27,10 +27,7 @@
     font-weight: bold;</string>
      </property>
      <property name="text">
-      <string>Bem-vindo a Clínica
-
-
-sla oq mais colocar aqui</string>
+      <string>Bem-vindo a Clínica Bixus</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>

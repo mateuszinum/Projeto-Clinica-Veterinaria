@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>269</width>
-    <height>224</height>
+    <height>225</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,7 +15,7 @@
   </property>
   <property name="styleSheet">
    <string notr="true">QWidget#Form {
-    background-color: #dfedf0;
+    background-color: #93cbd9;
 }</string>
   </property>
   <layout class="QFormLayout" name="formLayout_2">
@@ -65,7 +65,7 @@
     font-size: 12px;</string>
        </property>
        <property name="placeholderText">
-        <string>Insira CPF</string>
+        <string>Insira Email</string>
        </property>
       </widget>
      </item>
