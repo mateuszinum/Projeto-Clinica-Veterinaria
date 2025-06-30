@@ -1,4 +1,5 @@
 import sqlite3
+import requests
 
 conexao = sqlite3.connect('dados.db')
 cursor = conexao.cursor()
@@ -128,4 +129,20 @@ if len(cargos_bd) == 0:
 
     conexao.commit()
 
-    
+cursor.execute(f'SELECT * FROM Racas')
+
+racas_bd = cursor.fetchall()
+
+if len(racas_bd) == 0:
+    url = "https://api.thedogapi.com/v1/breeds"
+
+    headers = {
+        "x-api-key": "live_hYlHEKtJYMhiNhr8VUSrnT2wwx2paGOsLQ27NbZzbBpdMHDgqhWfswD8UgOvoBpK"  # substitua pela sua chave, se tiver
+    }
+
+    response = requests.get(url, headers=headers)
+
+    breeds = response.json()
+    for breed in breeds:
+        cursor.execute("INSERT INTO Racas (Nome) VALUES (?)", (breed['name'],))
+        conexao.commit()

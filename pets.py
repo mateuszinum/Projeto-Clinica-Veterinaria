@@ -92,7 +92,6 @@ class TelaLogin(QWidget):
                     valida_dados = True
                     cursor.execute("SELECT * FROM Perfis WHERE Email = ? AND Senha_Hash = ?", (email, senha))
                     perfil = cursor.fetchall()[0]
-                    print(perfil)
                     self.perfil = p.Perfil(perfil[1], senha_text, perfil[6], perfil[2], perfil[3], perfil[4])
                     self.openTelaProfissao()
 
@@ -445,23 +444,31 @@ class TelaTutor(QWidget):
         self.table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
 
     def atualizar_tabela(self):
-        filtro = self.tutorInput.text()
+        filtro = self.tutorInput.text().strip()
+
+        if len(filtro) == 0:
+            cursor.execute("SELECT * FROM Tutores")
+
+        else:
+            cursor.execute("SELECT * FROM Tutores WHERE Nome LIKE ?", ('%' + filtro + '%',))
+        tutores_db = cursor.fetchall()
         # conecta no banco de dados e busca tutores com o filtro
-        tutores_db = [
-            {'id': 1, 'nome': 'João da Silva', 'telefone': '(11) 98765-4321', 'cpf': '123.456.789-00', 'foto_path': 'fotos_tutores/1.jpg'},
-            {'id': 2, 'nome': 'Maria Oliveira', 'telefone': '(21) 91234-5678', 'cpf': '111.222.333-44', 'foto_path': ''},
-        ]
+        
+        # tutores_db = [
+        #     {'id': 1, 'nome': 'João da Silva', 'telefone': '(11) 98765-4321', 'cpf': '123.456.789-00', 'foto_path': 'fotos_tutores/1.jpg'},
+        #     {'id': 2, 'nome': 'Maria Oliveira', 'telefone': '(21) 91234-5678', 'cpf': '111.222.333-44', 'foto_path': ''},
+        # ]
 
         self.table.setRowCount(0)
         for tutor in tutores_db:
-            if filtro.lower() in tutor['nome'].lower():
+            if filtro.lower() in tutor[1].lower():
                 row = self.table.rowCount()
                 self.table.insertRow(row)
-                self.table.setItem(row, 0, QTableWidgetItem(str(tutor['id'])))
-                self.table.setItem(row, 1, QTableWidgetItem(tutor['nome']))
-                self.table.setItem(row, 2, QTableWidgetItem(tutor['telefone']))
-                self.table.setItem(row, 3, QTableWidgetItem(tutor['cpf']))
-                self.table.setItem(row, 4, QTableWidgetItem(tutor['foto_path']))
+                self.table.setItem(row, 0, QTableWidgetItem(str(tutor[0])))
+                self.table.setItem(row, 1, QTableWidgetItem(tutor[1]))
+                self.table.setItem(row, 2, QTableWidgetItem(tutor[2]))
+                self.table.setItem(row, 3, QTableWidgetItem(tutor[3]))
+                self.table.setItem(row, 4, QTableWidgetItem(tutor[4]))
 
     def abrirFormularioTutor(self, tutor=None):
         dialogo = QDialog(self)
@@ -664,8 +671,8 @@ class TelaPet(QWidget):
         self.atualizarTabela()
 
     def configurarTabela(self):
-        self.table.setColumnCount(4)
-        self.table.setHorizontalHeaderLabels(["ID", "Nome do Pet", "Raça", "Nome do Tutor"])
+        self.table.setColumnCount(5)
+        self.table.setHorizontalHeaderLabels(["ID", "Nome do Pet", "Peso", "Raça", "Nome do Tutor"])
         self.table.setColumnHidden(0, True)
         self.table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         self.table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
@@ -681,12 +688,13 @@ class TelaPet(QWidget):
             self.atualizarTabela()
 
     def editarPet(self):
-        linhas = self.table.selectionModel().selectedRows()
-        if not linhas or len(linhas) != 1:
+        linha = self.table.selectionModel().selectedRows()
+        if not linha or len(linha) != 1:
             QMessageBox.warning(self, "Seleção", "Por favor, selecione pelo menos um pet.")
             return
 
-
+        print(linha)
+        
         cursor.execute("SELECT Nome, Peso, Raca_ID FROM Pets WHERE ID = ?", ())
 
         # pet_atual = 'variável que busca o pet no banco de dados pelo ID selecionado'
