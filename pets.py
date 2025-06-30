@@ -548,11 +548,11 @@ class TelaTutor(QWidget):
                 foto_label.setText(os.path.basename(fname))
 
         if not dialogo.foto_path or not os.path.exists(dialogo.foto_path):
-            caminho_padrao = os.path.join(FOTOS_TUTORES_DIR, "default-icon.jpg")
+            caminho_padrao = os.path.join(FOTOS_TUTORES_DIR, "default-icon.png")
             dialogo.foto_path = caminho_padrao
             pixmap_padrao = QPixmap(caminho_padrao)
             foto_preview.setPixmap(pixmap_padrao)
-            foto_label.setText("default-icon.jpg")
+            foto_label.setText("default-icon.png")
 
         botao_selecionar = QPushButton("Selecionar Foto")
         botao_selecionar.setStyleSheet(f'background-color: #2f80ed; color: white; padding: 6px 12px; border-radius: 4px; border: none; font-size: 14px; font-weight: bold;')
@@ -586,16 +586,8 @@ class TelaTutor(QWidget):
                 QMessageBox.warning(dialogo, "Erro", "Todos os campos devem ser preenchidos.")
                 return
 
-            novo_foto_path = dialogo.foto_path
-            if dialogo.foto_path and not dialogo.foto_path.startswith(FOTOS_TUTORES_DIR):
-                id_tutor = tutor['id'] if tutor else 'novo'
-                ext = os.path.splitext(dialogo.foto_path)[1]
-                novo_nome_arquivo = f"tutor_{id_tutor}_{QDate.currentDate().toString('yyyyMMdd')}{ext}"
-                novo_foto_path = os.path.join(FOTOS_TUTORES_DIR, novo_nome_arquivo)
-                shutil.copy(dialogo.foto_path, novo_foto_path)
-
             dialogo.resultado = {
-                "nome": nome, "telefone": telefone, "cpf": cpf, "foto_path": novo_foto_path
+                "nome": nome, "telefone": telefone, "cpf": cpf, "foto_path": dialogo.foto_path
             }
             dialogo.accept() 
 
@@ -610,7 +602,27 @@ class TelaTutor(QWidget):
             conexao = sqlite3.connect('dados.db')
             cursor = conexao.cursor()
 
-            cursor.execute("INSERT INTO Tutores (Nome, Telefone, CPF, Foto_Path) VALUES (?, ?, ?, ?)", (dados_tutor["nome"], dados_tutor["telefone"], dados_tutor["cpf"], dados_tutor["foto_path"]))
+            cursor.execute("INSERT INTO Tutores (Nome, Telefone, CPF, Foto_Path) VALUES (?, ?, ?, ?)", (dados_tutor["nome"], dados_tutor["telefone"], dados_tutor["cpf"], 'NULL'))
+
+            cursor.execute("""
+                SELECT ID FROM Tutores WHERE CPF = ?
+            """, (dados_tutor["cpf"],))
+
+            id_tutor = cursor.fetchone()[0]
+            novo_foto_path = dados_tutor["foto_path"]
+            if dados_tutor["foto_path"]:
+                ext = os.path.splitext(dados_tutor["foto_path"])[1]
+                novo_nome_arquivo = f"tutor_{id_tutor}{ext}"
+                novo_foto_path = os.path.join(FOTOS_TUTORES_DIR, novo_nome_arquivo)
+
+                if not os.path.exists(novo_foto_path):
+                    shutil.copy(dados_tutor["foto_path"], novo_foto_path)
+            
+            cursor.execute("""
+                UPDATE Tutores
+                SET Foto_Path = ?
+                WHERE ID = ?
+            """, (novo_foto_path, id_tutor))
             conexao.commit()
 
             QMessageBox.information(self, "Sucesso", "Tutor adicionado com sucesso!")
@@ -637,16 +649,30 @@ class TelaTutor(QWidget):
             conexao = sqlite3.connect('dados.db')
             cursor = conexao.cursor()
 
+            nova_foto_path = dados_atualizados['foto_path']
+
+            if nova_foto_path != tutor_atual['foto_path']:
+                if os.path.exists(tutor_atual['foto_path']) and tutor_atual['foto_path'] != 'NULL':
+                    os.remove(tutor_atual['foto_path'])
+
+                if not nova_foto_path.startswith(FOTOS_TUTORES_DIR):
+                    ext = os.path.splitext(nova_foto_path)[1]
+                    novo_nome_foto = f"tutor_{tutor_atual['id']}{ext}"
+                    nova_foto_path = os.path.join(FOTOS_TUTORES_DIR, novo_nome_foto)
+
+                    if not os.path.exists(nova_foto_path):
+                        shutil.copy(dados_atualizados['foto_path'], nova_foto_path)
+
             cursor.execute("""
                 UPDATE Tutores
                 SET Nome = ?, Telefone = ?, CPF = ?, Foto_Path = ?
                 WHERE ID = ?
             """, (
-            dados_atualizados['nome'],
-            dados_atualizados['telefone'],
-            dados_atualizados['cpf'],
-            dados_atualizados['foto_path'],
-            tutor_atual['id']
+                dados_atualizados['nome'],
+                dados_atualizados['telefone'],
+                dados_atualizados['cpf'],
+                nova_foto_path,
+                tutor_atual['id']
             ))
 
             conexao.commit()
@@ -657,7 +683,7 @@ class TelaTutor(QWidget):
     def deletarTutor(self):
         linhas = self.table.selectionModel().selectedRows()
         if not linhas or len(linhas) != 1:
-            QMessageBox.warning(self, "Seleção", "Por favor, selecione pelo menos um pet.")
+            QMessageBox.warning(self, "Seleção", "Por favor, selecione pelo menos um tutor.")
             return
 
         resposta = QMessageBox.question(self, "Confirmar", "Deseja realmente excluir os tutores selecionados?")
@@ -688,7 +714,6 @@ class TelaTutor(QWidget):
 
                 conexao.commit()
 
-                # deleta a foto do tutor
                 foto_path = self.table.item(linha.row(), 4).text()
                 if foto_path and os.path.exists(foto_path):
                     os.remove(foto_path)
