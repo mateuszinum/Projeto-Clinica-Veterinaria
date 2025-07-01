@@ -1,51 +1,61 @@
-import sys
 from PyQt6.QtWidgets import (
-    QApplication, QWidget, QVBoxLayout, QPushButton,
-    QLabel, QFileDialog
+    QApplication, QWidget, QPushButton, QCalendarWidget,
+    QVBoxLayout, QDialog, QLabel
 )
-from PyQt6.QtGui import QPixmap
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import QDate, Qt
+import sys
+
+class CalendarioPopup(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Selecionar Data")
+        self.setWindowModality(Qt.WindowModality.ApplicationModal)
+        self.setFixedSize(300, 250)
+
+        self.calendario = QCalendarWidget(self)
+        self.calendario.clicked.connect(self.data_selecionada)
+
+        layout = QVBoxLayout(self)
+        layout.addWidget(self.calendario)
+
+        self.data = None
+
+    def data_selecionada(self, date: QDate):
+        self.data = date
+        self.accept()  # fecha o popup
 
 
-class JanelaImagem(QWidget):
+class JanelaPrincipal(QWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Carregar Imagem")
-        self.setGeometry(100, 100, 600, 400)
+        self.setWindowTitle("Botão com Lupa e Calendário")
+        self.setFixedSize(300, 200)
 
-        self.layout = QVBoxLayout()
+        layout = QVBoxLayout(self)
 
-        # Label para exibir imagem
-        self.label_imagem = QLabel("Nenhuma imagem carregada")
-        self.label_imagem.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.label_imagem.setStyleSheet("border: 1px solid gray;")
+        # Botão com emoji de lupa
+        self.botao_lupa = QPushButton("🔍 Selecionar Data")
+        self.botao_lupa.clicked.connect(self.abrir_calendario)
 
-        # Botão para carregar imagem
-        self.botao_carregar = QPushButton("Carregar Imagem")
-        self.botao_carregar.clicked.connect(self.carregar_imagem)
+        # Label para mostrar a data selecionada
+        self.label_data = QLabel("Nenhuma data selecionada")
+        self.label_data.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        self.layout.addWidget(self.label_imagem)
-        self.layout.addWidget(self.botao_carregar)
-        self.setLayout(self.layout)
+        layout.addWidget(self.botao_lupa)
+        layout.addWidget(self.label_data)
 
-    def carregar_imagem(self):
-        nome_arquivo, _ = QFileDialog.getOpenFileName(
-            self,
-            "Selecionar Imagem",
-            "",
-            "Imagens (*.png *.jpg *.jpeg *.bmp *.gif)"
-        )
-        if nome_arquivo:
-            pixmap = QPixmap(nome_arquivo)
-            self.label_imagem.setPixmap(pixmap.scaled(
-                self.label_imagem.size(),
-                Qt.AspectRatioMode.KeepAspectRatio,
-                Qt.TransformationMode.SmoothTransformation
-            ))
+        # Aqui será "salva" a data (como variável interna)
+        self.data_selecionada = None
 
+    def abrir_calendario(self):
+        popup = CalendarioPopup(self)
+        if popup.exec():  # Quando o calendário for fechado com "accept"
+            self.data_selecionada = popup.data
+            self.label_data.setText(f"Data selecionada: {self.data_selecionada.toString('dd/MM/yyyy')}")
+            print("Data salva:", self.data_selecionada)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    janela = JanelaImagem()
+    janela = JanelaPrincipal()
     janela.show()
     sys.exit(app.exec())

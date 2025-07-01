@@ -7,11 +7,13 @@ import perfis as p
 from PyQt6 import uic
 from PyQt6.QtWidgets import *
 from datetime import datetime
-from PyQt6.QtGui import QPixmap, QTextCharFormat, QColor, QFont, QDoubleValidator
+from PyQt6.QtGui import QPixmap, QTextCharFormat, QColor, QFont
 from PyQt6.QtCore import Qt, QDate
+
 
 conexao = sqlite3.connect('dados.db')
 cursor = conexao.cursor()
+
 
 FOTOS_TUTORES_DIR = 'fotos_tutores'
 if not os.path.exists(FOTOS_TUTORES_DIR):
@@ -332,75 +334,122 @@ class TelaConsulta(QWidget):
         uic.loadUi("tela_recepcionista_consulta.ui", self)
         
         self.tela_inicial = tela_inicial
-        self.tutores_map = {}
         self.datas_marcadas = set()
 
         self.formato_data_consulta = QTextCharFormat()
         self.formato_data_consulta.setForeground(QColor("red"))
         self.formato_data_consulta.setFontWeight(QFont.Weight.Bold)
 
+        self.addConsultaBTN.clicked.connect(self.adicionarConsulta)
+        self.editConsultaBTN.clicked.connect(self.editarConsulta)
+        self.delConsultaBTN.clicked.connect(self.deletarConsulta)
+
         self.petsBTN.clicked.connect(self.openTelaPet)
         self.tutoresBTN.clicked.connect(self.openTelaTutor)
         self.sairBTN.clicked.connect(self.logout)
 
-        self.configurar_autocompletador()
+    def adicionarConsulta(self):
+        dados_consulta = self.abrirFormularioConsulta()
+        print(dados_consulta)
 
-    def conectar_db(self):
-        return sqlite3.connect('dados.db')
+    def editarConsulta(self):
+        pass
 
-    def configurar_autocompletador(self):
-        conexao = self.conectar_db()
-        cursor = conexao.cursor()
-        
-        cursor.execute("SELECT ID, Nome FROM Tutores")
-        tutores_bd = cursor.fetchall()
-        conexao.close()
+    def deletarConsulta(self):
+        pass
 
-        nomes_tutores = []
-        for tutor_id, nome in tutores_bd:
-            self.tutores_map[nome] = tutor_id
-            nomes_tutores.append(nome)
+    def abrirFormularioConsulta(self, consulta=None):
+        dialogo = QDialog(self)
+        dialogo.setWindowTitle(f"{'Editar' if consulta else 'Adicionar'} Consulta")
+        dialogo.setStyleSheet("background-color: #93cbd9;")
 
-        completer = QCompleter(nomes_tutores, self)
+        layout = QVBoxLayout()
+        formulario = QFormLayout()
+
+        tutor_input = QLineEdit()
+        tutores = 'variavel com todos os tutores do banco de dados'
+        tutor_nomes = list(tutores)
+        completer = QCompleter(tutor_nomes)
         completer.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
-        self.tutorInput.setCompleter(completer)
+        tutor_input.setCompleter(completer)
+        if consulta:
+            tutor_input.setText(consulta['tutor'])
 
-        completer.activated.connect(self.marcar_datas_por_tutor)
+        pet_input = QComboBox()
+        if consulta:
+            pets_do_tutor = 'pega os pets de consulta["tutor"]'
+            pet_input.addItems(pets_do_tutor)
+            pet_input.setCurrentText(consulta['pet'])
 
-    def resetar_formatacao_calendario(self):
-        formato_padrao = QTextCharFormat()
-        for data in self.datas_marcadas:
-            self.calendarWidget.setDateTextFormat(data, formato_padrao)
-        self.datas_marcadas.clear()
+        def atualizar_pets():
+            nome_tutor = tutor_input.text().strip()
+            pets = 'pega todos os pets do tutor'
+            pet_input.clear()
+            pet_input.addItems(pets)
 
-    def marcar_datas_por_tutor(self, nome_tutor):
-        self.resetar_formatacao_calendario()
+        tutor_input.editingFinished.connect(atualizar_pets)
 
-        if nome_tutor not in self.tutores_map:
-            return
+        data_label = QLabel("Nenhuma data selecionada")
+        data_selecionada = {"valor": None}
 
-        tutor_id = self.tutores_map[nome_tutor]
+        botao_lupa = QPushButton("🔍 Selecionar Data")
+        botao_lupa.setStyleSheet(
+            'background-color: #2f80ed; color: white; padding: 6px 12px; border-radius: 4px; '
+            'border: none; font-size: 14px; font-weight: bold;'
+            )
+        def escolher_data():
+            data = self.abrir_calendario()
+            if data:
+                data_label.setText(f"Data Selecionada - {data}")
+                data_selecionada["valor"] = data
+        botao_lupa.clicked.connect(escolher_data)
 
-        conexao = self.conectar_db()
-        cursor = conexao.cursor()
+        if consulta:
+            if 'data' in consulta:
+                data_label.setText(f"Data Selecionada - {consulta['data']}")
+                data_selecionada["valor"] = consulta['data']
 
-        query = """
-            SELECT DISTINCT c.Data_Horario
-            FROM Consultas c
-            JOIN Pets p ON c.Pet_ID = p.ID
-            WHERE p.Tutor_ID = ?
-        """
-        cursor.execute(query, (tutor_id,))
-        consultas = cursor.fetchall()
-        conexao.close()
+        formulario.addRow("Tutor:", tutor_input)
+        formulario.addRow("Pet:", pet_input)
+        formulario.addRow("Data:", botao_lupa)
+        layout.addLayout(formulario)
+        layout.addWidget(data_label)
 
-        for (data_horario_str,) in consultas:
-            data_str = data_horario_str.split(' ')[0]
-            q_date = QDate.fromString(data_str, "dd/MM/yyyy")
+        botao_salvar = QPushButton("Salvar")
+        botao_salvar.setStyleSheet(
+            'background-color: #27ae60; color: white; padding: 6px 12px; border-radius: 4px; '
+            'border: none; font-size: 14px; font-weight: bold;'
+        )
+        layout.addWidget(botao_salvar)
 
-            if q_date.isValid():
-                self.calendarWidget.setDateTextFormat(q_date, self.formato_data_consulta)
-                self.datas_marcadas.add(q_date)
+        dialogo.setLayout(layout)
+
+        def salvar():
+            data = data_selecionada["valor"]
+            tutor = tutor_input.text().strip()
+            pet = pet_input.currentText().strip()
+
+            if not data or not tutor or not pet:
+                QMessageBox.warning(dialogo, "Erro", "Todos os campos devem ser preenchidos.")
+                return
+
+            dialogo.resultado = {
+                "data": data,
+                "tutor": tutor,
+                "pet": pet
+            }
+            dialogo.accept()
+
+        botao_salvar.clicked.connect(salvar)
+
+        if dialogo.exec():
+            return dialogo.resultado
+        return None
+    
+    def abrir_calendario(self):
+        popup = CalendarioPopup(self)
+        if popup.exec():
+            return popup.data.toString('dd/MM/yyyy')
 
     def openTelaPet(self):
         self.tela_pet = TelaPet(self.tela_inicial)
@@ -415,6 +464,28 @@ class TelaConsulta(QWidget):
     def logout(self):
         self.tela_inicial.show()
         self.close()
+
+
+class CalendarioPopup(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        self.setWindowTitle("Selecionar Data")
+        self.setWindowModality(Qt.WindowModality.ApplicationModal)
+        self.setFixedSize(300, 250)
+
+        self.calendario = QCalendarWidget(self)
+        self.calendario.clicked.connect(self.data_selecionada)
+
+        layout = QVBoxLayout(self)
+        layout.addWidget(self.calendario)
+
+        self.data = None
+
+    def data_selecionada(self, date: QDate):
+        self.data = date
+        self.accept()
+
 
 class TelaTutor(QWidget):
     def __init__(self, tela_inicial):
@@ -454,14 +525,8 @@ class TelaTutor(QWidget):
 
         else:
             cursor.execute("SELECT * FROM Tutores WHERE Nome LIKE ?", ('%' + filtro + '%',))
-        tutores_db = cursor.fetchall()
-        # conecta no banco de dados e busca tutores com o filtro
-        
-        # tutores_db = [
-        #     {'id': 1, 'nome': 'João da Silva', 'telefone': '(11) 98765-4321', 'cpf': '123.456.789-00', 'foto_path': 'fotos_tutores/1.jpg'},
-        #     {'id': 2, 'nome': 'Maria Oliveira', 'telefone': '(21) 91234-5678', 'cpf': '111.222.333-44', 'foto_path': ''},
-        # ]
 
+        tutores_db = cursor.fetchall()
         self.table.setRowCount(0)
         for tutor in tutores_db:
             if filtro.lower() in tutor[1].lower():
@@ -555,7 +620,10 @@ class TelaTutor(QWidget):
             foto_label.setText("default-icon.png")
 
         botao_selecionar = QPushButton("Selecionar Foto")
-        botao_selecionar.setStyleSheet(f'background-color: #2f80ed; color: white; padding: 6px 12px; border-radius: 4px; border: none; font-size: 14px; font-weight: bold;')
+        botao_selecionar.setStyleSheet(
+            'background-color: #2f80ed; color: white; padding: 6px 12px; border-radius: 4px; '
+            'border: none; font-size: 14px; font-weight: bold;'
+            )
         botao_selecionar.clicked.connect(selecionar_foto)
         foto_layout.addWidget(botao_selecionar)
         foto_layout.addWidget(foto_label)
@@ -573,7 +641,10 @@ class TelaTutor(QWidget):
         layout.addLayout(foto_layout)
         
         botao_salvar = QPushButton("Salvar")
-        botao_salvar.setStyleSheet(f'background-color: #27ae60; color: white; padding: 6px 12px; border-radius: 4px; border: none; font-size: 14px; font-weight: bold;')
+        botao_salvar.setStyleSheet(
+            'background-color: #27ae60; color: white; padding: 6px 12px; border-radius: 4px; '
+            'border: none; font-size: 14px; font-weight: bold;'
+            )
         layout.addWidget(botao_salvar)
         dialogo.setLayout(layout)
 
@@ -587,7 +658,10 @@ class TelaTutor(QWidget):
                 return
 
             dialogo.resultado = {
-                "nome": nome, "telefone": telefone, "cpf": cpf, "foto_path": dialogo.foto_path
+                "nome": nome, 
+                "telefone": telefone, 
+                "cpf": cpf, 
+                "foto_path": dialogo.foto_path
             }
             dialogo.accept() 
 
@@ -900,7 +974,10 @@ class TelaPet(QWidget):
         formulario.addRow("Raça:", raca_input)
 
         botao_salvar = QPushButton("Salvar")
-        botao_salvar.setStyleSheet(f'background-color: #27ae60; color: white; padding: 6px 12px; border-radius: 4px; border: none; font-size: 14px; font-weight: bold;')
+        botao_salvar.setStyleSheet(
+            'background-color: #27ae60; color: white; padding: 6px 12px; border-radius: 4px; '
+            'border: none; font-size: 14px; font-weight: bold;'
+            )
         layout.addLayout(formulario)
         layout.addWidget(botao_salvar)
         dialogo.setLayout(layout)
@@ -911,14 +988,16 @@ class TelaPet(QWidget):
             raca_id = raca_input.currentData()
             tutor_id = tutor_input.currentData()
 
-
             if not nome:
                 QMessageBox.warning(dialogo, "Erro", "Nome não pode estar vazio.")
                 return
+            
             dialogo.accept()
             dialogo.resultado = {
-                "nome": nome, "peso": peso, "raca_id": raca_id,
-                 "id_tutor": tutor_id 
+                "nome": nome, 
+                "peso": peso, 
+                "raca_id": raca_id,
+                "id_tutor": tutor_id 
             }
 
         botao_salvar.clicked.connect(salvar)

@@ -201,7 +201,7 @@ QCalendarWidget QAbstractItemView:disabled {
       <item row="2" column="0">
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
-         <widget class="QPushButton" name="pushButton_4">
+         <widget class="QPushButton" name="addConsultaBTN">
           <property name="styleSheet">
            <string notr="true">QPushButton {
     background-color: #27ae60;
@@ -224,7 +224,7 @@ QPushButton:hover {
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton_5">
+         <widget class="QPushButton" name="editConsultaBTN">
           <property name="styleSheet">
            <string notr="true">QPushButton {
     background-color: #2f80ed;
@@ -246,7 +246,7 @@ QPushButton:hover {
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton_6">
+         <widget class="QPushButton" name="delConsultaBTN">
           <property name="styleSheet">
            <string notr="true">QPushButton {
     background-color: #e74c3c;
