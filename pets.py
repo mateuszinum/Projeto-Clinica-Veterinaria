@@ -349,8 +349,8 @@ class TelaConsulta(QWidget):
         self.sairBTN.clicked.connect(self.logout)
 
     def adicionarConsulta(self):
-        dados_consulta = self.abrirFormularioConsulta()
-        print(dados_consulta)
+        data = self.calendarWidget.selectedDate()
+        dados_consulta = self.abrirFormularioConsulta(data = data)
 
     def editarConsulta(self):
         pass
@@ -358,60 +358,41 @@ class TelaConsulta(QWidget):
     def deletarConsulta(self):
         pass
 
-    def abrirFormularioConsulta(self, consulta=None):
+    def abrirFormularioConsulta(self, data = None, consulta=None):
+        print(data.toString(f'dd/MM/yyyy'))
         dialogo = QDialog(self)
         dialogo.setWindowTitle(f"{'Editar' if consulta else 'Adicionar'} Consulta")
         dialogo.setStyleSheet("background-color: #93cbd9;")
 
         layout = QVBoxLayout()
         formulario = QFormLayout()
-
-        tutor_input = QLineEdit()
-        tutores = 'variavel com todos os tutores do banco de dados'
-        tutor_nomes = list(tutores)
-        completer = QCompleter(tutor_nomes)
-        completer.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
-        tutor_input.setCompleter(completer)
-        if consulta:
-            tutor_input.setText(consulta['tutor'])
-
         pet_input = QComboBox()
+        veterinario_input = QComboBox()
+        horario_input = QTimeEdit()
+
         if consulta:
-            pets_do_tutor = 'pega os pets de consulta["tutor"]'
-            pet_input.addItems(pets_do_tutor)
+            pets = 'todos os pets'
+            pet_input.addItems(pets)
             pet_input.setCurrentText(consulta['pet'])
 
-        def atualizar_pets():
-            nome_tutor = tutor_input.text().strip()
-            pets = 'pega todos os pets do tutor'
-            pet_input.clear()
-            pet_input.addItems(pets)
+            veterinarios = 'todos os veterinarios'
+            veterinario_input.addItems(veterinarios)
+            pet_input.setCurrentText(consulta['veterinario'])
 
-        tutor_input.editingFinished.connect(atualizar_pets)
-
-        data_label = QLabel("Nenhuma data selecionada")
-        data_selecionada = {"valor": None}
-
-        botao_lupa = QPushButton("🔍 Selecionar Data")
-        botao_lupa.setStyleSheet(
-            'background-color: #2f80ed; color: white; padding: 6px 12px; border-radius: 4px; '
-            'border: none; font-size: 14px; font-weight: bold;'
-            )
-        def escolher_data():
-            data = self.abrir_calendario()
-            if data:
-                data_label.setText(f"Data Selecionada - {data}")
-                data_selecionada["valor"] = data
-        botao_lupa.clicked.connect(escolher_data)
-
-        if consulta:
             if 'data' in consulta:
                 data_label.setText(f"Data Selecionada - {consulta['data']}")
                 data_selecionada["valor"] = consulta['data']
 
-        formulario.addRow("Tutor:", tutor_input)
+        data_label = QLabel("Nenhuma data selecionada")
+        data_selecionada = {"valor": None}
+
+        if data:
+            data_label.setText(f"Data Selecionada - {data.toString('dd/MM/yyyy')}")
+            data_selecionada["valor"] = data.toString("dd/MM/yyyy")
+
+        formulario.addRow("Veterinário:", veterinario_input)
         formulario.addRow("Pet:", pet_input)
-        formulario.addRow("Data:", botao_lupa)
+        formulario.addRow("Horário:", horario_input)
         layout.addLayout(formulario)
         layout.addWidget(data_label)
 
@@ -426,16 +407,14 @@ class TelaConsulta(QWidget):
 
         def salvar():
             data = data_selecionada["valor"]
-            tutor = tutor_input.text().strip()
             pet = pet_input.currentText().strip()
 
-            if not data or not tutor or not pet:
+            if not data or not pet:
                 QMessageBox.warning(dialogo, "Erro", "Todos os campos devem ser preenchidos.")
                 return
 
             dialogo.resultado = {
                 "data": data,
-                "tutor": tutor,
                 "pet": pet
             }
             dialogo.accept()
@@ -445,11 +424,6 @@ class TelaConsulta(QWidget):
         if dialogo.exec():
             return dialogo.resultado
         return None
-    
-    def abrir_calendario(self):
-        popup = CalendarioPopup(self)
-        if popup.exec():
-            return popup.data.toString('dd/MM/yyyy')
 
     def openTelaPet(self):
         self.tela_pet = TelaPet(self.tela_inicial)
@@ -464,27 +438,6 @@ class TelaConsulta(QWidget):
     def logout(self):
         self.tela_inicial.show()
         self.close()
-
-
-class CalendarioPopup(QDialog):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-
-        self.setWindowTitle("Selecionar Data")
-        self.setWindowModality(Qt.WindowModality.ApplicationModal)
-        self.setFixedSize(300, 250)
-
-        self.calendario = QCalendarWidget(self)
-        self.calendario.clicked.connect(self.data_selecionada)
-
-        layout = QVBoxLayout(self)
-        layout.addWidget(self.calendario)
-
-        self.data = None
-
-    def data_selecionada(self, date: QDate):
-        self.data = date
-        self.accept()
 
 
 class TelaTutor(QWidget):
@@ -503,6 +456,8 @@ class TelaTutor(QWidget):
         self.delTutorBTN.clicked.connect(self.deletarTutor)
         self.tutorInput.textChanged.connect(self.atualizar_tabela)
 
+        self.table.cellDoubleClicked.connect(self.abrirPerfil)
+
         self.configurar_tabela()
         self.atualizar_tabela()
 
@@ -512,10 +467,19 @@ class TelaTutor(QWidget):
         self.table.setColumnHidden(0, True)
         self.table.setColumnHidden(4, True)
         self.table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
+        self.table.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         self.table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
 
         self.table.horizontalHeader().setStretchLastSection(True)
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+
+    def abrirPerfil(self, linha, coluna):
+        valores = []
+        for col in range(self.table.columnCount()):
+            item = self.table.item(linha, col)
+            valores.append(item.text() if item else "")
+        print(valores)
+        pass
 
     def atualizar_tabela(self):
         filtro = self.tutorInput.text().strip()
