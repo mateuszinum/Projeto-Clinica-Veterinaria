@@ -336,112 +336,137 @@ class TelaConsulta(QWidget):
         self.tela_inicial = tela_inicial
         self.datas_marcadas = set()
 
-        self.formato_data_consulta = QTextCharFormat()
-        self.formato_data_consulta.setForeground(QColor("red"))
-        self.formato_data_consulta.setFontWeight(QFont.Weight.Bold)
-
         self.addConsultaBTN.clicked.connect(self.adicionarConsulta)
-        self.editConsultaBTN.clicked.connect(self.editarConsulta)
-        self.delConsultaBTN.clicked.connect(self.deletarConsulta)
 
         self.petsBTN.clicked.connect(self.openTelaPet)
         self.tutoresBTN.clicked.connect(self.openTelaTutor)
         self.vetBTN.clicked.connect(self.openTelaVeterinario)
         self.sairBTN.clicked.connect(self.logout)
 
-    def adicionarConsulta(self):
-        data = self.calendarWidget.selectedDate()
-        dados_consulta = self.abrirFormularioConsulta(data = data)
-        cursor.execute("INSERT INTO Consultas (Pet_ID, Perfil_Medico_ID, Data, Horario) VALUES (?, ?, ?, ?)", (dados_consulta['pet_id'], dados_consulta['veterinario_id'], dados_consulta['data'], dados_consulta['horario']))
-        conexao.commit()
+        self.calendarWidget.activated.connect(self.consultasDataSelecionada)
 
+        self.atualizar_cores_calendario()
 
-    def editarConsulta(self):
-        pass
+    def criar_formato(self, cor):
+        formato = QTextCharFormat()
+        formato.setBackground(cor)
+        formato.setFontWeight(QFont.Weight.Bold)
+        return formato
 
-    def deletarConsulta(self):
-        pass
+    def atualizar_cores_calendario(self):
+        formato_padrao = QTextCharFormat()
+        for data_marcada in self.datas_marcadas:
+            self.calendarWidget.setDateTextFormat(data_marcada, formato_padrao)
+        self.datas_marcadas.clear()
 
-    def abrirFormularioConsulta(self, data = None, consulta=None):
-        dialogo = QDialog(self)
+        formatos = {
+            1: self.criar_formato(QColor("#3498db")),
+            2: self.criar_formato(QColor("#2ecc71")),
+            3: self.criar_formato(QColor("#f39c12")),
+            4: self.criar_formato(QColor("#e74c3c"))
+        }
+
+        # só pra testar
+        data1 = QDate.fromString("01/07/2025", "dd/MM/yyyy")
+        data2 = QDate.fromString("02/07/2025", "dd/MM/yyyy")
+        data3 = QDate.fromString("03/07/2025", "dd/MM/yyyy")
+        data4 = QDate.fromString("04/07/2025", "dd/MM/yyyy")
+
+        self.calendarWidget.setDateTextFormat(data1, formatos[1])
+        self.datas_marcadas.add(data1)
+
+        self.calendarWidget.setDateTextFormat(data2, formatos[2])
+        self.datas_marcadas.add(data2)
+
+        self.calendarWidget.setDateTextFormat(data3, formatos[3])
+        self.datas_marcadas.add(data3)
+
+        self.calendarWidget.setDateTextFormat(data4, formatos[4])
+        self.datas_marcadas.add(data4)
+
+        # conectar no banco de dados para ver quantas consultas tem naquele dia
+
+        # # Usar uma conexão local é mais seguro que uma global
+        # with sqlite3.connect('dados.db') as conexao:
+        #     cursor = conexao.cursor()
+        #     # Query para contar quantas consultas existem em cada data
+        #     query = "SELECT Data, COUNT(ID) FROM Consultas GROUP BY Data"
+        #     cursor.execute(query)
+        #     contagem_por_data = cursor.fetchall()
+
+        # # Aplica os formatos baseados na contagem
+        # for data_str, contagem in contagem_por_data:
+        #     data = QDate.fromString(data_str, "dd/MM/yyyy")
+        #     if data.isValid():
+        #         # Escolhe a cor correta (se for >= 4, usa a cor do 4)
+        #         formato_a_aplicar = formatos.get(min(contagem, 4))
+                
+        #         if formato_a_aplicar:
+        #             self.calendarWidget.setDateTextFormat(data, formato_a_aplicar)
+        #             self.datas_marcadas.add(data) # Guarda a data que foi formatada
+                    
+    def consultasDataSelecionada(self, data):
+        dialogo = TelaConsultasDataSelecionada(data, self)
+
+        dialogo.exec()
+
+    def abrirFormularioConsulta(self, data=None, consulta=None):
+        dialogo = TelaCrudConsulta(self)
         dialogo.setWindowTitle(f"{'Editar' if consulta else 'Adicionar'} Consulta")
-        dialogo.setStyleSheet("background-color: #93cbd9;")
-
-        layout = QVBoxLayout()
-        formulario = QFormLayout()
-
-        pet_input = QComboBox()
-        veterinario_input = QComboBox()
-        horario_input = QTimeEdit()
 
         cursor.execute("SELECT Nome, ID FROM Pets")
         pets = cursor.fetchall()
-        pet_input.addItem("Selecione um pet")
+        dialogo.pet_input.addItem("Selecione um pet")
         for pet_nome, pet_id in pets:
-            pet_input.addItem(pet_nome, userData=pet_id)
+            dialogo.pet_input.addItem(pet_nome, userData=pet_id)
         
         cursor.execute("SELECT Nome, ID FROM Perfis WHERE Cargo_ID = ?", (2,))
         veterinarios = cursor.fetchall()
-        veterinario_input.addItem("Selecione um veterinário")
+        dialogo.veterinario_input.addItem("Selecione um veterinário", userData=None)
         for vet_nome, vet_id in veterinarios:
-            veterinario_input.addItem(vet_nome, userData=vet_id)
+            dialogo.veterinario_input.addItem(vet_nome, userData=vet_id)
 
-        
+        data_salvar = None
+
         if consulta:
-            pet_input.setCurrentIndex(pet_input.findData(consulta['pet_id']))
-            veterinario_input.setCurrentIndex(veterinario_input.findData(consulta['veterinario_id']))
-            data_label.setText(f"Data Selecionada - {consulta['data']}")
-            data_selecionada["valor"] = consulta['data']
-
-        data_label = QLabel("Nenhuma data selecionada")
-        data_selecionada = {"valor": None}
-
-        data_label.setText(f"Data Selecionada - {data.toString('dd/MM/yyyy')}")
-        data_selecionada["valor"] = data.toString("dd/MM/yyyy")
-
-        formulario.addRow("Veterinário:", veterinario_input)
-        formulario.addRow("Pet:", pet_input)
-        formulario.addRow("Horário:", horario_input)
-        layout.addLayout(formulario)
-        layout.addWidget(data_label)
-
-        botao_salvar = QPushButton("Salvar")
-        botao_salvar.setStyleSheet(
-            'background-color: #27ae60; color: white; padding: 6px 12px; border-radius: 4px; '
-            'border: none; font-size: 14px; font-weight: bold;'
-        )
-        layout.addWidget(botao_salvar)
-
-        dialogo.setLayout(layout)
+            dialogo.pet_input.setCurrentIndex(dialogo.pet_input.findData(consulta[0]))
+            dialogo.veterinario_input.setCurrentIndex(dialogo.veterinario_input.findData(consulta[1]))
+            dialogo.data_label.setText(f"Data da Consulta - {consulta[3]}")
+            data_salvar = consulta[3]
+        else:
+            dialogo.data_label.setText(f"Nova data da Consulta - {data.toString('dd/MM/yyyy')}")
+            data_salvar = data.toString("dd/MM/yyyy")
 
         def salvar():
-            data = data_selecionada["valor"]
-            pet_id = pet_input.currentData()
-            veterinario_id = veterinario_input.currentData()
-            horario = horario_input.time().toString("HH:mm")
-    
+            pet_id = dialogo.pet_input.currentData()
+            veterinario_id = dialogo.veterinario_input.currentData()
+            horario = dialogo.horario_input.time().toString("HH:mm")
 
-            if pet_input.currentIndex() == 0 or veterinario_input.currentIndex() == 0:
+            if not pet_id or not veterinario_id:
                 QMessageBox.warning(dialogo, "Erro", "Por favor selecione um pet e um veterinário.")
                 return
 
-            if not data or not pet_input.currentText().strip():
-                QMessageBox.warning(dialogo, "Erro", "Todos os campos devem ser preenchidos.")
-                return
-
             dialogo.resultado = {
-                "data": data,
+                "data": data_salvar,
                 "pet_id": pet_id,
                 "veterinario_id": veterinario_id,
                 "horario": horario
             }
             dialogo.accept()
 
-        botao_salvar.clicked.connect(salvar)
+        dialogo.botao_salvar.clicked.connect(salvar)
 
         if dialogo.exec():
             return dialogo.resultado
         return None
+
+    def adicionarConsulta(self):
+        data = self.calendarWidget.selectedDate()
+        dados_consulta = self.abrirFormularioConsulta(data = data)
+        cursor.execute("INSERT INTO Consultas (Pet_ID, Perfil_Medico_ID, Data, Horario) VALUES (?, ?, ?, ?)", (dados_consulta['pet_id'], dados_consulta['veterinario_id'], dados_consulta['data'], dados_consulta['horario']))
+        conexao.commit()
+        QMessageBox.information(self, "Sucesso", "Consulta adicionada com sucesso!")
+        self.atualizar_cores_calendario()
 
     def openTelaPet(self):
         self.tela_pet = TelaPet(self.tela_inicial)
@@ -461,6 +486,123 @@ class TelaConsulta(QWidget):
     def logout(self):
         self.tela_inicial.show()
         self.close()
+
+
+class TelaConsultasDataSelecionada(QDialog):
+    def __init__(self, data_selecionada=None, parent=None):
+        super().__init__(parent)
+        uic.loadUi("tela_todas_consultas.ui", self)
+
+        self.setWindowTitle(f"Tela Recepcionista - Consultas do dia {data_selecionada.toString('dd/MM/yyyy')}")
+
+        self.data_selecionada = data_selecionada
+
+        self.editConsultaBTN.clicked.connect(self.editarConsulta)
+        self.delConsultaBTN.clicked.connect(self.deletarConsulta)
+        
+        self.configurar_tabela()
+        self.carregar_consultas()
+
+    def configurar_tabela(self):
+        self.table.setColumnCount(5)
+        self.table.setHorizontalHeaderLabels(['ID', 'Pet', 'Tutor', 'Veterinário', 'Horário'])
+        self.table.setColumnHidden(0, True)
+        self.table.verticalHeader().setVisible(False)
+        self.table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
+        self.table.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
+        self.table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+
+        self.table.horizontalHeader().setStretchLastSection(True)
+        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+
+    def carregar_consultas(self):
+        self.table.setRowCount(0)
+        data_para_busca = self.data_selecionada.toString('dd/MM/yyyy')
+
+        with sqlite3.connect('dados.db') as conexao:
+            cursor = conexao.cursor()
+            cursor.execute("SELECT ID, Pet_ID, Perfil_Medico_ID, Horario FROM Consultas WHERE Data = ? ORDER BY Horario", (data_para_busca,))
+            consultas_base = cursor.fetchall()
+
+            if not consultas_base:
+                QMessageBox.information(self, "Informação", "Nenhuma consulta encontrada para esta data.")
+                return
+
+            for consulta in consultas_base:
+                id_consulta, pet_id, medico_id, horario = consulta
+
+                cursor.execute("SELECT Nome, Tutor_ID FROM Pets WHERE ID = ?", (pet_id,))
+                resultado_pet = cursor.fetchone()
+                if resultado_pet:
+                    nome_pet, tutor_id = resultado_pet
+                else:
+                    nome_pet, tutor_id = "Pet Excluído", None
+
+                nome_tutor = "Tutor Excluído"
+                if tutor_id:
+                    cursor.execute("SELECT Nome FROM Tutores WHERE ID = ?", (tutor_id,))
+                    resultado_tutor = cursor.fetchone()
+                    if resultado_tutor:
+                        nome_tutor = resultado_tutor[0]
+
+                cursor.execute("SELECT Nome FROM Perfis WHERE ID = ?", (medico_id,))
+                resultado_vet = cursor.fetchone()
+                if resultado_vet:
+                    nome_vet = resultado_vet[0]
+                else:
+                    nome_vet = "Veterinário Excluído"
+
+                row = self.table.rowCount()
+                self.table.insertRow(row)
+
+                self.table.setItem(row, 0, QTableWidgetItem(str(id_consulta)))
+                self.table.setItem(row, 1, QTableWidgetItem(nome_pet))
+                self.table.setItem(row, 2, QTableWidgetItem(nome_tutor))
+                self.table.setItem(row, 3, QTableWidgetItem(nome_vet))
+                self.table.setItem(row, 4, QTableWidgetItem(horario))
+
+    def editarConsulta(self):
+        linha = self.table.selectionModel().selectedRows()
+        if not linha or len(linha) != 1:
+            QMessageBox.warning(self, "Seleção", "Por favor, selecione pelo menos uma consulta.")
+            return
+        
+        model = linha[0].model()
+        index_coluna = model.index(linha[0].row(), 0)  
+        consulta_id = index_coluna.data()
+        
+        cursor.execute("SELECT Pet_ID, Perfil_Medico_ID, Relatorio_ID, Data, Horario FROM Consultas WHERE ID = ?", (consulta_id,))
+
+        consulta_atual = cursor.fetchall()[0]
+
+        dados_atualizado = self.parent().abrirFormularioConsulta(consulta=consulta_atual)
+        if dados_atualizado:
+            cursor.execute("UPDATE Consultas SET Pet_ID = ?, Perfil_Medico_ID = ?, Relatorio_ID = ?, Data = ?, Horario = ? WHERE ID = ?", (dados_atualizado['pet_id'], dados_atualizado['veterinario_id'], None, dados_atualizado['data'], dados_atualizado['horario'], consulta_id))
+            conexao.commit()
+            QMessageBox.information(self, "Sucesso", "Consulta atualizada com sucesso!")
+            self.carregar_consultas()
+
+    def deletarConsulta(self):
+        linhas = self.table.selectionModel().selectedRows()
+        if not linhas:
+            QMessageBox.warning(self, "Seleção", "Por favor, selecione pelo menos uma consulta.")
+            return
+        resposta = QMessageBox.question(self, "Confirmar", "Deseja realmente excluir a consulta selecionada?")
+        if resposta == QMessageBox.StandardButton.Yes:
+            for linha in sorted(linhas, reverse=True):
+                consulta_id = int(self.table.item(linha.row(), 0).text())
+
+                cursor.execute("DELETE FROM Consultas WHERE ID = ?", (consulta_id,))
+                conexao.commit()
+
+            QMessageBox.information(self, "Sucesso", "Consulta deletada com sucesso!")
+            self.carregar_consultas()
+
+
+class TelaCrudConsulta(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        uic.loadUi("tela_crud_consulta.ui", self)
 
 
 class TelaTutor(QWidget):
@@ -504,7 +646,7 @@ class TelaTutor(QWidget):
             item = self.table.item(linha, col)
             valores.append(item.text() if item else "")
         
-        self.tela_perfil = TelaPerfil(valores)
+        self.tela_perfil = TelaPerfilTutor(valores)
         self.tela_perfil.show()
 
     def atualizar_tabela(self):
@@ -783,7 +925,7 @@ class TelaCrudTutor(QDialog):
         uic.loadUi("tela_crud_tutor.ui", self)
 
 
-class TelaPerfil(QWidget):
+class TelaPerfilTutor(QWidget):
     def __init__(self, dados):
         super().__init__()
         uic.loadUi("tela_perfil_tutor.ui", self)
@@ -795,7 +937,7 @@ class TelaPerfil(QWidget):
         self.labelImagem.setPixmap(QPixmap(dados[4]))
 
         self.table.setColumnCount(3)
-        self.table.setHorizontalHeaderLabels(["Nome do Pet", "Peso (kg)", "Raça"])
+        self.table.setHorizontalHeaderLabels(["Pet", "Peso (kg)", "Raça"])
         self.table.horizontalHeader().setStretchLastSection(True)
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
         
@@ -818,6 +960,8 @@ class TelaPet(QWidget):
         self.vetBTN.clicked.connect(self.openTelaVeterinario)
         self.sairBTN.clicked.connect(self.logout)
 
+        self.table.cellDoubleClicked.connect(self.abrirPerfil)
+
         self.petInput.textChanged.connect(self.atualizarTabela)
 
         self.configurarTabela()
@@ -825,7 +969,7 @@ class TelaPet(QWidget):
 
     def configurarTabela(self):
         self.table.setColumnCount(5)
-        self.table.setHorizontalHeaderLabels(["ID", "Nome do Pet", "Peso (kg)", "Raça", "Nome do Tutor"])
+        self.table.setHorizontalHeaderLabels(["ID", "Pet", "Peso (kg)", "Raça", "Tutor"])
         self.table.setColumnHidden(0, True)
         self.table.verticalHeader().setVisible(False)
         self.table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
@@ -856,6 +1000,15 @@ class TelaPet(QWidget):
                 self.table.setItem(linha, 2, QTableWidgetItem(pet[2]))
                 self.table.setItem(linha, 3, QTableWidgetItem(raca_nome))
                 self.table.setItem(linha, 4, QTableWidgetItem(tutor_nome))
+
+    def abrirPerfil(self, linha, coluna):
+        valores = []
+        for col in range(self.table.columnCount()):
+            item = self.table.item(linha, col)
+            valores.append(item.text() if item else "")
+        
+        self.tela_perfil = TelaPerfilPet(valores)
+        self.tela_perfil.show()
 
     def abrirFormulario(self, pet=None):
         dialogo = TelaCrudPet(self)
@@ -958,7 +1111,7 @@ class TelaPet(QWidget):
     def deletarPet(self):
         linhas = self.table.selectionModel().selectedRows()
         if not linhas:
-            QMessageBox.warning(self, "Seleção", "Por favor, selecione pelo um pet.")
+            QMessageBox.warning(self, "Seleção", "Por favor, selecione pelo menos um pet.")
             return
         resposta = QMessageBox.question(self, "Confirmar", "Deseja realmente excluir o pet selecionado?")
         if resposta == QMessageBox.StandardButton.Yes:
@@ -995,6 +1148,25 @@ class TelaCrudPet(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         uic.loadUi("tela_crud_pet.ui", self)
+
+
+class TelaPerfilPet(QWidget):
+    def __init__(self, dados):
+        super().__init__()
+        uic.loadUi("tela_perfil_pet.ui", self)
+
+        self.labelID.setText(dados[0])
+        self.labelNome.setText(dados[1])
+        self.labelPeso.setText(dados[2])
+        self.labelRaca.setText(dados[3])
+        self.labelTutor.setText(dados[4])
+
+        self.table.setColumnCount(3)
+        self.table.setHorizontalHeaderLabels(["Veterinário", "Data", "Horário"])
+        self.table.horizontalHeader().setStretchLastSection(True)
+        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+        
+        #conectar o banco de dados, achar as consultas do pet e botar na tabela
 
 
 class TelaVeterinarioRecepcionista(QWidget):

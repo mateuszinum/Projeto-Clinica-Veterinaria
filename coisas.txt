@@ -1,13 +1,13 @@
 tela de consulta:
-    - adicionar consulta na data selecionada e deixar o dia vermelho se já não tiver nenhum consulta naquele dia
+    - adicionar  marcar consulta na data selecionada e deixar o dia vermelho se já não tiver nenhum consulta naquele dia
         - se der, fazer de um jeito que, azul = 1 consulta; amarelo = 2 consultas; vermelho = 3+ consultas
-    - clicar duas vezes na data e mostrar todas as consultas daquele dia, clicar na que quer editar/deletar
 
 tela de pets e tutores:
-    - na tela de perfil do usuário, botar os pets dele na tabela
+    - na tela de perfil do usuário, botar os pets dele na tabela ****
+    - na tela de perfil do pet, botar as consultas dele na tabela ****
 
 tela de veterinário (recepcionista):
-    - colocar pra trazer todos os veterinários
+    - colocar pra trazer todos os veterinários ****
 
 tela de veterinário:
     - fazer tudo

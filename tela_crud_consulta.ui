@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>377</width>
-    <height>468</height>
+    <width>300</width>
+    <height>231</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,19 +19,13 @@
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QLabel" name="label">
-     <property name="maximumSize">
-      <size>
-       <width>100000</width>
-       <height>20</height>
-      </size>
-     </property>
      <property name="styleSheet">
       <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
     font-size: 18px;
     font-weight: bold;</string>
      </property>
      <property name="text">
-      <string>Dados Tutor</string>
+      <string>Dados Consulta</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
@@ -45,7 +39,7 @@
      </property>
      <property name="sizeHint" stdset="0">
       <size>
-       <width>356</width>
+       <width>279</width>
        <height>10</height>
       </size>
      </property>
@@ -54,49 +48,40 @@
    <item>
     <layout class="QFormLayout" name="formulario">
      <item row="0" column="0">
-      <widget class="QLabel" name="nome_label">
+      <widget class="QLabel" name="pet_label">
        <property name="styleSheet">
         <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
     font-size: 16px;</string>
        </property>
        <property name="text">
-        <string>Nome:</string>
+        <string>Pet:</string>
        </property>
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="QLineEdit" name="nome_input">
+      <widget class="QComboBox" name="pet_input">
        <property name="styleSheet">
         <string notr="true">	background-color: white;
     font-family: &quot;Arial&quot;, sans-serif;
     font-size: 14px;
     border-radius: 4px;
     border: none;</string>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="maxLength">
-        <number>30</number>
-       </property>
-       <property name="placeholderText">
-        <string>Insira Nome</string>
        </property>
       </widget>
      </item>
      <item row="1" column="0">
-      <widget class="QLabel" name="telefone_label">
+      <widget class="QLabel" name="vet_label">
        <property name="styleSheet">
         <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
     font-size: 16px;</string>
        </property>
        <property name="text">
-        <string>Telefone:</string>
+        <string>Veterinário:</string>
        </property>
       </widget>
      </item>
      <item row="1" column="1">
-      <widget class="QLineEdit" name="telefone_input">
+      <widget class="QComboBox" name="veterinario_input">
        <property name="styleSheet">
         <string notr="true">	background-color: white;
     font-family: &quot;Arial&quot;, sans-serif;
@@ -104,27 +89,21 @@
     border-radius: 4px;
     border: none;</string>
        </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="placeholderText">
-        <string>Insira Telefone</string>
-       </property>
       </widget>
      </item>
      <item row="2" column="0">
-      <widget class="QLabel" name="cpf_label">
+      <widget class="QLabel" name="horario_label">
        <property name="styleSheet">
         <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
     font-size: 16px;</string>
        </property>
        <property name="text">
-        <string>CPF:</string>
+        <string>Horário:</string>
        </property>
       </widget>
      </item>
      <item row="2" column="1">
-      <widget class="QLineEdit" name="cpf_input">
+      <widget class="QTimeEdit" name="horario_input">
        <property name="styleSheet">
         <string notr="true">	background-color: white;
     font-family: &quot;Arial&quot;, sans-serif;
@@ -132,76 +111,50 @@
     border-radius: 4px;
     border: none;</string>
        </property>
-       <property name="text">
-        <string/>
+       <property name="maximumTime">
+        <time>
+         <hour>21</hour>
+         <minute>59</minute>
+         <second>59</second>
+        </time>
        </property>
-       <property name="placeholderText">
-        <string>Insira CPF</string>
+       <property name="minimumTime">
+        <time>
+         <hour>8</hour>
+         <minute>0</minute>
+         <second>0</second>
+        </time>
+       </property>
+       <property name="time">
+        <time>
+         <hour>8</hour>
+         <minute>0</minute>
+         <second>0</second>
+        </time>
        </property>
       </widget>
      </item>
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="imagem_layout" stretch="0">
-     <property name="sizeConstraint">
-      <enum>QLayout::SetDefaultConstraint</enum>
+    <widget class="QLabel" name="data_label">
+     <property name="styleSheet">
+      <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
+    font-size: 18px;
+	font-weight:bold; </string>
      </property>
-     <item>
-      <widget class="QLabel" name="foto_preview">
-       <property name="maximumSize">
-        <size>
-         <width>200</width>
-         <height>200</height>
-        </size>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="scaledContents">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="foto_layout">
-     <item>
-      <widget class="QPushButton" name="botao_selecionar">
-       <property name="styleSheet">
-        <string notr="true">background-color: #2f80ed; color: white; padding: 6px 12px; border-radius: 4px;
-border: none; font-size: 14px; font-weight: bold;</string>
-       </property>
-       <property name="text">
-        <string>Selecionar Foto</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="foto_label">
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>35</height>
-        </size>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
-    font-size: 12px;
-	font-weight: bold;</string>
-       </property>
-       <property name="text">
-        <string>Nenhuma foto selecionada</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
+     <property name="text">
+      <string>Nenhuma data selecionada</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
    </item>
    <item>
     <widget class="QPushButton" name="botao_salvar">
      <property name="styleSheet">
-      <string notr="true">background-color: #27ae60; color: white; padding: 6px 12px; border-radius: 4px;
+      <string notr="true">background-color: #27ae60; color: white; padding: 6px 12px; border-radius: 4px; 
 border: none; font-size: 14px; font-weight: bold;</string>
      </property>
      <property name="text">

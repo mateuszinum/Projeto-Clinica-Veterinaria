@@ -35,52 +35,34 @@
    <item row="0" column="1" rowspan="2">
     <widget class="QWidget" name="widget_2" native="true">
      <layout class="QGridLayout" name="gridLayout">
-      <item row="0" column="0">
-       <layout class="QHBoxLayout" name="horizontalLayout_3">
+      <item row="1" column="0">
+       <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
-         <spacer name="horizontalSpacer">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="tutorInput">
+         <widget class="QPushButton" name="addConsultaBTN">
           <property name="styleSheet">
-           <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
+           <string notr="true">QPushButton {
+    background-color: #27ae60;
+    color: white;
+    border-radius: 4px;
+    border: none;
+    padding: 6px 12px;
+    font-family: &quot;Arial&quot;, sans-serif;
     font-size: 14px;
     font-weight: bold;
-background-color: #00bcd4;
-    border-radius: 4px;
-    border: none;</string>
+}
+QPushButton:hover {
+    background-color: #219150;
+}
+</string>
           </property>
-          <property name="placeholderText">
-           <string>Buscar Tutor...</string>
+          <property name="text">
+           <string>Adicionar Consulta</string>
           </property>
          </widget>
         </item>
-        <item>
-         <spacer name="horizontalSpacer_2">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
        </layout>
       </item>
-      <item row="1" column="0">
+      <item row="0" column="0">
        <widget class="QCalendarWidget" name="calendarWidget">
         <property name="styleSheet">
          <string notr="true">/* Fundo geral do calendário */
@@ -189,7 +171,7 @@ QCalendarWidget {
 
 /* Texto padrão das datas */
 QCalendarWidget QAbstractItemView::item:enabled {
-    color: #000000;
+   color: #000000;
 }
 
 /* Dias de outros meses (desabilitados) em cinza */
@@ -199,78 +181,6 @@ QCalendarWidget QAbstractItemView:disabled {
 }</string>
         </property>
        </widget>
-      </item>
-      <item row="2" column="0">
-       <layout class="QHBoxLayout" name="horizontalLayout">
-        <item>
-         <widget class="QPushButton" name="addConsultaBTN">
-          <property name="styleSheet">
-           <string notr="true">QPushButton {
-    background-color: #27ae60;
-    color: white;
-    border-radius: 4px;
-    border: none;
-    padding: 6px 12px;
-    font-family: &quot;Arial&quot;, sans-serif;
-    font-size: 14px;
-    font-weight: bold;
-}
-QPushButton:hover {
-    background-color: #219150;
-}
-</string>
-          </property>
-          <property name="text">
-           <string>Adicionar Consulta</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="editConsultaBTN">
-          <property name="styleSheet">
-           <string notr="true">QPushButton {
-    background-color: #2f80ed;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 6px 12px;
-    font-family: &quot;Arial&quot;, sans-serif;
-    font-size: 14px;
-    font-weight: bold;
-}
-QPushButton:hover {
-    background-color: #1c64d1;
-}</string>
-          </property>
-          <property name="text">
-           <string>Editar Consulta</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="delConsultaBTN">
-          <property name="styleSheet">
-           <string notr="true">QPushButton {
-    background-color: #e74c3c;
-    color: white;
-    border-radius: 4px;
-    border: none;
-    padding: 6px 12px;
-    font-family: &quot;Arial&quot;, sans-serif;
-    font-size: 14px;
-    font-weight: bold;
-}
-QPushButton:hover {
-    background-color: #c0392b;
-}
-</string>
-          </property>
-          <property name="text">
-           <string>Excluir Consulta</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
       </item>
      </layout>
     </widget>
