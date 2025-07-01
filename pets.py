@@ -366,17 +366,6 @@ class TelaConsulta(QWidget):
         layout = QVBoxLayout()
         formulario = QFormLayout()
 
-        tutor_input = QLineEdit()
-
-
-        tutores = 'variavel com todos os tutores do banco de dados'
-        tutor_nomes = list(tutores)
-        completer = QCompleter(tutor_nomes)
-        completer.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
-        tutor_input.setCompleter(completer)
-        if consulta:
-            tutor_input.setText(consulta['tutor'])
-
         pet_input = QComboBox()
         if consulta:
             pets_do_tutor = 'pega os pets de consulta["tutor"]'
