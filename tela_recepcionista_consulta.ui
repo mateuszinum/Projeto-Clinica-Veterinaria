@@ -56,7 +56,9 @@
            <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
     font-size: 14px;
     font-weight: bold;
-background-color: #00bcd4</string>
+background-color: #00bcd4;
+    border-radius: 4px;
+    border: none;</string>
           </property>
           <property name="placeholderText">
            <string>Buscar Tutor...</string>
@@ -340,6 +342,41 @@ QPushButton:hover {
         </property>
         <property name="text">
          <string>Tutores</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="verticalSpacer_5">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>8</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="vetBTN">
+        <property name="styleSheet">
+         <string notr="true">QPushButton {
+    background-color: #2f80ed;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-family: &quot;Arial&quot;, sans-serif;
+    font-size: 13px;
+    font-weight: bold;
+}
+QPushButton:hover {
+    background-color: #1c64d1;
+}</string>
+        </property>
+        <property name="text">
+         <string>Veterinário</string>
         </property>
        </widget>
       </item>

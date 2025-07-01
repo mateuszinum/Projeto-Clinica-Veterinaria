@@ -346,6 +346,7 @@ class TelaConsulta(QWidget):
 
         self.petsBTN.clicked.connect(self.openTelaPet)
         self.tutoresBTN.clicked.connect(self.openTelaTutor)
+        self.vetBTN.clicked.connect(self.openTelaVeterinario)
         self.sairBTN.clicked.connect(self.logout)
 
     def adicionarConsulta(self):
@@ -436,6 +437,11 @@ class TelaConsulta(QWidget):
         self.tela_tutor.show()
         self.hide()
 
+    def openTelaVeterinario(self):
+        self.tela_consulta = TelaVeterinarioRecepcionista(self.tela_inicial)
+        self.tela_consulta.show()
+        self.hide()
+
     def logout(self):
         self.tela_inicial.show()
         self.close()
@@ -450,6 +456,7 @@ class TelaTutor(QWidget):
 
         self.petsBTN.clicked.connect(self.openTelaPet)
         self.consultasBTN.clicked.connect(self.openTelaConsulta)
+        self.vetBTN.clicked.connect(self.openTelaVeterinario)
         self.sairBTN.clicked.connect(self.logout)
 
         self.addTutorBTN.clicked.connect(self.adicionarTutor)
@@ -479,8 +486,9 @@ class TelaTutor(QWidget):
         for col in range(self.table.columnCount()):
             item = self.table.item(linha, col)
             valores.append(item.text() if item else "")
-        print(valores)
-        pass
+        
+        self.tela_perfil = TelaPerfil(valores)
+        self.tela_perfil.show()
 
     def atualizar_tabela(self):
         filtro = self.tutorInput.text().strip()
@@ -770,10 +778,33 @@ class TelaTutor(QWidget):
         self.tela_consulta.show()
         self.hide()
 
+    def openTelaVeterinario(self):
+        self.tela_consulta = TelaVeterinarioRecepcionista(self.tela_inicial)
+        self.tela_consulta.show()
+        self.hide()
+
     def logout(self):
         self.tela_inicial.show()
         self.close()
 
+
+class TelaPerfil(QWidget):
+    def __init__(self, dados):
+        super().__init__()
+        uic.loadUi("tela_perfil_tutor.ui", self)
+
+        self.labelID.setText(dados[0])
+        self.labelNome.setText(dados[1])
+        self.labelTelefone.setText(dados[2])
+        self.labelCPF.setText(dados[3])
+        self.labelImagem.setPixmap(QPixmap(dados[4]))
+
+        self.table.setColumnCount(3)
+        self.table.setHorizontalHeaderLabels(["Nome do Pet", "Peso", "Raça"])
+        self.table.horizontalHeader().setStretchLastSection(True)
+        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+        
+        #conectar o banco de dados, achar os pets da pessoa e botar na tabela
 
 class TelaPet(QWidget):
     def __init__(self, tela_inicial):
@@ -785,10 +816,11 @@ class TelaPet(QWidget):
         self.addPetBTN.clicked.connect(self.adicionarPet)
         self.editPetBTN.clicked.connect(self.editarPet)
         self.delPetBTN.clicked.connect(self.deletarPet)
-        self.sairBTN.clicked.connect(self.logout)
 
         self.consultasBTN.clicked.connect(self.openTelaConsulta)
         self.tutoresBTN.clicked.connect(self.openTelaTutor)
+        self.vetBTN.clicked.connect(self.openTelaVeterinario)
+        self.sairBTN.clicked.connect(self.logout)
 
         self.petInput.textChanged.connect(self.atualizarTabela)
 
@@ -979,10 +1011,95 @@ class TelaPet(QWidget):
         self.tela_consulta.show()
         self.hide()
 
+    def openTelaVeterinario(self):
+        self.tela_consulta = TelaVeterinarioRecepcionista(self.tela_inicial)
+        self.tela_consulta.show()
+        self.hide()
+
     def logout(self):
         self.tela_inicial.show()
         self.close()
 
+
+class TelaVeterinarioRecepcionista(QWidget):
+    def __init__(self, tela_inicial):
+        super().__init__()
+        uic.loadUi("tela_recepcionista_veterinario.ui", self)
+        
+        self.tela_inicial = tela_inicial
+
+        self.petsBTN.clicked.connect(self.openTelaPet)
+        self.consultasBTN.clicked.connect(self.openTelaConsulta)
+        self.tutoresBTN.clicked.connect(self.openTelaTutor)
+        self.sairBTN.clicked.connect(self.logout)
+
+        self.vetInput.textChanged.connect(self.atualizar_tabela)
+
+        self.table.cellDoubleClicked.connect(self.abrirPerfil)
+
+        self.configurar_tabela()
+        self.atualizar_tabela()
+
+    def configurar_tabela(self):
+        self.table.setColumnCount(5)
+        self.table.setHorizontalHeaderLabels(['ID', 'Nome', 'Telefone', 'CPF', 'Foto Path'])
+        self.table.setColumnHidden(0, True)
+        self.table.setColumnHidden(4, True)
+        self.table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
+        self.table.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
+        self.table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+
+        self.table.horizontalHeader().setStretchLastSection(True)
+        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+
+    def abrirPerfil(self, linha, coluna):
+        valores = []
+        for col in range(self.table.columnCount()):
+            item = self.table.item(linha, col)
+            valores.append(item.text() if item else "")
+        
+        self.tela_perfil = TelaPerfil(valores)
+        self.tela_perfil.show()
+
+    def atualizar_tabela(self):
+        filtro = self.vetInput.text().strip()
+
+        if len(filtro) == 0:
+            cursor.execute("SELECT * FROM Tutores")
+
+        else:
+            cursor.execute("SELECT * FROM Tutores WHERE Nome LIKE ?", ('%' + filtro + '%',))
+
+        tutores_db = cursor.fetchall()
+        self.table.setRowCount(0)
+        for tutor in tutores_db:
+            if filtro.lower() in tutor[1].lower():
+                row = self.table.rowCount()
+                self.table.insertRow(row)
+                self.table.setItem(row, 0, QTableWidgetItem(str(tutor[0])))
+                self.table.setItem(row, 1, QTableWidgetItem(tutor[1]))
+                self.table.setItem(row, 2, QTableWidgetItem(tutor[2]))
+                self.table.setItem(row, 3, QTableWidgetItem(tutor[3]))
+                self.table.setItem(row, 4, QTableWidgetItem(tutor[4]))
+
+    def openTelaConsulta(self):
+        self.tela_consulta = TelaConsulta(self.tela_inicial)
+        self.tela_consulta.show()
+        self.hide()
+
+    def openTelaTutor(self):
+        self.tela_tutor = TelaTutor(self.tela_inicial)
+        self.tela_tutor.show()
+        self.hide()
+
+    def openTelaPet(self):
+        self.tela_pet = TelaPet(self.tela_inicial)
+        self.tela_pet.show()
+        self.hide()
+
+    def logout(self):
+        self.tela_inicial.show()
+        self.close()
 
 class TelaVeterinario(QWidget):
     def __init__(self, tela_inicial, perfil_logado):

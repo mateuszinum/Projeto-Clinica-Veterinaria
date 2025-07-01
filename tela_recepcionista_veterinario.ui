@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Tela Recepcionista - Pet</string>
+   <string>Tela Veterinários</string>
   </property>
   <property name="styleSheet">
    <string notr="true">QWidget#Form {
@@ -27,7 +27,7 @@
      <property name="sizeHint" stdset="0">
       <size>
        <width>20</width>
-       <height>2</height>
+       <height>3</height>
       </size>
      </property>
     </spacer>
@@ -51,20 +51,20 @@
          </spacer>
         </item>
         <item>
-         <widget class="QLineEdit" name="petInput">
+         <widget class="QLineEdit" name="vetInput">
           <property name="styleSheet">
            <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
     font-size: 14px;
     font-weight: bold;
 background-color: #00bcd4;
-   border-radius: 4px;
+    border-radius: 4px;
     border: none;</string>
           </property>
           <property name="text">
            <string/>
           </property>
           <property name="placeholderText">
-           <string>Info do Pet...</string>
+           <string>Nome do Veterinário...</string>
           </property>
          </widget>
         </item>
@@ -85,78 +85,6 @@ background-color: #00bcd4;
       </item>
       <item row="1" column="0">
        <widget class="QTableWidget" name="table"/>
-      </item>
-      <item row="2" column="0">
-       <layout class="QHBoxLayout" name="horizontalLayout_3">
-        <item>
-         <widget class="QPushButton" name="addPetBTN">
-          <property name="styleSheet">
-           <string notr="true">QPushButton {
-    background-color: #27ae60;
-    color: white;
-    border-radius: 4px;
-    border: none;
-    padding: 6px 12px;
-    font-family: &quot;Arial&quot;, sans-serif;
-    font-size: 14px;
-    font-weight: bold;
-}
-QPushButton:hover {
-    background-color: #219150;
-}
-</string>
-          </property>
-          <property name="text">
-           <string>Adicionar PET</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="editPetBTN">
-          <property name="styleSheet">
-           <string notr="true">QPushButton {
-    background-color: #2f80ed;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 6px 12px;
-    font-family: &quot;Arial&quot;, sans-serif;
-    font-size: 14px;
-    font-weight: bold;
-}
-QPushButton:hover {
-    background-color: #1c64d1;
-}</string>
-          </property>
-          <property name="text">
-           <string>Editar PET</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="delPetBTN">
-          <property name="styleSheet">
-           <string notr="true">QPushButton {
-    background-color: #e74c3c;
-    color: white;
-    border-radius: 4px;
-    border: none;
-    padding: 6px 12px;
-    font-family: &quot;Arial&quot;, sans-serif;
-    font-size: 14px;
-    font-weight: bold;
-}
-QPushButton:hover {
-    background-color: #c0392b;
-}
-</string>
-          </property>
-          <property name="text">
-           <string>Deletar PET</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
       </item>
      </layout>
     </widget>
@@ -245,7 +173,7 @@ QPushButton:hover {
        </spacer>
       </item>
       <item>
-       <widget class="QPushButton" name="vetBTN">
+       <widget class="QPushButton" name="petsBTN">
         <property name="styleSheet">
          <string notr="true">QPushButton {
     background-color: #2f80ed;
@@ -254,7 +182,7 @@ QPushButton:hover {
     border-radius: 4px;
     padding: 6px 12px;
     font-family: &quot;Arial&quot;, sans-serif;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: bold;
 }
 QPushButton:hover {
@@ -262,7 +190,7 @@ QPushButton:hover {
 }</string>
         </property>
         <property name="text">
-         <string>Veterinário</string>
+         <string>Pets</string>
         </property>
        </widget>
       </item>
@@ -313,7 +241,7 @@ QPushButton:hover {
      <property name="sizeHint" stdset="0">
       <size>
        <width>20</width>
-       <height>2</height>
+       <height>3</height>
       </size>
      </property>
     </spacer>

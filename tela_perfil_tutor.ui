@@ -7,11 +7,14 @@
     <x>0</x>
     <y>0</y>
     <width>500</width>
-    <height>400</height>
+    <height>395</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Perfil</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">    background-color: #93cbd9;</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -30,65 +33,112 @@
          <height>100</height>
         </size>
        </property>
-       <property name="frameShape">
-        <enum>QFrame.Box</enum>
+       <property name="styleSheet">
+        <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
+    font-size: 14px;</string>
        </property>
-       <property name="alignment">
-        <set>Qt.AlignCenter</set>
+       <property name="frameShape">
+        <enum>QFrame::NoFrame</enum>
        </property>
        <property name="text">
         <string>Imagem</string>
+       </property>
+       <property name="scaledContents">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
      <item>
       <layout class="QFormLayout" name="formLayout">
        <item row="0" column="0">
-        <widget class="QLabel" name="labelNome">
+        <widget class="QLabel" name="formNome">
+         <property name="styleSheet">
+          <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
+    font-size: 14px;</string>
+         </property>
          <property name="text">
           <string>Nome:</string>
          </property>
         </widget>
        </item>
-       <item row="0" column="1">
-        <widget class="QLineEdit" name="lineEditNome"/>
-       </item>
        <item row="1" column="0">
-        <widget class="QLabel" name="labelID">
+        <widget class="QLabel" name="formID">
+         <property name="styleSheet">
+          <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
+    font-size: 14px;</string>
+         </property>
          <property name="text">
           <string>ID:</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="1">
-        <widget class="QLineEdit" name="lineEditID"/>
-       </item>
        <item row="2" column="0">
-        <widget class="QLabel" name="labelTelefone">
+        <widget class="QLabel" name="formTelefone">
+         <property name="styleSheet">
+          <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
+    font-size: 14px;</string>
+         </property>
          <property name="text">
           <string>Telefone:</string>
          </property>
         </widget>
        </item>
-       <item row="2" column="1">
-        <widget class="QLineEdit" name="lineEditTelefone"/>
-       </item>
        <item row="3" column="0">
-        <widget class="QLabel" name="labelCPF">
+        <widget class="QLabel" name="formCPF">
+         <property name="styleSheet">
+          <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
+    font-size: 14px;</string>
+         </property>
          <property name="text">
           <string>CPF:</string>
          </property>
         </widget>
        </item>
+       <item row="0" column="1">
+        <widget class="QLabel" name="labelNome">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLabel" name="labelID">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QLabel" name="labelTelefone">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
        <item row="3" column="1">
-        <widget class="QLineEdit" name="lineEditCPF"/>
+        <widget class="QLabel" name="labelCPF">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
        </item>
       </layout>
      </item>
     </layout>
    </item>
    <item>
-    <widget class="QTableWidget" name="tableWidget"/>
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Pets</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QTableWidget" name="table">
+     <property name="selectionMode">
+      <enum>QAbstractItemView::NoSelection</enum>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>
