@@ -37,8 +37,7 @@ cursor.execute('''
 cursor.execute('''
     CREATE TABLE IF NOT EXISTS Relatorios (
         ID INTEGER PRIMARY KEY AUTOINCREMENT,
-        Descricao TEXT NOT NULL,
-        Diagnostico TEXT
+        Descricao TEXT NOT NULL
         )
 ''')
 
@@ -85,11 +84,9 @@ cursor.execute('''
         Pet_ID INTEGER,
         Perfil_Medico_ID INTEGER,       
         Relatorio_ID INTEGER,
-        Consulta_Retorno_ID INTEGER,
         Data_Horario TEXT NOT NULL,
         FOREIGN KEY (Pet_ID) REFERENCES Pets(ID),
         FOREIGN KEY (Perfil_Medico_ID) REFERENCES Perfil(ID),
-        FOREIGN KEY (Consulta_Retorno_ID) REFERENCES Consultas(ID),
         FOREIGN KEY (Relatorio_ID) REFERENCES Relatorios(ID)
         )
 ''')
