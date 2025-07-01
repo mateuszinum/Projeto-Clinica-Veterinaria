@@ -351,6 +351,9 @@ class TelaConsulta(QWidget):
     def adicionarConsulta(self):
         data = self.calendarWidget.selectedDate()
         dados_consulta = self.abrirFormularioConsulta(data = data)
+        cursor.execute("INSERT INTO Consultas (Pet_ID, Perfil_Medico_ID, Data, Horario) VALUES (?, ?, ?, ?)", (dados_consulta['pet_id'], dados_consulta['veterinario_id'], dados_consulta['data'], dados_consulta['horario']))
+        conexao.commit()
+
 
     def editarConsulta(self):
         pass
@@ -359,7 +362,6 @@ class TelaConsulta(QWidget):
         pass
 
     def abrirFormularioConsulta(self, data = None, consulta=None):
-        print(data.toString(f'dd/MM/yyyy'))
         dialogo = QDialog(self)
         dialogo.setWindowTitle(f"{'Editar' if consulta else 'Adicionar'} Consulta")
         dialogo.setStyleSheet("background-color: #93cbd9;")
@@ -371,25 +373,30 @@ class TelaConsulta(QWidget):
         veterinario_input = QComboBox()
         horario_input = QTimeEdit()
 
+        cursor.execute("SELECT Nome, ID FROM Pets")
+        pets = cursor.fetchall()
+        pet_input.addItem("Selecione um pet")
+        for pet_nome, pet_id in pets:
+            pet_input.addItem(pet_nome, userData=pet_id)
+        
+        cursor.execute("SELECT Nome, ID FROM Perfis WHERE Cargo_ID = ?", (2,))
+        veterinarios = cursor.fetchall()
+        veterinario_input.addItem("Selecione um veterinário")
+        for vet_nome, vet_id in veterinarios:
+            veterinario_input.addItem(vet_nome, userData=vet_id)
+
+        
         if consulta:
-            pets = 'todos os pets'
-            pet_input.addItems(pets)
-            pet_input.setCurrentText(consulta['pet'])
-
-            veterinarios = 'todos os veterinarios'
-            veterinario_input.addItems(veterinarios)
-            pet_input.setCurrentText(consulta['veterinario'])
-
-            if 'data' in consulta:
-                data_label.setText(f"Data Selecionada - {consulta['data']}")
-                data_selecionada["valor"] = consulta['data']
+            pet_input.setCurrentIndex(pet_input.findData(consulta['pet_id']))
+            veterinario_input.setCurrentIndex(veterinario_input.findData(consulta['veterinario_id']))
+            data_label.setText(f"Data Selecionada - {consulta['data']}")
+            data_selecionada["valor"] = consulta['data']
 
         data_label = QLabel("Nenhuma data selecionada")
         data_selecionada = {"valor": None}
 
-        if data:
-            data_label.setText(f"Data Selecionada - {data.toString('dd/MM/yyyy')}")
-            data_selecionada["valor"] = data.toString("dd/MM/yyyy")
+        data_label.setText(f"Data Selecionada - {data.toString('dd/MM/yyyy')}")
+        data_selecionada["valor"] = data.toString("dd/MM/yyyy")
 
         formulario.addRow("Veterinário:", veterinario_input)
         formulario.addRow("Pet:", pet_input)
@@ -408,15 +415,24 @@ class TelaConsulta(QWidget):
 
         def salvar():
             data = data_selecionada["valor"]
-            pet = pet_input.currentText().strip()
+            pet_id = pet_input.currentData()
+            veterinario_id = veterinario_input.currentData()
+            horario = horario_input.time().toString("HH:mm")
+    
 
-            if not data or not pet:
+            if pet_input.currentIndex() == 0 or veterinario_input.currentIndex() == 0:
+                QMessageBox.warning(dialogo, "Erro", "Por favor selecione um pet e um veterinário.")
+                return
+
+            if not data or not pet_input.currentText().strip():
                 QMessageBox.warning(dialogo, "Erro", "Todos os campos devem ser preenchidos.")
                 return
 
             dialogo.resultado = {
                 "data": data,
-                "pet": pet
+                "pet_id": pet_id,
+                "veterinario_id": veterinario_id,
+                "horario": horario
             }
             dialogo.accept()
 
@@ -985,12 +1001,12 @@ class TelaPet(QWidget):
 
 
 class TelaVeterinario(QWidget):
-    def __init__(self, tela_inicial, perfil_logado):
+    def __init__(self, tela_inicial):
         super().__init__()
         uic.loadUi("tela_veterinario.ui", self)
 
         self.tela_inicial = tela_inicial
-        self.perfil_logado = perfil_logado 
+
 
         self.configurar_tela()
 
