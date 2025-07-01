@@ -1,12 +1,14 @@
-fazer os validadores
-colocar o autopreenchimento nos cpf/telefone etc
+tela de consulta:
+    - adicionar consulta na data selecionada e deixar o dia vermelho se já não tiver nenhum consulta naquele dia
+        - se der, fazer de um jeito que, azul = 1 consulta; amarelo = 2 consultas; vermelho = 3+ consultas
+    - clicar duas vezes na data e mostrar todas as consultas daquele dia, clicar na que quer editar/deletar
 
-criar classe de pessoas
+tela de pets e tutores:
+    - melhorar a tela de prompt do crud, tentar fazer uma do .ui
+    - na tela de perfil do usuário, botar os pets dele na tabela
 
-validar as informações de registrar
+tela de veterinário (recepcionista):
+    - colocar pra trazer todos os veterinários
 
-ver se o crud dos tutores tá certinho
-
-mexer com as consultas
-
-quando voltar pra tela de login, apagar as informações do jeito que faz na tela de registrar
+tela de veterinário:
+    - fazer tudo

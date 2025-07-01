@@ -8,7 +8,7 @@ from PyQt6 import uic
 from PyQt6.QtWidgets import *
 from datetime import datetime
 from PyQt6.QtGui import QPixmap, QTextCharFormat, QColor, QFont
-from PyQt6.QtCore import Qt, QDate
+from PyQt6.QtCore import QDate
 
 
 conexao = sqlite3.connect('dados.db')
@@ -98,9 +98,9 @@ class TelaLogin(QWidget):
                     self.openTelaProfissao()
 
             if not valida_dados:
-                self.login_input.setStyleSheet("border: 2px solid #e74c3c;")
+                self.login_input.setStyleSheet("border-radius: 4px; border: 2px solid #e74c3c;")
                 self.labelWarning1.setText("")
-                self.senha_input.setStyleSheet("border: 2px solid #e74c3c;")
+                self.senha_input.setStyleSheet("border-radius: 4px; border: 2px solid #e74c3c;")
                 self.labelWarning2.setText("Login ou senha inválidos")
 
     def openTelaProfissao(self):
@@ -120,8 +120,8 @@ class TelaLogin(QWidget):
         self.labelWarning1.setText("")
         self.labelWarning2.setText("")
 
-        self.login_input.setStyleSheet("")
-        self.senha_input.setStyleSheet("")
+        self.login_input.setStyleSheet("border-radius: 4px; border: none;")
+        self.senha_input.setStyleSheet("border-radius: 4px; border: none;")
 
         self.senha_input.setEchoMode(QLineEdit.EchoMode.Password)
 
@@ -232,12 +232,12 @@ class TelaRegistrar(QWidget):
 
         for campo, (valor, widget, warning, funcao_validacao) in campos.items():
             if not valor:
-                widget.setStyleSheet("border: 2px solid #e74c3c;")
+                widget.setStyleSheet("border-radius: 4px; border: 2px solid #e74c3c;")
                 warning.setText("Preencha o campo")
                 valido = False
 
             elif funcao_validacao and not funcao_validacao(valor):
-                widget.setStyleSheet("border: 2px solid #e74c3c;")
+                widget.setStyleSheet("border-radius: 4px;'border: 2px solid #e74c3c;")
 
                 if campo == 'cpf':
                     warning.setText("CPF inválido")
@@ -248,7 +248,7 @@ class TelaRegistrar(QWidget):
 
                 valido = False
             else:
-                widget.setStyleSheet("")
+                widget.setStyleSheet("border-radius: 4px; border: none;")
                 warning.setText("")
 
         if not dados["recepcionista"] and not dados["veterinario"]:
@@ -259,23 +259,23 @@ class TelaRegistrar(QWidget):
 
         resultado_validacao, mensagem_validacao = self.validar_senha(dados["senha"])
         if not resultado_validacao:
-            self.senha_input.setStyleSheet("border: 2px solid #e74c3c;")
-            self.confirmar_senha_input.setStyleSheet("border: 2px solid #e74c3c;")
+            self.senha_input.setStyleSheet("border-radius: 4px; border: 2px solid #e74c3c;")
+            self.confirmar_senha_input.setStyleSheet("border-radius: 4px; border: 2px solid #e74c3c;")
             self.labelWarning5.setText(mensagem_validacao)
             self.labelWarning6.setText("")
             valido = False
 
         elif dados["senha"] != dados["confirmar_senha"]:
-            self.senha_input.setStyleSheet("border: 2px solid #e74c3c;")
-            self.confirmar_senha_input.setStyleSheet("border: 2px solid #e74c3c;")
+            self.senha_input.setStyleSheet("border-radius: 4px; border: 2px solid #e74c3c;")
+            self.confirmar_senha_input.setStyleSheet("border-radius: 4px; border: 2px solid #e74c3c;")
             self.labelWarning5.setText("As senhas não coincidem")
             self.labelWarning6.setText("As senhas não coincidem")
             valido = False
 
         else:
             if dados["senha"]:
-                self.senha_input.setStyleSheet("")
-                self.confirmar_senha_input.setStyleSheet("")
+                self.senha_input.setStyleSheet("border-radius: 4px; border: none;")
+                self.confirmar_senha_input.setStyleSheet("border-radius: 4px; border: none;")
                 self.labelWarning5.setText("")
                 self.labelWarning6.setText("")
         
@@ -490,6 +490,7 @@ class TelaTutor(QWidget):
         self.table.setHorizontalHeaderLabels(['ID', 'Nome', 'Telefone', 'CPF', 'Foto Path'])
         self.table.setColumnHidden(0, True)
         self.table.setColumnHidden(4, True)
+        self.table.verticalHeader().setVisible(False)
         self.table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         self.table.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         self.table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
@@ -535,10 +536,18 @@ class TelaTutor(QWidget):
         formulario = QFormLayout()
 
         nome_input = QLineEdit(tutor['nome'] if tutor else '')
+        nome_input.setMaxLength(30)
         telefone_input = QLineEdit(tutor['telefone'] if tutor else '')
         cpf_input = QLineEdit(tutor['cpf'] if tutor else '')
 
         # Funções de Formatação
+        def formatar_nome():
+            texto = nome_input.text()
+            novo_texto = re.sub(r'[^a-zA-Z\s]', '', texto)
+            nome_input.blockSignals(True)
+            nome_input.setText(novo_texto)
+            nome_input.blockSignals(False)
+
         def formatar_telefone():
             texto = telefone_input.text()
             numeros = re.sub(r'\D', '', texto)[:11]
@@ -580,6 +589,7 @@ class TelaTutor(QWidget):
             cpf_input.setText(novo_texto)
             cpf_input.blockSignals(False)
 
+        nome_input.textChanged.connect(formatar_nome)
         telefone_input.textChanged.connect(formatar_telefone)
         cpf_input.textChanged.connect(lambda texto: formatar_cpf(texto))
         
@@ -816,7 +826,7 @@ class TelaPerfil(QWidget):
         self.labelImagem.setPixmap(QPixmap(dados[4]))
 
         self.table.setColumnCount(3)
-        self.table.setHorizontalHeaderLabels(["Nome do Pet", "Peso", "Raça"])
+        self.table.setHorizontalHeaderLabels(["Nome do Pet", "Peso (kg)", "Raça"])
         self.table.horizontalHeader().setStretchLastSection(True)
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
         
@@ -845,8 +855,9 @@ class TelaPet(QWidget):
 
     def configurarTabela(self):
         self.table.setColumnCount(5)
-        self.table.setHorizontalHeaderLabels(["ID", "Nome do Pet", "Peso", "Raça", "Nome do Tutor"])
+        self.table.setHorizontalHeaderLabels(["ID", "Nome do Pet", "Peso (kg)", "Raça", "Nome do Tutor"])
         self.table.setColumnHidden(0, True)
+        self.table.verticalHeader().setVisible(False)
         self.table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         self.table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
 
@@ -977,8 +988,6 @@ class TelaPet(QWidget):
             raca_input.setCurrentIndex(raca_input.findData(pet[2]))
             tutor_input.setCurrentIndex(tutor_input.findData(pet[3]))
 
-
-
         formulario = QFormLayout()
         formulario.addRow("Nome:", nome_input)
         formulario.addRow("Peso:", peso_input)
@@ -1051,8 +1060,6 @@ class TelaVeterinarioRecepcionista(QWidget):
 
         self.vetInput.textChanged.connect(self.atualizar_tabela)
 
-        self.table.cellDoubleClicked.connect(self.abrirPerfil)
-
         self.configurar_tabela()
         self.atualizar_tabela()
 
@@ -1061,21 +1068,13 @@ class TelaVeterinarioRecepcionista(QWidget):
         self.table.setHorizontalHeaderLabels(['ID', 'Nome', 'Telefone', 'CPF', 'Foto Path'])
         self.table.setColumnHidden(0, True)
         self.table.setColumnHidden(4, True)
+        self.table.verticalHeader().setVisible(False)
         self.table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         self.table.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         self.table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
 
         self.table.horizontalHeader().setStretchLastSection(True)
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
-
-    def abrirPerfil(self, linha, coluna):
-        valores = []
-        for col in range(self.table.columnCount()):
-            item = self.table.item(linha, col)
-            valores.append(item.text() if item else "")
-        
-        self.tela_perfil = TelaPerfil(valores)
-        self.tela_perfil.show()
 
     def atualizar_tabela(self):
         filtro = self.vetInput.text().strip()
@@ -1123,98 +1122,6 @@ class TelaVeterinario(QWidget):
         uic.loadUi("tela_veterinario.ui", self)
 
         self.tela_inicial = tela_inicial
-
-
-        self.configurar_tela()
-
-    def configurar_tela(self):
-        self.tabelaConsultasHoje.setColumnCount(5)
-        self.tabelaConsultasHoje.setHorizontalHeaderLabels(["ID", "Horário", "Pet", "Tutor", "Status"])
-        self.tabelaConsultasHoje.setColumnHidden(0, True)
-        self.tabelaConsultasHoje.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
-        self.tabelaConsultasHoje.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
-        self.tabelaConsultasHoje.setColumnWidth(2, 180)
-        self.tabelaConsultasHoje.setColumnWidth(3, 180)
-
-        self.realizarDiagnosticoBTN.clicked.connect(self.realizar_diagnostico)
-        self.sairBTN.clicked.connect(self.sair)
-        
-        self.tabelaConsultasHoje.itemSelectionChanged.connect(self.atualizar_status_botao_diagnostico)
-
-        self.atualizar_status_botao_diagnostico()
-        
-        self.carregar_consultas_de_hoje()
-
-    def carregar_consultas_de_hoje(self):
-        self.tabelaConsultasHoje.setRowCount(0)
-        hoje_str = QDate.currentDate().toString("dd/MM/yyyy")
-        
-        conexao = sqlite3.connect('dados.db')
-        cursor = conexao.cursor()
-        query = """
-            SELECT c.ID, c.Data_Horario, p.Nome AS PetNome, t.Nome AS TutorNome, c.Relatorio_ID
-            FROM Consultas c
-            JOIN Pets p ON c.Pet_ID = p.ID
-            JOIN Tutores t ON p.Tutor_ID = t.ID
-            WHERE c.Perfil_Medico_ID = ? AND c.Data_Horario LIKE ?
-            ORDER BY c.Data_Horario
-        """
-        cursor.execute(query, (self.perfil_logado.id, f'{hoje_str}%'))
-        consultas = cursor.fetchall()
-        conexao.close()
-        
-        for consulta in consultas:
-            consulta_id, data_hora, pet_nome, tutor_nome, relatorio_id = consulta
-            
-            hora = datetime.strptime(data_hora, '%d/%m/%Y %H:%M').strftime('%H:%M')
-            status = "Concluído" if relatorio_id else "Pendente"
-            
-            row = self.tabelaConsultasHoje.rowCount()
-            self.tabelaConsultasHoje.insertRow(row)
-            self.tabelaConsultasHoje.setItem(row, 0, QTableWidgetItem(str(consulta_id)))
-            self.tabelaConsultasHoje.setItem(row, 1, QTableWidgetItem(hora))
-            self.tabelaConsultasHoje.setItem(row, 2, QTableWidgetItem(pet_nome))
-            self.tabelaConsultasHoje.setItem(row, 3, QTableWidgetItem(tutor_nome))
-            self.tabelaConsultasHoje.setItem(row, 4, QTableWidgetItem(status))
-
-    def atualizar_status_botao_diagnostico(self):
-        itens_selecionados = self.tabelaConsultasHoje.selectedItems()
-        
-        if not itens_selecionados:
-            self.realizarDiagnosticoBTN.setEnabled(False)
-            return
-
-        linha_selecionada = self.tabelaConsultasHoje.currentRow()
-        status = self.tabelaConsultasHoje.item(linha_selecionada, 4).text()
-        
-        self.realizarDiagnosticoBTN.setEnabled(status == "Pendente")
-
-    def realizar_diagnostico(self):
-        linha_selecionada = self.tabelaConsultasHoje.currentRow()
-        if linha_selecionada < 0: 
-            return
-
-        consulta_id = int(self.tabelaConsultasHoje.item(linha_selecionada, 0).text())
-
-        diagnostico, ok = QInputDialog.getMultiLineText(self, "Realizar Diagnóstico", "Digite a descrição e o diagnóstico do paciente:")
-        
-        if ok and diagnostico.strip():
-            conexao = sqlite3.connect('dados.db')
-            cursor = conexao.cursor()
-            cursor.execute("INSERT INTO Relatorios (Descricao, Diagnostico) VALUES (?, ?)", (diagnostico, diagnostico))
-            relatorio_id = cursor.lastrowid
-            
-            cursor.execute("UPDATE Consultas SET Relatorio_ID = ? WHERE ID = ?", (relatorio_id, consulta_id))
-            
-            conexao.commit()
-            conexao.close()
-            
-            QMessageBox.information(self, "Sucesso", "Diagnóstico salvo com sucesso!")
-            self.carregar_consultas_de_hoje()
-
-    def sair(self):
-        self.tela_inicial.show()
-        self.close()
 
 janela = TelaInicial()
 janela.show()

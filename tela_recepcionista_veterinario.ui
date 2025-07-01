@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Tela Veterinários</string>
+   <string>Tela Recepcionista - Veterinários</string>
   </property>
   <property name="styleSheet">
    <string notr="true">QWidget#Form {
@@ -84,7 +84,18 @@ background-color: #00bcd4;
        </layout>
       </item>
       <item row="1" column="0">
-       <widget class="QTableWidget" name="table"/>
+       <widget class="QTableWidget" name="table">
+        <property name="styleSheet">
+         <string notr="true">QHeaderView::section {
+    background-color: #00bcd4;
+    color: black;
+    padding: 4px;
+    font-size: 14px; 
+    font-weight: bold;
+    border: 1px solid #007f8f;
+}</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
@@ -96,8 +107,7 @@ background-color: #00bcd4;
      </property>
      <property name="styleSheet">
       <string notr="true">background-color: #00bcd4;
-border: none;
-border-color: #e0f0df;
+border: 2px solid #029cb0; 
 border-radius: 4px;
 padding: 6px 12px;</string>
      </property>
@@ -132,7 +142,7 @@ QPushButton:hover {
         <property name="sizeHint" stdset="0">
          <size>
           <width>20</width>
-          <height>32</height>
+          <height>80</height>
          </size>
         </property>
        </spacer>
@@ -167,7 +177,7 @@ QPushButton:hover {
         <property name="sizeHint" stdset="0">
          <size>
           <width>20</width>
-          <height>8</height>
+          <height>80</height>
          </size>
         </property>
        </spacer>

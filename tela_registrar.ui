@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>380</width>
-    <height>488</height>
+    <width>448</width>
+    <height>477</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -37,7 +37,7 @@
     <widget class="QLabel" name="label">
      <property name="styleSheet">
       <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
-    font-size: 14px;</string>
+    font-size: 16px;</string>
      </property>
      <property name="text">
       <string>Nome:</string>
@@ -48,7 +48,9 @@
     <widget class="QLineEdit" name="nome_input">
      <property name="styleSheet">
       <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
-    font-size: 12px;</string>
+    font-size: 14px;
+    border-radius: 4px;
+    border: none;</string>
      </property>
      <property name="text">
       <string/>
@@ -75,7 +77,7 @@ color: red</string>
     <widget class="QLabel" name="label_2">
      <property name="styleSheet">
       <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
-    font-size: 14px;</string>
+ font-size: 16px;</string>
      </property>
      <property name="text">
       <string>Data Nascimento:</string>
@@ -86,10 +88,15 @@ color: red</string>
     <widget class="QDateEdit" name="data_input">
      <property name="styleSheet">
       <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
-    font-size: 12px;</string>
+    font-size: 14px;
+    border-radius: 4px;
+    border: none;</string>
      </property>
      <property name="wrapping">
       <bool>false</bool>
+     </property>
+     <property name="frame">
+      <bool>true</bool>
      </property>
      <property name="buttonSymbols">
       <enum>QAbstractSpinBox::PlusMinus</enum>
@@ -137,7 +144,7 @@ color: red</string>
     <widget class="QLabel" name="label_8">
      <property name="styleSheet">
       <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
-    font-size: 14px;</string>
+ font-size: 16px;</string>
      </property>
      <property name="text">
       <string>Telefone:</string>
@@ -148,7 +155,9 @@ color: red</string>
     <widget class="QLineEdit" name="telefone_input">
      <property name="styleSheet">
       <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
-    font-size: 12px;</string>
+    font-size: 14px;
+    border-radius: 4px;
+    border: none;</string>
      </property>
      <property name="inputMask">
       <string/>
@@ -175,7 +184,7 @@ color: red</string>
     <widget class="QLabel" name="label_3">
      <property name="styleSheet">
       <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
-    font-size: 14px;</string>
+ font-size: 16px;</string>
      </property>
      <property name="text">
       <string>CPF:</string>
@@ -186,7 +195,9 @@ color: red</string>
     <widget class="QLineEdit" name="cpf_input">
      <property name="styleSheet">
       <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
-    font-size: 12px;</string>
+    font-size: 14px;
+    border-radius: 4px;
+    border: none;</string>
      </property>
      <property name="inputMask">
       <string/>
@@ -216,7 +227,7 @@ color: red</string>
     <widget class="QLabel" name="label_4">
      <property name="styleSheet">
       <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
-    font-size: 14px;</string>
+ font-size: 16px;</string>
      </property>
      <property name="text">
       <string>Email:</string>
@@ -227,8 +238,9 @@ color: red</string>
     <widget class="QLineEdit" name="email_input">
      <property name="styleSheet">
       <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
-    font-size: 12px;
-</string>
+    font-size: 14px;
+    border-radius: 4px;
+    border: none;</string>
      </property>
      <property name="placeholderText">
       <string>Insira Email</string>
@@ -252,7 +264,7 @@ color:red</string>
     <widget class="QLabel" name="label_5">
      <property name="styleSheet">
       <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
-    font-size: 14px;</string>
+ font-size: 16px;</string>
      </property>
      <property name="text">
       <string>Senha:</string>
@@ -265,7 +277,9 @@ color:red</string>
       <widget class="QLineEdit" name="senha_input">
        <property name="styleSheet">
         <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
-    font-size: 12px;</string>
+    font-size: 14px;
+    border-radius: 4px;
+    border: none;</string>
        </property>
        <property name="text">
         <string/>
@@ -324,7 +338,7 @@ color: red</string>
     <widget class="QLabel" name="label_6">
      <property name="styleSheet">
       <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
-    font-size: 14px;</string>
+ font-size: 16px;</string>
      </property>
      <property name="text">
       <string>Confirmar Senha:</string>
@@ -337,7 +351,9 @@ color: red</string>
       <widget class="QLineEdit" name="confirmar_senha_input">
        <property name="styleSheet">
         <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
-    font-size: 12px;</string>
+    font-size: 14px;
+    border-radius: 4px;
+    border: none;</string>
        </property>
        <property name="echoMode">
         <enum>QLineEdit::Password</enum>
@@ -393,7 +409,7 @@ color: red</string>
     <widget class="QLabel" name="label_7">
      <property name="styleSheet">
       <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
-    font-size: 14px;</string>
+ font-size: 16px;</string>
      </property>
      <property name="text">
       <string>Ocupação:</string>
@@ -406,7 +422,9 @@ color: red</string>
       <widget class="QCheckBox" name="recepcionista_check_input">
        <property name="styleSheet">
         <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
-    font-size: 12px;</string>
+    font-size: 14px;
+    border-radius: 4px;
+    border: none;</string>
        </property>
        <property name="text">
         <string>Recepcionista</string>
@@ -417,7 +435,9 @@ color: red</string>
       <widget class="QCheckBox" name="veterinario_check_input">
        <property name="styleSheet">
         <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
-    font-size: 12px;</string>
+    font-size: 14px;
+    border-radius: 4px;
+    border: none;</string>
        </property>
        <property name="text">
         <string>Veterinário(a)</string>
@@ -468,7 +488,7 @@ QPushButton:hover {
      </property>
      <property name="styleSheet">
       <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
-    font-size: 14px;
+    font-size: 18px;
     font-weight: bold;</string>
      </property>
      <property name="text">

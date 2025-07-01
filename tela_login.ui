@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>269</width>
-    <height>225</height>
+    <width>362</width>
+    <height>207</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,28 +19,13 @@
 }</string>
   </property>
   <layout class="QFormLayout" name="formLayout_2">
-   <item row="0" column="0">
-    <widget class="QLabel" name="label">
-     <property name="styleSheet">
-      <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
-    font-size: 14px;
-    font-weight: bold;</string>
-     </property>
-     <property name="text">
-      <string>Insira os dados de Login</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
-   </item>
    <item row="2" column="0" colspan="2">
     <layout class="QFormLayout" name="formLayout">
      <item row="0" column="0">
       <widget class="QLabel" name="label_2">
        <property name="styleSheet">
         <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
-    font-size: 14px;</string>
+    font-size: 16px;</string>
        </property>
        <property name="text">
         <string>Login:</string>
@@ -51,7 +36,7 @@
       <widget class="QLabel" name="label_3">
        <property name="styleSheet">
         <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
-    font-size: 14px;</string>
+    font-size: 16px;</string>
        </property>
        <property name="text">
         <string>Senha:</string>
@@ -62,7 +47,9 @@
       <widget class="QLineEdit" name="login_input">
        <property name="styleSheet">
         <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
-    font-size: 12px;</string>
+    font-size: 14px;
+    border-radius: 4px;
+    border: none;</string>
        </property>
        <property name="placeholderText">
         <string>Insira Email</string>
@@ -107,7 +94,9 @@ color: red</string>
         <widget class="QLineEdit" name="senha_input">
          <property name="styleSheet">
           <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
-    font-size: 12px;</string>
+    font-size: 14px;
+    border-radius: 4px;
+    border: none;</string>
          </property>
          <property name="echoMode">
           <enum>QLineEdit::Password</enum>
@@ -156,7 +145,7 @@ QPushButton:hover {
      <property name="sizeHint" stdset="0">
       <size>
        <width>40</width>
-       <height>20</height>
+       <height>10</height>
       </size>
      </property>
     </spacer>
@@ -169,7 +158,7 @@ QPushButton:hover {
      <property name="sizeHint" stdset="0">
       <size>
        <width>40</width>
-       <height>20</height>
+       <height>10</height>
       </size>
      </property>
     </spacer>
@@ -194,6 +183,21 @@ QPushButton:hover {
      </property>
      <property name="text">
       <string>Validar Login</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0" colspan="2">
+    <widget class="QLabel" name="label">
+     <property name="styleSheet">
+      <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
+    font-size: 18px;
+    font-weight: bold;</string>
+     </property>
+     <property name="text">
+      <string>Insira os dados de Login</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
      </property>
     </widget>
    </item>
