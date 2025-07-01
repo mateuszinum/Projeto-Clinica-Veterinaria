@@ -366,6 +366,7 @@ class TelaConsulta(QWidget):
 
         layout = QVBoxLayout()
         formulario = QFormLayout()
+
         pet_input = QComboBox()
         veterinario_input = QComboBox()
         horario_input = QTimeEdit()
@@ -821,7 +822,7 @@ class TelaPet(QWidget):
             return
         
         model = linha[0].model()
-        index_coluna = model.index(linha[0].row(), 0)  # 2 é o número da coluna que você quer
+        index_coluna = model.index(linha[0].row(), 0)  
         pet_id = index_coluna.data()
         
         cursor.execute("SELECT Nome, Peso, Raca_ID, Tutor_ID FROM Pets WHERE ID = ?", (pet_id,))
@@ -838,9 +839,9 @@ class TelaPet(QWidget):
     def deletarPet(self):
         linhas = self.table.selectionModel().selectedRows()
         if not linhas:
-            QMessageBox.warning(self, "Seleção", "Por favor, selecione pelo menos um pet.")
+            QMessageBox.warning(self, "Seleção", "Por favor, selecione pelo um pet.")
             return
-        resposta = QMessageBox.question(self, "Confirmar", "Deseja realmente excluir os pets selecionados?")
+        resposta = QMessageBox.question(self, "Confirmar", "Deseja realmente excluir o pet selecionado?")
         if resposta == QMessageBox.StandardButton.Yes:
             for linha in sorted(linhas, reverse=True):
                 pet_id = int(self.table.item(linha.row(), 0).text())
@@ -853,7 +854,6 @@ class TelaPet(QWidget):
 
     def atualizarTabela(self):
         filtro = self.petInput.text().lower()
-        # conecta no banco de dados e busca pets com o filtro
 
         cursor.execute("SELECT * FROM Pets")
         self.pets_db = cursor.fetchall()
