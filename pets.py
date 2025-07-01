@@ -529,32 +529,28 @@ class TelaTutor(QWidget):
                 self.table.setItem(row, 4, QTableWidgetItem(tutor[4]))
 
     def abrirFormularioTutor(self, tutor=None):
-        dialogo = QDialog(self)
+        dialogo = TelaCrudTutor(self)
         dialogo.setWindowTitle(f"{'Editar' if tutor else 'Adicionar'} Tutor")
-        dialogo.setStyleSheet(f"background-color: #93cbd9;")
-        layout = QVBoxLayout()
-        formulario = QFormLayout()
 
-        nome_input = QLineEdit(tutor['nome'] if tutor else '')
-        nome_input.setMaxLength(30)
-        telefone_input = QLineEdit(tutor['telefone'] if tutor else '')
-        cpf_input = QLineEdit(tutor['cpf'] if tutor else '')
+        if tutor:
+            dialogo.nome_input.setText(tutor['nome'])
+            dialogo.telefone_input.setText(tutor['telefone'])
+            dialogo.cpf_input.setText(tutor['cpf'])
 
-        # Funções de Formatação
         def formatar_nome():
-            texto = nome_input.text()
+            texto = dialogo.nome_input.text()
             novo_texto = re.sub(r'[^a-zA-Z\s]', '', texto)
-            nome_input.blockSignals(True)
-            nome_input.setText(novo_texto)
-            nome_input.blockSignals(False)
+            dialogo.nome_input.blockSignals(True)
+            dialogo.nome_input.setText(novo_texto)
+            dialogo.nome_input.blockSignals(False)
 
         def formatar_telefone():
-            texto = telefone_input.text()
+            texto = dialogo.telefone_input.text()
             numeros = re.sub(r'\D', '', texto)[:11]
             tam = len(numeros)
             novo_texto = ""
 
-            if tam >= 1:
+            if tam >= 1: 
                 novo_texto += "(" + numeros[:2]
 
             if tam >= 3:
@@ -563,9 +559,9 @@ class TelaTutor(QWidget):
             if tam >= 8:
                 novo_texto += '-' + numeros[7:11]
 
-            telefone_input.blockSignals(True)
-            telefone_input.setText(novo_texto)
-            telefone_input.blockSignals(False)
+            dialogo.telefone_input.blockSignals(True)
+            dialogo.telefone_input.setText(novo_texto)
+            dialogo.telefone_input.blockSignals(False)
 
         def formatar_cpf(texto):
             numeros = re.sub(r'\D', '', texto)
@@ -585,72 +581,38 @@ class TelaTutor(QWidget):
             if tam > 9:
                 novo_texto += '-' + numeros[9:11]
 
-            cpf_input.blockSignals(True)
-            cpf_input.setText(novo_texto)
-            cpf_input.blockSignals(False)
+            dialogo.cpf_input.blockSignals(True)
+            dialogo.cpf_input.setText(novo_texto)
+            dialogo.cpf_input.blockSignals(False)
 
-        nome_input.textChanged.connect(formatar_nome)
-        telefone_input.textChanged.connect(formatar_telefone)
-        cpf_input.textChanged.connect(lambda texto: formatar_cpf(texto))
-        
-        foto_layout = QHBoxLayout()
-        foto_label = QLabel("Nenhuma foto selecionada")
-        foto_preview = QLabel()
-        foto_preview.setFixedSize(100, 100)
-        foto_preview.setScaledContents(True)
+        dialogo.nome_input.textChanged.connect(formatar_nome)
+        dialogo.telefone_input.textChanged.connect(formatar_telefone)
+        dialogo.cpf_input.textChanged.connect(formatar_cpf)
+
         dialogo.foto_path = tutor['foto_path'] if tutor else ''
-        
         if dialogo.foto_path and os.path.exists(dialogo.foto_path):
-            foto_preview.setPixmap(QPixmap(dialogo.foto_path))
-            foto_label.setText(os.path.basename(dialogo.foto_path))
+            dialogo.foto_preview.setPixmap(QPixmap(dialogo.foto_path))
+            dialogo.foto_label.setText(os.path.basename(dialogo.foto_path))
+        else:
+            caminho_padrao = os.path.join(FOTOS_TUTORES_DIR, "default-icon.png")
+            if os.path.exists(caminho_padrao):
+                dialogo.foto_path = caminho_padrao
+                dialogo.foto_preview.setPixmap(QPixmap(caminho_padrao))
+                dialogo.foto_label.setText("default-icon.png")
 
         def selecionar_foto():
             fname, _ = QFileDialog.getOpenFileName(self, 'Selecionar Foto', '', 'Imagens (*.png *.jpg *.jpeg)')
             if fname:
                 dialogo.foto_path = fname
-                foto_preview.setPixmap(QPixmap(fname))
-                foto_label.setText(os.path.basename(fname))
+                dialogo.foto_preview.setPixmap(QPixmap(fname))
+                dialogo.foto_label.setText(os.path.basename(fname))
 
-        if not dialogo.foto_path or not os.path.exists(dialogo.foto_path):
-            caminho_padrao = os.path.join(FOTOS_TUTORES_DIR, "default-icon.png")
-            dialogo.foto_path = caminho_padrao
-            pixmap_padrao = QPixmap(caminho_padrao)
-            foto_preview.setPixmap(pixmap_padrao)
-            foto_label.setText("default-icon.png")
-
-        botao_selecionar = QPushButton("Selecionar Foto")
-        botao_selecionar.setStyleSheet(
-            'background-color: #2f80ed; color: white; padding: 6px 12px; border-radius: 4px; '
-            'border: none; font-size: 14px; font-weight: bold;'
-            )
-        botao_selecionar.clicked.connect(selecionar_foto)
-        foto_layout.addWidget(botao_selecionar)
-        foto_layout.addWidget(foto_label)
+        dialogo.botao_selecionar.clicked.connect(selecionar_foto)
         
-        formulario.addRow("Nome:", nome_input)
-        formulario.addRow("Telefone:", telefone_input)
-        formulario.addRow("CPF:", cpf_input)
-
-        layout.addLayout(formulario)
-        imagem_layout = QHBoxLayout()
-        imagem_layout.addStretch()
-        imagem_layout.addWidget(foto_preview)
-        imagem_layout.addStretch()
-        layout.addLayout(imagem_layout)
-        layout.addLayout(foto_layout)
-        
-        botao_salvar = QPushButton("Salvar")
-        botao_salvar.setStyleSheet(
-            'background-color: #27ae60; color: white; padding: 6px 12px; border-radius: 4px; '
-            'border: none; font-size: 14px; font-weight: bold;'
-            )
-        layout.addWidget(botao_salvar)
-        dialogo.setLayout(layout)
-
         def salvar():
-            nome = nome_input.text().strip()
-            telefone = telefone_input.text().strip()
-            cpf = cpf_input.text().strip()
+            nome = dialogo.nome_input.text().strip()
+            telefone = dialogo.telefone_input.text().strip()
+            cpf = dialogo.cpf_input.text().strip()
 
             if not nome or not telefone or not cpf:
                 QMessageBox.warning(dialogo, "Erro", "Todos os campos devem ser preenchidos.")
@@ -662,9 +624,10 @@ class TelaTutor(QWidget):
                 "cpf": cpf, 
                 "foto_path": dialogo.foto_path
             }
-            dialogo.accept() 
+            dialogo.accept()
 
-        botao_salvar.clicked.connect(salvar)
+        dialogo.botao_salvar.clicked.connect(salvar)
+
         if dialogo.exec():
             return dialogo.resultado
         return None
@@ -814,6 +777,12 @@ class TelaTutor(QWidget):
         self.close()
 
 
+class TelaCrudTutor(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        uic.loadUi("tela_crud_tutor.ui", self)
+
+
 class TelaPerfil(QWidget):
     def __init__(self, dados):
         super().__init__()
@@ -831,6 +800,7 @@ class TelaPerfil(QWidget):
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
         
         #conectar o banco de dados, achar os pets da pessoa e botar na tabela
+
 
 class TelaPet(QWidget):
     def __init__(self, tela_inicial):
@@ -863,6 +833,96 @@ class TelaPet(QWidget):
 
         self.table.horizontalHeader().setStretchLastSection(True)
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+
+    def atualizarTabela(self):
+        filtro = self.petInput.text().lower()
+
+        cursor.execute("SELECT * FROM Pets")
+        self.pets_db = cursor.fetchall()
+
+        self.table.setRowCount(0)
+        for pet in self.pets_db:
+            cursor.execute("SELECT Nome FROM Tutores WHERE ID = ?", (pet[4],))
+            tutor_nome = cursor.fetchall()[0][0]
+            if filtro in pet[1].lower() or filtro in tutor_nome.lower():
+                linha = self.table.rowCount()
+                self.table.insertRow(linha)
+                
+                cursor.execute("SELECT Nome FROM Racas WHERE ID = ?", (pet[3],))
+                raca_nome = cursor.fetchall()[0][0]
+
+                self.table.setItem(linha, 0, QTableWidgetItem(str(pet[0])))
+                self.table.setItem(linha, 1, QTableWidgetItem(pet[1]))
+                self.table.setItem(linha, 2, QTableWidgetItem(pet[2]))
+                self.table.setItem(linha, 3, QTableWidgetItem(raca_nome))
+                self.table.setItem(linha, 4, QTableWidgetItem(tutor_nome))
+
+    def abrirFormulario(self, pet=None):
+        dialogo = TelaCrudPet(self)
+        dialogo.setWindowTitle(f"{'Editar' if pet else 'Adicionar'} Pet")
+
+        conexao = sqlite3.connect('dados.db')
+        cursor = conexao.cursor()
+        
+        def formatar_peso(texto):
+            texto_limpo = re.sub(r'[^0-9.]', '', texto)
+
+            partes = texto_limpo.split('.')
+
+            if len(partes) > 1:
+                inteiro = partes[0]
+                decimal = ''.join(partes[1:])[:2]  
+                texto_limpo = inteiro + '.' + decimal
+
+            else:
+                texto_limpo = partes[0]
+
+            dialogo.peso_input.blockSignals(True)
+            dialogo.peso_input.setText(texto_limpo)
+            dialogo.peso_input.blockSignals(False)
+            
+        dialogo.peso_input.textChanged.connect(formatar_peso)       
+
+        cursor.execute("SELECT Nome, ID FROM Racas")
+        racas = cursor.fetchall()
+
+        for raca_nome, raca_id in racas:
+            dialogo.raca_input.addItem(raca_nome, userData=raca_id)
+            
+        cursor.execute("SELECT Nome, ID FROM Tutores")
+        tutores = cursor.fetchall()
+
+        for tutor_nome, tutor_id in tutores:
+            dialogo.tutor_input.addItem(tutor_nome, userData=tutor_id)
+        
+        if pet:
+            dialogo.nome_input.setText(pet[0])
+            dialogo.peso_input.setText(str(pet[1]))
+            dialogo.raca_input.setCurrentIndex(dialogo.raca_input.findData(pet[2]))
+            dialogo.tutor_input.setCurrentIndex(dialogo.tutor_input.findData(pet[3]))
+
+        def salvar():
+            nome = dialogo.nome_input.text().strip()
+            peso = dialogo.peso_input.text().strip()
+            raca_id = dialogo.raca_input.currentData()
+            tutor_id = dialogo.tutor_input.currentData()
+
+            if not nome:
+                QMessageBox.warning(dialogo, "Erro", "Nome não pode estar vazio.")
+                return
+            
+            dialogo.accept()
+            dialogo.resultado = {
+                "nome": nome, 
+                "peso": peso, 
+                "raca_id": raca_id,
+                "id_tutor": tutor_id 
+            }
+
+        dialogo.botao_salvar.clicked.connect(salvar)
+        if dialogo.exec():
+            return dialogo.resultado
+        return None
 
     def adicionarPet(self):
         dados_pet = self.abrirFormulario()
@@ -911,121 +971,6 @@ class TelaPet(QWidget):
             QMessageBox.information(self, "Sucesso", "Pet deletado com sucesso!")
             self.atualizarTabela()
 
-    def atualizarTabela(self):
-        filtro = self.petInput.text().lower()
-
-        cursor.execute("SELECT * FROM Pets")
-        self.pets_db = cursor.fetchall()
-
-        self.table.setRowCount(0)
-        for pet in self.pets_db:
-            cursor.execute("SELECT Nome FROM Tutores WHERE ID = ?", (pet[4],))
-            tutor_nome = cursor.fetchall()[0][0]
-            if filtro in pet[1].lower() or filtro in tutor_nome.lower():
-                linha = self.table.rowCount()
-                self.table.insertRow(linha)
-                
-                cursor.execute("SELECT Nome FROM Racas WHERE ID = ?", (pet[3],))
-                raca_nome = cursor.fetchall()[0][0]
-
-                self.table.setItem(linha, 0, QTableWidgetItem(str(pet[0])))
-                self.table.setItem(linha, 1, QTableWidgetItem(pet[1]))
-                self.table.setItem(linha, 2, QTableWidgetItem(pet[2]))
-                self.table.setItem(linha, 3, QTableWidgetItem(raca_nome))
-                self.table.setItem(linha, 4, QTableWidgetItem(tutor_nome))
-
-    def abrirFormulario(self, pet=None):
-        dialogo = QDialog(self)
-        dialogo.setWindowTitle(f"{'Editar' if pet else 'Adicionar'} Pet")
-        dialogo.setStyleSheet(f"background-color: #93cbd9;")
-        layout = QVBoxLayout()
-
-        conexao = sqlite3.connect('dados.db')
-        cursor = conexao.cursor()
-
-        nome_input = QLineEdit()
-
-        peso_input = QLineEdit()
-        
-        def formatar_peso(texto):
-            texto_limpo = re.sub(r'[^0-9.]', '', texto)
-
-            partes = texto_limpo.split('.')
-
-            if len(partes) > 1:
-                inteiro = partes[0]
-                decimal = ''.join(partes[1:])[:2]  
-                texto_limpo = inteiro + '.' + decimal
-
-            else:
-                texto_limpo = partes[0]
-
-            peso_input.blockSignals(True)
-            peso_input.setText(texto_limpo)
-            peso_input.blockSignals(False)
-            
-        peso_input.textChanged.connect(formatar_peso)       
-
-        raca_input = QComboBox()
-
-        cursor.execute("SELECT Nome, ID FROM Racas")
-        racas = cursor.fetchall()
-
-        for raca_nome, raca_id in racas:
-            raca_input.addItem(raca_nome, userData=raca_id)
-
-        tutor_input = QComboBox()
-            
-        cursor.execute("SELECT Nome, ID FROM Tutores")
-        tutores = cursor.fetchall()
-
-        for tutor_nome, tutor_id in tutores:
-            tutor_input.addItem(tutor_nome, userData=tutor_id)
-        
-        if pet:
-            nome_input.setText(pet[0])
-            peso_input.setText(str(pet[1]))
-            raca_input.setCurrentIndex(raca_input.findData(pet[2]))
-            tutor_input.setCurrentIndex(tutor_input.findData(pet[3]))
-
-        formulario = QFormLayout()
-        formulario.addRow("Nome:", nome_input)
-        formulario.addRow("Peso:", peso_input)
-        formulario.addRow("Dono:", tutor_input)
-        formulario.addRow("Raça:", raca_input)
-
-        botao_salvar = QPushButton("Salvar")
-        botao_salvar.setStyleSheet(
-            'background-color: #27ae60; color: white; padding: 6px 12px; border-radius: 4px; '
-            'border: none; font-size: 14px; font-weight: bold;'
-            )
-        layout.addLayout(formulario)
-        layout.addWidget(botao_salvar)
-        dialogo.setLayout(layout)
-
-        def salvar():
-            nome = nome_input.text().strip()
-            peso = peso_input.text().strip()
-            raca_id = raca_input.currentData()
-            tutor_id = tutor_input.currentData()
-
-            if not nome:
-                QMessageBox.warning(dialogo, "Erro", "Nome não pode estar vazio.")
-                return
-            
-            dialogo.accept()
-            dialogo.resultado = {
-                "nome": nome, 
-                "peso": peso, 
-                "raca_id": raca_id,
-                "id_tutor": tutor_id 
-            }
-
-        botao_salvar.clicked.connect(salvar)
-        if dialogo.exec():
-            return dialogo.resultado
-        return None
-
     def openTelaTutor(self):
         self.tela_tutor = TelaTutor(self.tela_inicial)
         self.tela_tutor.show()
@@ -1044,6 +989,12 @@ class TelaPet(QWidget):
     def logout(self):
         self.tela_inicial.show()
         self.close()
+
+
+class TelaCrudPet(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        uic.loadUi("tela_crud_pet.ui", self)
 
 
 class TelaVeterinarioRecepcionista(QWidget):
@@ -1116,12 +1067,14 @@ class TelaVeterinarioRecepcionista(QWidget):
         self.tela_inicial.show()
         self.close()
 
+
 class TelaVeterinario(QWidget):
     def __init__(self, tela_inicial):
         super().__init__()
         uic.loadUi("tela_veterinario.ui", self)
 
         self.tela_inicial = tela_inicial
+
 
 janela = TelaInicial()
 janela.show()

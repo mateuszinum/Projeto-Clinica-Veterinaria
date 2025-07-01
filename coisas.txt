@@ -4,7 +4,6 @@ tela de consulta:
     - clicar duas vezes na data e mostrar todas as consultas daquele dia, clicar na que quer editar/deletar
 
 tela de pets e tutores:
-    - melhorar a tela de prompt do crud, tentar fazer uma do .ui
     - na tela de perfil do usuário, botar os pets dele na tabela
 
 tela de veterinário (recepcionista):
