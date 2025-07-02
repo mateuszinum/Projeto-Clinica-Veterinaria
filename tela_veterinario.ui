@@ -20,14 +20,14 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QLabel" name="labelData">
+    <widget class="QLabel" name="label">
      <property name="styleSheet">
       <string notr="true">    font-family: &quot;Arial&quot;, sans-serif;
     font-size: 18px;
 	font-weight: bold;</string>
      </property>
      <property name="text">
-      <string>Null</string>
+      <string>Consultas</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
@@ -115,28 +115,6 @@ QPushButton:hover {
        </property>
        <property name="text">
         <string>Abrir Diagnóstico</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="agendaBTN">
-       <property name="styleSheet">
-        <string notr="true">QPushButton {
-    background-color: #2f80ed;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 6px 12px;
-    font-family: &quot;Arial&quot;, sans-serif;
-    font-size: 14px;
-    font-weight: bold;
-}
-QPushButton:hover {
-    background-color: #1c64d1;
-}</string>
-       </property>
-       <property name="text">
-        <string>Consultar Agenda</string>
        </property>
       </widget>
      </item>

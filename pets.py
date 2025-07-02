@@ -6,7 +6,6 @@ import sqlite3
 import perfis as p
 from PyQt6 import uic
 from PyQt6.QtWidgets import *
-from datetime import datetime
 from PyQt6.QtGui import QPixmap, QTextCharFormat, QColor, QFont
 from PyQt6.QtCore import QDate
 
@@ -1171,6 +1170,7 @@ class TelaPerfilPet(QWidget):
 
         self.table.setColumnCount(3)
         self.table.setHorizontalHeaderLabels(["Veterinário", "Data", "Horário"])
+        self.table.verticalHeader().hide()
         self.table.horizontalHeader().setStretchLastSection(True)
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
         
@@ -1283,6 +1283,7 @@ class TelaPerfilVeterinario(QWidget):
 
         self.table.setColumnCount(4)
         self.table.setHorizontalHeaderLabels(["Pet", "Tutor", "Data", "Horário"])
+        self.table.verticalHeader().hide()
         self.table.horizontalHeader().setStretchLastSection(True)
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
 
@@ -1314,8 +1315,6 @@ class TelaVeterinario(QWidget):
         self.tela_inicial = tela_inicial
         self.med_vet_id = med_vet_id
 
-        self.labelData.setText(f"Consultas do dia {datetime.now().strftime('%d/%m/%Y')}")
-
         self.diagnosticoBTN.clicked.connect(self.realizarDiagnostico)
         self.sairBTN.clicked.connect(self.logout)
 
@@ -1328,7 +1327,7 @@ class TelaVeterinario(QWidget):
         self.table.setColumnCount(5)
         self.table.setHorizontalHeaderLabels(["ID", "Pet", "Tutor", "Data", "Horário"])
         self.table.setColumnHidden(0, True)
-        self.table.verticalHeader().setVisible(False)
+        self.table.verticalHeader().hide()
         self.table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         self.table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
 
