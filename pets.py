@@ -369,7 +369,6 @@ class TelaConsulta(QWidget):
     
         cursor.execute("SELECT Data, COUNT(ID) FROM Consultas GROUP BY Data")
         contagem_por_data = cursor.fetchall()
-        print(contagem_por_data)
 
         for data_str, contagem in contagem_por_data:
             data = QDate.fromString(data_str, "dd/MM/yyyy")
@@ -1153,7 +1152,19 @@ class TelaPerfilPet(QWidget):
         self.table.horizontalHeader().setStretchLastSection(True)
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
         
-        #conectar o banco de dados, achar as consultas do pet e botar na tabela
+        cursor.execute("SELECT Perfil_Medico_ID, Data, Horario FROM Consultas WHERE Pet_ID = ?", (dados[0],))
+        consultas_db = cursor.fetchall()
+
+        self.table.setRowCount(0)
+
+        for consulta in consultas_db:
+            cursor.execute("SELECT Nome FROM Perfis WHERE ID = ?", (consulta[0],))
+            med_vet = cursor.fetchall()[0][0]
+            row = self.table.rowCount()
+            self.table.insertRow(row)
+            self.table.setItem(row, 0, QTableWidgetItem(med_vet))
+            self.table.setItem(row, 1, QTableWidgetItem(consulta[1]))
+            self.table.setItem(row, 2, QTableWidgetItem(consulta[2]))
 
 
 class TelaVeterinarioRecepcionista(QWidget):
