@@ -1202,21 +1202,21 @@ class TelaVeterinarioRecepcionista(QWidget):
         filtro = self.vetInput.text().strip()
 
         if len(filtro) == 0:
-            cursor.execute("SELECT * FROM Tutores")
+            cursor.execute("SELECT ID, Nome, CPF, Email FROM Perfis WHERE Cargo_ID = ?", (2,))
 
         else:
-            cursor.execute("SELECT * FROM Tutores WHERE Nome LIKE ?", ('%' + filtro + '%',))
+            cursor.execute("SELECT ID, Nome, CPF, Email FROM Perfis WHERE Nome LIKE ? AND Cargo_ID = ?", ('%' + filtro + '%', 2))
 
-        tutores_db = cursor.fetchall()
+        vets_db = cursor.fetchall()
         self.table.setRowCount(0)
-        for tutor in tutores_db:
-            if filtro.lower() in tutor[1].lower():
+        for vet in vets_db:
+            if filtro.lower() in vet[1].lower():
                 row = self.table.rowCount()
                 self.table.insertRow(row)
-                self.table.setItem(row, 0, QTableWidgetItem(str(tutor[0])))
-                self.table.setItem(row, 1, QTableWidgetItem(tutor[1]))
-                self.table.setItem(row, 2, QTableWidgetItem(tutor[2]))
-                self.table.setItem(row, 3, QTableWidgetItem(tutor[3]))
+                self.table.setItem(row, 0, QTableWidgetItem(str(vet[0])))
+                self.table.setItem(row, 1, QTableWidgetItem(vet[1]))
+                self.table.setItem(row, 2, QTableWidgetItem(vet[2]))
+                self.table.setItem(row, 3, QTableWidgetItem(vet[3]))
 
     def abrirPerfil(self, linha, coluna):
         valores = []
@@ -1303,13 +1303,13 @@ class TelaVeterinario(QWidget):
         self.atualizarTabela()
 
     def configurarTabela(self):
-        self.table.setColumnCount(9)
-        self.table.setHorizontalHeaderLabels(["ID", "PetID", "Diagnóstico", "Peso", "Raça", "Pet", "Tutor", "Data", "Horário"])
-        self.table.setColumnHidden(0, True)
-        self.table.setColumnHidden(1, True)
-        self.table.setColumnHidden(2, True)
-        self.table.setColumnHidden(3, True)
-        self.table.setColumnHidden(4, True)
+        self.table.setColumnCount(4)
+        self.table.setHorizontalHeaderLabels(["Pet", "Tutor", "Data", "Horário"])
+        # self.table.setColumnHidden(0, True)
+        # self.table.setColumnHidden(1, True)
+        # self.table.setColumnHidden(2, True)
+        # self.table.setColumnHidden(3, True)
+        # self.table.setColumnHidden(4, True)
         self.table.verticalHeader().setVisible(False)
         self.table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         self.table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)

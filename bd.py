@@ -145,3 +145,6 @@ if len(racas_bd) == 0:
     for breed in breeds:
         cursor.execute("INSERT INTO Racas (Nome) VALUES (?)", (breed['name'],))
         conexao.commit()
+
+cursor.execute("DELETE FROM Pets WHERE ID = ?", (2,))
+conexao.commit()
