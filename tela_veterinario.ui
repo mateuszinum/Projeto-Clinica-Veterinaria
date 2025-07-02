@@ -114,7 +114,7 @@ QPushButton:hover {
 </string>
        </property>
        <property name="text">
-        <string>Realizar Diagnóstico</string>
+        <string>Abrir Diagnóstico</string>
        </property>
       </widget>
      </item>

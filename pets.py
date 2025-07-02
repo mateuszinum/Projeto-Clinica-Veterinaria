@@ -237,14 +237,14 @@ class TelaRegistrar(QWidget):
                 valido = False
 
             elif funcao_validacao and not funcao_validacao(valor):
-                widget.setStyleSheet("border-radius: 4px;'border: 2px solid #e74c3c;")
+                widget.setStyleSheet("border-radius: 4px; border: 2px solid #e74c3c;")
 
                 if campo == 'cpf':
                     warning.setText("CPF inválido")
                 elif campo == 'telefone':
                     warning.setText("Telefone inválido")
                 elif campo == 'email':
-                    warning.setText("Formato de e-mail inválido")
+                    warning.setText("Email inválido")
 
                 valido = False
             else:
@@ -282,12 +282,22 @@ class TelaRegistrar(QWidget):
         return valido
 
     def validar_cpf(self, cpf):
+        cursor.execute("SELECT CPF FROM Perfis WHERE CPF = ?", (cpf,))
+        consulta_cpf = cursor.fetchall()
+        if len(consulta_cpf) != 0:
+            return False
+        
         return len(cpf) == 14
 
     def validar_telefone(self, telefone):
         return len(telefone) == 15
 
     def validar_email(self, email):
+        cursor.execute("SELECT Email FROM Perfis WHERE Email = ?", (email,))
+        consulta_email = cursor.fetchall()
+        if len(consulta_email) != 0:
+            return False
+        
         padrao = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         return re.match(padrao, email) is not None
 
