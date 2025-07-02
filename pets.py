@@ -1179,16 +1179,17 @@ class TelaVeterinarioRecepcionista(QWidget):
         self.tutoresBTN.clicked.connect(self.openTelaTutor)
         self.sairBTN.clicked.connect(self.logout)
 
+        self.table.cellDoubleClicked.connect(self.abrirPerfil)
+
         self.vetInput.textChanged.connect(self.atualizar_tabela)
 
         self.configurar_tabela()
         self.atualizar_tabela()
 
     def configurar_tabela(self):
-        self.table.setColumnCount(5)
-        self.table.setHorizontalHeaderLabels(['ID', 'Nome', 'Telefone', 'CPF', 'Foto Path'])
+        self.table.setColumnCount(4)
+        self.table.setHorizontalHeaderLabels(['ID', 'Nome', 'CPF', 'Email'])
         self.table.setColumnHidden(0, True)
-        self.table.setColumnHidden(4, True)
         self.table.verticalHeader().setVisible(False)
         self.table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         self.table.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
@@ -1216,7 +1217,15 @@ class TelaVeterinarioRecepcionista(QWidget):
                 self.table.setItem(row, 1, QTableWidgetItem(tutor[1]))
                 self.table.setItem(row, 2, QTableWidgetItem(tutor[2]))
                 self.table.setItem(row, 3, QTableWidgetItem(tutor[3]))
-                self.table.setItem(row, 4, QTableWidgetItem(tutor[4]))
+
+    def abrirPerfil(self, linha, coluna):
+        valores = []
+        for col in range(self.table.columnCount()):
+            item = self.table.item(linha, col)
+            valores.append(item.text() if item else "")
+        
+        self.tela_perfil = TelaPerfilVeterinario(valores)
+        self.tela_perfil.show()
 
     def openTelaConsulta(self):
         self.tela_consulta = TelaConsulta(self.tela_inicial)
@@ -1238,6 +1247,26 @@ class TelaVeterinarioRecepcionista(QWidget):
         self.close()
 
 
+class TelaPerfilVeterinario(QWidget):
+    def __init__(self, dados):
+        super().__init__()
+        uic.loadUi("tela_perfil_veterinario.ui", self)
+
+        self.setWindowTitle(f'Dados do Veterinário - {dados[1]}')
+
+        self.labelID.setText(dados[0])
+        self.labelNome.setText(dados[1])
+        self.labelCPF.setText(dados[2])
+        self.labelEmail.setText(dados[3])
+
+        self.table.setColumnCount(4)
+        self.table.setHorizontalHeaderLabels(["Pet", "Tutor", "Data", "Horário"])
+        self.table.horizontalHeader().setStretchLastSection(True)
+        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+
+        # conectar banco de dados e dar todas as consultas de um veterinário
+
+
 class TelaVeterinario(QWidget):
     def __init__(self, tela_inicial):
         super().__init__()
@@ -1245,6 +1274,55 @@ class TelaVeterinario(QWidget):
 
         self.tela_inicial = tela_inicial
 
+        self.diagnosticoBTN.clicked.connect(self.realizarDiagnostico)
+        self.sairBTN.clicked.connect(self.logout)
+
+        self.tutorInput.textChanged.connect(self.atualizarTabela)
+
+        self.configurarTabela()
+        self.atualizarTabela()
+
+    def configurarTabela(self):
+        self.table.setColumnCount(5)
+        self.table.setHorizontalHeaderLabels(["ID", "Pet", "Tutor", "Data", "Horário"])
+        self.table.setColumnHidden(0, True)
+        self.table.verticalHeader().setVisible(False)
+        self.table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
+        self.table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+
+        self.table.horizontalHeader().setStretchLastSection(True)
+        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+
+    def atualizarTabela(self):
+        filtro = self.tutorInput.text().lower()
+
+        cursor.execute("SELECT * FROM Consultas")
+        self.consultas_db = cursor.fetchall()
+
+        self.table.setRowCount(0)
+        for consulta in self.consultas_db:
+            pass
+            # cursor.execute("SELECT Nome FROM Tutores WHERE ID = ?", (consulta[4],))
+            # tutor_nome = cursor.fetchall()[0][0]
+            # if filtro in consulta[1].lower() or filtro in tutor_nome.lower():
+            #     linha = self.table.rowCount()
+            #     self.table.insertRow(linha)
+                
+            #     cursor.execute("SELECT Nome FROM Racas WHERE ID = ?", (consulta[3],))
+            #     raca_nome = cursor.fetchall()[0][0]
+
+            #     self.table.setItem(linha, 0, QTableWidgetItem(str(consulta[0])))
+            #     self.table.setItem(linha, 1, QTableWidgetItem(consulta[1]))
+            #     self.table.setItem(linha, 2, QTableWidgetItem(consulta[2]))
+            #     self.table.setItem(linha, 3, QTableWidgetItem(raca_nome))
+            #     self.table.setItem(linha, 4, QTableWidgetItem(tutor_nome))
+
+    def realizarDiagnostico(self):
+        pass
+
+    def logout(self):
+        self.tela_inicial.show()
+        self.close()
 
 janela = TelaInicial()
 janela.show()

@@ -10,4 +10,4 @@ tela de veterinário (recepcionista):
     - colocar pra trazer todos os veterinários ****
 
 tela de veterinário:
-    - fazer tudo
+    - conectar o banco de dados para colocar as consultas
