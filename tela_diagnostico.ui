@@ -146,7 +146,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QTextEdit" name="textEdit">
+    <widget class="QTextEdit" name="diagnosticoInput">
      <property name="styleSheet">
       <string notr="true">    background-color: white;
     color: black;
@@ -158,9 +158,11 @@
     </widget>
    </item>
    <item>
-    <widget class="QPushButton" name="salvarBTN">
-     <property name="styleSheet">
-      <string notr="true">QPushButton {
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QPushButton" name="salvarBTN">
+       <property name="styleSheet">
+        <string notr="true">QPushButton {
     background-color: #27ae60;
     color: white;
     border-radius: 4px;
@@ -174,11 +176,42 @@ QPushButton:hover {
     background-color: #219150;
 }
 </string>
-     </property>
-     <property name="text">
-      <string>Salvar</string>
-     </property>
-    </widget>
+       </property>
+       <property name="text">
+        <string>Salvar</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="cancelarBTN">
+       <property name="maximumSize">
+        <size>
+         <width>90</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton {
+    background-color: #e74c3c;
+    color: white;
+    border-radius: 4px;
+    border: none;
+    padding: 6px 12px;
+    font-family: &quot;Arial&quot;, sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+}
+QPushButton:hover {
+    background-color: #c0392b;
+}
+</string>
+       </property>
+       <property name="text">
+        <string>Cancelar</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>

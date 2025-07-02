@@ -162,7 +162,7 @@
     <widget class="QTableWidget" name="table">
      <property name="styleSheet">
       <string notr="true">QHeaderView::section {
-    background-color: #00bcd4;
+    background-color: white;
     color: black; 
     padding: 4px;
     font-size: 14px; 

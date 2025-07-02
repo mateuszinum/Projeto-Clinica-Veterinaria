@@ -1274,6 +1274,8 @@ class TelaVeterinario(QWidget):
 
         self.tela_inicial = tela_inicial
 
+        self.labelData.setText(f"Consultas do dia {datetime.now().strftime('%d/%m/%Y')}")
+
         self.diagnosticoBTN.clicked.connect(self.realizarDiagnostico)
         self.sairBTN.clicked.connect(self.logout)
 
@@ -1283,9 +1285,13 @@ class TelaVeterinario(QWidget):
         self.atualizarTabela()
 
     def configurarTabela(self):
-        self.table.setColumnCount(5)
-        self.table.setHorizontalHeaderLabels(["ID", "Pet", "Tutor", "Data", "Horário"])
+        self.table.setColumnCount(9)
+        self.table.setHorizontalHeaderLabels(["ID", "PetID", "Diagnóstico", "Peso", "Raça", "Pet", "Tutor", "Data", "Horário"])
         self.table.setColumnHidden(0, True)
+        self.table.setColumnHidden(1, True)
+        self.table.setColumnHidden(2, True)
+        self.table.setColumnHidden(3, True)
+        self.table.setColumnHidden(4, True)
         self.table.verticalHeader().setVisible(False)
         self.table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         self.table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
@@ -1301,28 +1307,69 @@ class TelaVeterinario(QWidget):
 
         self.table.setRowCount(0)
         for consulta in self.consultas_db:
-            pass
-            # cursor.execute("SELECT Nome FROM Tutores WHERE ID = ?", (consulta[4],))
-            # tutor_nome = cursor.fetchall()[0][0]
-            # if filtro in consulta[1].lower() or filtro in tutor_nome.lower():
-            #     linha = self.table.rowCount()
-            #     self.table.insertRow(linha)
+            cursor.execute("SELECT Nome FROM Tutores WHERE ID = ?", (consulta[4],))
+            tutor_nome = cursor.fetchall()[0][0]
+            if filtro in consulta[1].lower() or filtro in tutor_nome.lower():
+                linha = self.table.rowCount()
+                self.table.insertRow(linha)
                 
-            #     cursor.execute("SELECT Nome FROM Racas WHERE ID = ?", (consulta[3],))
-            #     raca_nome = cursor.fetchall()[0][0]
+                cursor.execute("SELECT Nome FROM Racas WHERE ID = ?", (consulta[3],))
+                raca_nome = cursor.fetchall()[0][0]
 
-            #     self.table.setItem(linha, 0, QTableWidgetItem(str(consulta[0])))
-            #     self.table.setItem(linha, 1, QTableWidgetItem(consulta[1]))
-            #     self.table.setItem(linha, 2, QTableWidgetItem(consulta[2]))
-            #     self.table.setItem(linha, 3, QTableWidgetItem(raca_nome))
-            #     self.table.setItem(linha, 4, QTableWidgetItem(tutor_nome))
+                self.table.setItem(linha, 0, QTableWidgetItem(str(consulta[0])))
+                self.table.setItem(linha, 1, QTableWidgetItem(consulta[1]))
+                self.table.setItem(linha, 2, QTableWidgetItem(consulta[2]))
+                self.table.setItem(linha, 3, QTableWidgetItem(raca_nome))
+                self.table.setItem(linha, 4, QTableWidgetItem(tutor_nome))
 
     def realizarDiagnostico(self):
-        pass
+        linha_selecionada = self.table.currentRow()
+
+        if linha_selecionada < 0:
+            QMessageBox.warning(self, "Seleção", "Por favor, selecione uma consulta na tabela para fazer o diagnóstico.")
+            return
+
+        valores = []
+        for col in range(self.table.columnCount()):
+            item = self.table.item(linha_selecionada, col)
+            valores.append(item.text() if item else "")
+        
+        tela_diagnostico = TelaDiagnostico(valores)
+        
+        if tela_diagnostico.exec():
+            self.atualizarTabela()
 
     def logout(self):
         self.tela_inicial.show()
         self.close()
+
+
+class TelaDiagnostico(QWidget):
+    def __init__(self, dados):
+        super().__init__()
+        uic.loadUi("tela_diagnostico.ui", self)
+
+        self.salvarBTN.clicked.connect(self.salvarDiagnostico)
+        self.cancelarBTN.clicked.connect(self.voltarTelaVeterinario)
+
+        self.labelNome.setText(dados[5])
+        self.labelPeso.setText(dados[3])
+        self.labelRaca.setText(dados[4])
+        self.labelTutor.setText(dados[6])
+
+        self.diagnosticoInput.setText(dados[2] if dados[2] else "")
+
+    def salvarDiagnostico(self):
+        diagnostico = self.diagnosticoInput.toPlainText()
+        
+        # salvar diagnóstico no banco de dados
+
+        QMessageBox.information(self, "Sucesso", "Diagnóstico salvo com sucesso!")
+        self.accept()
+    
+    def voltarTelaVeterinario(self):
+        self.reject()
+
 
 janela = TelaInicial()
 janela.show()
