@@ -1328,12 +1328,12 @@ class TelaVeterinario(QWidget):
     def atualizarTabela(self):
         filtro = self.tutorInput.text().lower()
 
-        cursor.execute("SELECT Pet_ID, Data, Horario FROM Consultas WHERE Perfil_Medico_ID = ? AND Data = ?", (self.med_vet_id, datetime.now().strftime('%d/%m/%Y')))
+        cursor.execute("SELECT ID, Pet_ID, Data, Horario FROM Consultas WHERE Perfil_Medico_ID = ? AND Data = ?", (self.med_vet_id, datetime.now().strftime('%d/%m/%Y')))
         consultas_bd = cursor.fetchall()
 
         self.table.setRowCount(0)
         for consulta in consultas_bd:
-            cursor.execute("SELECT Nome, Tutor_ID FROM Pets WHERE ID = ?", (consulta[0],))
+            cursor.execute("SELECT Nome, Tutor_ID FROM Pets WHERE ID = ?", (consulta[1],))
             pet_nome, tutor_id = cursor.fetchone()
 
             cursor.execute("SELECT Nome FROM Tutores WHERE ID = ?", (tutor_id,))
@@ -1343,11 +1343,11 @@ class TelaVeterinario(QWidget):
                 row = self.table.rowCount()
                 self.table.insertRow(row)
 
-                self.table.setItem(row, 0, QTableWidgetItem(consulta[0]))
+                self.table.setItem(row, 0, QTableWidgetItem(str(consulta[0])))
                 self.table.setItem(row, 1, QTableWidgetItem(pet_nome))
                 self.table.setItem(row, 2, QTableWidgetItem(tutor_nome))
-                self.table.setItem(row, 3, QTableWidgetItem(consulta[1]))
-                self.table.setItem(row, 4, QTableWidgetItem(consulta[2]))
+                self.table.setItem(row, 3, QTableWidgetItem(consulta[2]))
+                self.table.setItem(row, 4, QTableWidgetItem(consulta[3]))
 
     def realizarDiagnostico(self):
         linha_selecionada = self.table.currentRow()
@@ -1384,8 +1384,8 @@ class TelaDiagnostico(QDialog):
     def preencherDados(self, dados):
         consulta_id = int(dados[0])
         
-        self.labelNome.setText(dados[5])
-        self.labelTutor.setText(dados[6])
+        self.labelNome.setText(dados[1])
+        self.labelTutor.setText(dados[2])
 
         cursor.execute("SELECT Pet_ID FROM Consultas WHERE ID = ?", (consulta_id,))
         resultado_pet_id = cursor.fetchone()
