@@ -366,44 +366,16 @@ class TelaConsulta(QWidget):
             4: self.criar_formato(QColor("#e74c3c"))
         }
 
-        # só pra testar
-        data1 = QDate.fromString("01/07/2025", "dd/MM/yyyy")
-        data2 = QDate.fromString("02/07/2025", "dd/MM/yyyy")
-        data3 = QDate.fromString("03/07/2025", "dd/MM/yyyy")
-        data4 = QDate.fromString("04/07/2025", "dd/MM/yyyy")
+    
+        cursor.execute("SELECT Data, COUNT(ID) FROM Consultas GROUP BY Data")
+        contagem_por_data = cursor.fetchall()
+        print(contagem_por_data)
 
-        self.calendarWidget.setDateTextFormat(data1, formatos[1])
-        self.datas_marcadas.add(data1)
+        for data_str, contagem in contagem_por_data:
+            data = QDate.fromString(data_str, "dd/MM/yyyy")
 
-        self.calendarWidget.setDateTextFormat(data2, formatos[2])
-        self.datas_marcadas.add(data2)
-
-        self.calendarWidget.setDateTextFormat(data3, formatos[3])
-        self.datas_marcadas.add(data3)
-
-        self.calendarWidget.setDateTextFormat(data4, formatos[4])
-        self.datas_marcadas.add(data4)
-
-        # conectar no banco de dados para ver quantas consultas tem naquele dia
-
-        # # Usar uma conexão local é mais seguro que uma global
-        # with sqlite3.connect('dados.db') as conexao:
-        #     cursor = conexao.cursor()
-        #     # Query para contar quantas consultas existem em cada data
-        #     query = "SELECT Data, COUNT(ID) FROM Consultas GROUP BY Data"
-        #     cursor.execute(query)
-        #     contagem_por_data = cursor.fetchall()
-
-        # # Aplica os formatos baseados na contagem
-        # for data_str, contagem in contagem_por_data:
-        #     data = QDate.fromString(data_str, "dd/MM/yyyy")
-        #     if data.isValid():
-        #         # Escolhe a cor correta (se for >= 4, usa a cor do 4)
-        #         formato_a_aplicar = formatos.get(min(contagem, 4))
-                
-        #         if formato_a_aplicar:
-        #             self.calendarWidget.setDateTextFormat(data, formato_a_aplicar)
-        #             self.datas_marcadas.add(data) # Guarda a data que foi formatada
+            self.calendarWidget.setDateTextFormat(data, formatos.get(min(contagem, 4)))
+            self.datas_marcadas.add(data) 
                     
     def consultasDataSelecionada(self, data):
         dialogo = TelaConsultasDataSelecionada(data, self)
@@ -936,12 +908,27 @@ class TelaPerfilTutor(QWidget):
         self.labelCPF.setText(dados[3])
         self.labelImagem.setPixmap(QPixmap(dados[4]))
 
-        self.table.setColumnCount(3)
-        self.table.setHorizontalHeaderLabels(["Pet", "Peso (kg)", "Raça"])
+        self.table.setColumnCount(4)
+        self.table.setHorizontalHeaderLabels(["ID", "Pet", "Peso (kg)", "Raça"])
         self.table.horizontalHeader().setStretchLastSection(True)
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
         
-        #conectar o banco de dados, achar os pets da pessoa e botar na tabela
+        
+        cursor.execute("SELECT ID, Nome, Peso, Raca_ID FROM Pets WHERE Tutor_ID = ?", (dados[0],))
+        pets_db = cursor.fetchall()
+
+        self.table.setRowCount(0)
+
+        for pet in pets_db:
+            cursor.execute("SELECT Nome FROM Racas WHERE ID = ?", (pet[3],))
+            raca = cursor.fetchall()[0][0]
+            row = self.table.rowCount()
+            self.table.insertRow(row)
+            self.table.setItem(row, 0, QTableWidgetItem(str(pet[0])))
+            self.table.setItem(row, 1, QTableWidgetItem(pet[1]))
+            self.table.setItem(row, 2, QTableWidgetItem(pet[2]))
+            self.table.setItem(row, 3, QTableWidgetItem(raca))
+
 
 
 class TelaPet(QWidget):
