@@ -1338,7 +1338,7 @@ class TelaVeterinario(QWidget):
     def atualizarTabela(self):
         filtro = self.tutorInput.text().lower()
 
-        cursor.execute("SELECT ID, Pet_ID, Data, Horario FROM Consultas WHERE Perfil_Medico_ID = ? AND Data = ?", (self.med_vet_id, datetime.now().strftime('%d/%m/%Y')))
+        cursor.execute("SELECT ID, Pet_ID, Data, Horario FROM Consultas WHERE Perfil_Medico_ID = ?", (self.med_vet_id,))
         consultas_bd = cursor.fetchall()
 
         self.table.setRowCount(0)
@@ -1386,7 +1386,7 @@ class TelaDiagnostico(QDialog):
         super().__init__()
         uic.loadUi("tela_diagnostico.ui", self)
 
-        self.salvarBTN.clicked.connect(self.salvarDiagnostico)
+        self.salvarBTN.clicked.connect(lambda: self.salvarDiagnostico(dados[0]))
         self.cancelarBTN.clicked.connect(self.voltarTelaVeterinario)
 
         self.preencherDados(dados)
@@ -1429,10 +1429,15 @@ class TelaDiagnostico(QDialog):
         else:
             self.diagnosticoInput.setText("")
 
-    def salvarDiagnostico(self):
+    def salvarDiagnostico(self, consulta_id):
         diagnostico = self.diagnosticoInput.toPlainText()
-        
-        # salvar diagnóstico no banco de dados
+
+        cursor.execute("INSERT INTO Relatorios (Descricao) VALUES (?)", (diagnostico,))
+        conexao.commit()
+        relatorio_id = cursor.lastrowid
+
+        cursor.execute("UPDATE Consultas SET Relatorio_ID = ? WHERE ID = ?", (relatorio_id, consulta_id))
+        conexao.commit()
 
         QMessageBox.information(self, "Sucesso", "Diagnóstico salvo com sucesso!")
         self.accept()
