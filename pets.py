@@ -1264,7 +1264,25 @@ class TelaPerfilVeterinario(QWidget):
         self.table.horizontalHeader().setStretchLastSection(True)
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
 
-        # conectar banco de dados e dar todas as consultas de um veterinário
+        cursor.execute("SELECT Pet_ID, Data, Horario FROM Consultas WHERE Perfil_Medico_ID = ?", (dados[0],))
+        consultas = cursor.fetchall()
+
+        self.table.setRowCount(0)
+
+        for consulta in consultas:
+            cursor.execute("SELECT Nome, Tutor_ID FROM Pets WHERE ID = ?", (consulta[0],))
+            pet_nome = cursor.fetchall()[0][0]
+            tutor_id = cursor.fetchall()[0][1]
+
+            cursor.execute("SELECT Nome FROM Tutores WHERE ID = ?", (tutor_id,))
+            tutor_nome = cursor.fetchall()[0][0]
+
+            row = self.table.rowCount()
+            self.table.insertRow(row)
+            self.table.setItem(row, 0, QTableWidgetItem(pet_nome))
+            self.table.setItem(row, 1, QTableWidgetItem(tutor_nome))
+            self.table.setItem(row, 2, QTableWidgetItem(consulta[1]))
+            self.table.setItem(row, 3, QTableWidgetItem(consulta[2]))
 
 
 class TelaVeterinario(QWidget):
