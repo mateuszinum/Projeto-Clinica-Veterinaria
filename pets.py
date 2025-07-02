@@ -95,7 +95,7 @@ class TelaLogin(QWidget):
                     cursor.execute("SELECT * FROM Perfis WHERE Email = ? AND Senha_Hash = ?", (email, senha))
                     perfil = cursor.fetchall()[0]
                     self.perfil = p.Perfil(perfil[1], senha_text, perfil[6], perfil[2], perfil[3], perfil[4])
-                    self.openTelaProfissao()
+                    self.openTelaProfissao(perfil[0])
 
             if not valida_dados:
                 self.login_input.setStyleSheet("border-radius: 4px; border: 2px solid #e74c3c;")
@@ -103,13 +103,13 @@ class TelaLogin(QWidget):
                 self.senha_input.setStyleSheet("border-radius: 4px; border: 2px solid #e74c3c;")
                 self.labelWarning2.setText("Login ou senha inválidos")
 
-    def openTelaProfissao(self):
+    def openTelaProfissao(self, vet_id):
         if self.perfil.cargo_id == 1:
             self.tela_consulta = TelaConsulta(self.tela_inicial)
             self.tela_consulta.show()
             self.hide()
         else:
-            self.tela_veterinario = TelaVeterinario(self.tela_inicial)
+            self.tela_veterinario = TelaVeterinario(self.tela_inicial, vet_id)
             self.tela_veterinario.show()
             self.hide()
 
@@ -1278,8 +1278,7 @@ class TelaPerfilVeterinario(QWidget):
 
         for consulta in consultas:
             cursor.execute("SELECT Nome, Tutor_ID FROM Pets WHERE ID = ?", (consulta[0],))
-            pet_nome = cursor.fetchall()[0][0]
-            tutor_id = cursor.fetchall()[0][1]
+            pet_nome, tutor_id = cursor.fetchone()
 
             cursor.execute("SELECT Nome FROM Tutores WHERE ID = ?", (tutor_id,))
             tutor_nome = cursor.fetchall()[0][0]
@@ -1293,11 +1292,12 @@ class TelaPerfilVeterinario(QWidget):
 
 
 class TelaVeterinario(QWidget):
-    def __init__(self, tela_inicial):
+    def __init__(self, tela_inicial, med_vet_id):
         super().__init__()
         uic.loadUi("tela_veterinario.ui", self)
 
         self.tela_inicial = tela_inicial
+        self.med_vet_id = med_vet_id
 
         self.labelData.setText(f"Consultas do dia {datetime.now().strftime('%d/%m/%Y')}")
 
@@ -1312,11 +1312,6 @@ class TelaVeterinario(QWidget):
     def configurarTabela(self):
         self.table.setColumnCount(4)
         self.table.setHorizontalHeaderLabels(["Pet", "Tutor", "Data", "Horário"])
-        # self.table.setColumnHidden(0, True)
-        # self.table.setColumnHidden(1, True)
-        # self.table.setColumnHidden(2, True)
-        # self.table.setColumnHidden(3, True)
-        # self.table.setColumnHidden(4, True)
         self.table.verticalHeader().setVisible(False)
         self.table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         self.table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
@@ -1326,6 +1321,26 @@ class TelaVeterinario(QWidget):
 
     def atualizarTabela(self):
         filtro = self.tutorInput.text().lower()
+
+        cursor.execute("SELECT Pet_ID, Data, Horario FROM Consultas WHERE Perfil_Medico_ID = ?", (self.med_vet_id,))
+        consultas_bd = cursor.fetchall()
+
+        self.table.setRowCount(0)
+        for consulta in consultas_bd:
+            cursor.execute("SELECT Nome, Tutor_ID FROM Pets WHERE ID = ?", (consulta[0],))
+            pet_nome, tutor_id = cursor.fetchone()
+
+            cursor.execute("SELECT Nome FROM Tutores WHERE ID = ?", (tutor_id,))
+            tutor_nome = cursor.fetchall()[0][0]
+
+            if filtro in pet_nome.lower() or filtro in tutor_nome.lower():
+                row = self.table.rowCount()
+                self.table.insertRow(row)
+
+                self.table.setItem(row, 0, QTableWidgetItem(pet_nome))
+                self.table.setItem(row, 1, QTableWidgetItem(tutor_nome))
+                self.table.setItem(row, 2, QTableWidgetItem(consulta[1]))
+                self.table.setItem(row, 3, QTableWidgetItem(consulta[2]))
 
 
 
