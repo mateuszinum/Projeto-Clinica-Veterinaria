@@ -376,9 +376,18 @@ class TelaConsulta(QWidget):
             self.datas_marcadas.add(data) 
                     
     def consultasDataSelecionada(self, data):
-        dialogo = TelaConsultasDataSelecionada(data, self)
+        data_para_busca = data.toString('dd/MM/yyyy')
+        with sqlite3.connect('dados.db') as conexao:
+            cursor = conexao.cursor()
+            cursor.execute("SELECT ID, Pet_ID, Perfil_Medico_ID, Horario FROM Consultas WHERE Data = ? ORDER BY Horario", (data_para_busca,))
+            consultas_base = cursor.fetchall()
 
-        dialogo.exec()
+            if not consultas_base:
+                QMessageBox.information(self, "Informação", "Nenhuma consulta encontrada para esta data.")
+                return
+            else:
+                dialogo = TelaConsultasDataSelecionada(data, self)
+                dialogo.exec()
 
     def abrirFormularioConsulta(self, data=None, consulta=None):
         dialogo = TelaCrudConsulta(self)
@@ -496,10 +505,6 @@ class TelaConsultasDataSelecionada(QDialog):
             cursor.execute("SELECT ID, Pet_ID, Perfil_Medico_ID, Horario FROM Consultas WHERE Data = ? ORDER BY Horario", (data_para_busca,))
             consultas_base = cursor.fetchall()
 
-            if not consultas_base:
-                QMessageBox.information(self, "Informação", "Nenhuma consulta encontrada para esta data.")
-                return
-
             for consulta in consultas_base:
                 id_consulta, pet_id, medico_id, horario = consulta
 
@@ -569,6 +574,7 @@ class TelaConsultasDataSelecionada(QDialog):
 
             QMessageBox.information(self, "Sucesso", "Consulta deletada com sucesso!")
             self.carregar_consultas()
+            self.parent().atualizar_cores_calendario()
 
 
 class TelaCrudConsulta(QDialog):
@@ -1309,8 +1315,9 @@ class TelaVeterinario(QWidget):
         self.atualizarTabela()
 
     def configurarTabela(self):
-        self.table.setColumnCount(4)
-        self.table.setHorizontalHeaderLabels(["Pet", "Tutor", "Data", "Horário"])
+        self.table.setColumnCount(5)
+        self.table.setHorizontalHeaderLabels(["ID", "Pet", "Tutor", "Data", "Horário"])
+        self.table.setColumnHidden(0, True)
         self.table.verticalHeader().setVisible(False)
         self.table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         self.table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
@@ -1336,12 +1343,11 @@ class TelaVeterinario(QWidget):
                 row = self.table.rowCount()
                 self.table.insertRow(row)
 
-                self.table.setItem(row, 0, QTableWidgetItem(pet_nome))
-                self.table.setItem(row, 1, QTableWidgetItem(tutor_nome))
-                self.table.setItem(row, 2, QTableWidgetItem(consulta[1]))
-                self.table.setItem(row, 3, QTableWidgetItem(consulta[2]))
-
-
+                self.table.setItem(row, 0, QTableWidgetItem(consulta[0]))
+                self.table.setItem(row, 1, QTableWidgetItem(pet_nome))
+                self.table.setItem(row, 2, QTableWidgetItem(tutor_nome))
+                self.table.setItem(row, 3, QTableWidgetItem(consulta[1]))
+                self.table.setItem(row, 4, QTableWidgetItem(consulta[2]))
 
     def realizarDiagnostico(self):
         linha_selecionada = self.table.currentRow()
@@ -1365,7 +1371,7 @@ class TelaVeterinario(QWidget):
         self.close()
 
 
-class TelaDiagnostico(QWidget):
+class TelaDiagnostico(QDialog):
     def __init__(self, dados):
         super().__init__()
         uic.loadUi("tela_diagnostico.ui", self)
@@ -1373,12 +1379,45 @@ class TelaDiagnostico(QWidget):
         self.salvarBTN.clicked.connect(self.salvarDiagnostico)
         self.cancelarBTN.clicked.connect(self.voltarTelaVeterinario)
 
+        self.preencherDados(dados)
+
+    def preencherDados(self, dados):
+        consulta_id = int(dados[0])
+        
         self.labelNome.setText(dados[5])
-        self.labelPeso.setText(dados[3])
-        self.labelRaca.setText(dados[4])
         self.labelTutor.setText(dados[6])
 
-        self.diagnosticoInput.setText(dados[2] if dados[2] else "")
+        cursor.execute("SELECT Pet_ID FROM Consultas WHERE ID = ?", (consulta_id,))
+        resultado_pet_id = cursor.fetchone()
+
+        pet_id = resultado_pet_id[0]
+        
+        cursor.execute("SELECT Peso, Raca_ID FROM Pets WHERE ID = ?", (pet_id,))
+        resultado_pet = cursor.fetchone()
+
+        pet_peso, raca_id = resultado_pet
+        self.labelPeso.setText(pet_peso)
+
+        cursor.execute("SELECT Nome FROM Racas WHERE ID = ?", (raca_id,))
+        resultado_raca = cursor.fetchone()
+        if resultado_raca:
+            self.labelRaca.setText(resultado_raca[0])
+
+        cursor.execute("SELECT Relatorio_ID FROM Consultas WHERE ID = ?", (consulta_id,))
+        resultado_relatorio = cursor.fetchone()
+
+        if resultado_relatorio and resultado_relatorio[0] is not None:
+            relatorio_id = resultado_relatorio[0]
+            
+            cursor.execute("SELECT Descricao FROM Relatorios WHERE ID = ?", (relatorio_id,))
+            resultado_diagnostico = cursor.fetchone()
+
+            if resultado_diagnostico:
+                self.diagnosticoInput.setText(resultado_diagnostico[0])
+            else:
+                self.diagnosticoInput.setText("")
+        else:
+            self.diagnosticoInput.setText("")
 
     def salvarDiagnostico(self):
         diagnostico = self.diagnosticoInput.toPlainText()
