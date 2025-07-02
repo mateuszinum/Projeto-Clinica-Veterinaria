@@ -365,7 +365,6 @@ class TelaConsulta(QWidget):
             3: self.criar_formato(QColor("#f39c12")),
             4: self.criar_formato(QColor("#e74c3c"))
         }
-
     
         cursor.execute("SELECT Data, COUNT(ID) FROM Consultas GROUP BY Data")
         contagem_por_data = cursor.fetchall()
@@ -387,7 +386,7 @@ class TelaConsulta(QWidget):
 
         cursor.execute("SELECT Nome, ID FROM Pets")
         pets = cursor.fetchall()
-        dialogo.pet_input.addItem("Selecione um pet")
+        dialogo.pet_input.addItem("Selecione um pet", userData=None)
         for pet_nome, pet_id in pets:
             dialogo.pet_input.addItem(pet_nome, userData=pet_id)
         
@@ -417,16 +416,15 @@ class TelaConsulta(QWidget):
                 QMessageBox.warning(dialogo, "Erro", "Por favor selecione um pet e um veterinário.")
                 return
 
+            dialogo.accept()
             dialogo.resultado = {
                 "data": data_salvar,
                 "pet_id": pet_id,
                 "veterinario_id": veterinario_id,
                 "horario": horario
             }
-            dialogo.accept()
 
         dialogo.botao_salvar.clicked.connect(salvar)
-
         if dialogo.exec():
             return dialogo.resultado
         return None
@@ -434,10 +432,11 @@ class TelaConsulta(QWidget):
     def adicionarConsulta(self):
         data = self.calendarWidget.selectedDate()
         dados_consulta = self.abrirFormularioConsulta(data = data)
-        cursor.execute("INSERT INTO Consultas (Pet_ID, Perfil_Medico_ID, Data, Horario) VALUES (?, ?, ?, ?)", (dados_consulta['pet_id'], dados_consulta['veterinario_id'], dados_consulta['data'], dados_consulta['horario']))
-        conexao.commit()
-        QMessageBox.information(self, "Sucesso", "Consulta adicionada com sucesso!")
-        self.atualizar_cores_calendario()
+        if dados_consulta:
+            cursor.execute("INSERT INTO Consultas (Pet_ID, Perfil_Medico_ID, Data, Horario) VALUES (?, ?, ?, ?)", (dados_consulta['pet_id'], dados_consulta['veterinario_id'], dados_consulta['data'], dados_consulta['horario']))
+            conexao.commit()
+            QMessageBox.information(self, "Sucesso", "Consulta adicionada com sucesso!")
+            self.atualizar_cores_calendario()
 
     def openTelaPet(self):
         self.tela_pet = TelaPet(self.tela_inicial)
