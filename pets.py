@@ -464,7 +464,9 @@ class TelaConsultasDataSelecionada(QDialog):
         super().__init__(parent)
         uic.loadUi("tela_todas_consultas.ui", self)
 
-        self.setWindowTitle(f"Tela Recepcionista - Consultas do dia {data_selecionada.toString('dd/MM/yyyy')}")
+        self.setWindowTitle(f"Tela Recepcionista - Consultas")
+
+        self.labelData.setText(f"Consultas do dia {data_selecionada.toString('dd/MM/yyyy')}")
 
         self.data_selecionada = data_selecionada
 
@@ -909,6 +911,7 @@ class TelaPerfilTutor(QWidget):
 
         self.table.setColumnCount(4)
         self.table.setHorizontalHeaderLabels(["ID", "Pet", "Peso (kg)", "Raça"])
+        self.table.verticalHeader().hide()
         self.table.horizontalHeader().setStretchLastSection(True)
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
         
@@ -1019,17 +1022,21 @@ class TelaPet(QWidget):
             dialogo.peso_input.blockSignals(True)
             dialogo.peso_input.setText(texto_limpo)
             dialogo.peso_input.blockSignals(False)
-            
-        dialogo.peso_input.textChanged.connect(formatar_peso)       
+
+        dialogo.peso_input.textChanged.connect(formatar_peso)
 
         cursor.execute("SELECT Nome, ID FROM Racas")
         racas = cursor.fetchall()
+
+        dialogo.raca_input.addItem("Selecione uma raça", userData=None)
 
         for raca_nome, raca_id in racas:
             dialogo.raca_input.addItem(raca_nome, userData=raca_id)
             
         cursor.execute("SELECT Nome, ID FROM Tutores")
         tutores = cursor.fetchall()
+
+        dialogo.tutor_input.addItem("Selecione um tutor", userData=None)
 
         for tutor_nome, tutor_id in tutores:
             dialogo.tutor_input.addItem(tutor_nome, userData=tutor_id)
@@ -1046,8 +1053,8 @@ class TelaPet(QWidget):
             raca_id = dialogo.raca_input.currentData()
             tutor_id = dialogo.tutor_input.currentData()
 
-            if not nome:
-                QMessageBox.warning(dialogo, "Erro", "Nome não pode estar vazio.")
+            if not nome or not peso or not raca_id or not tutor_id:
+                QMessageBox.warning(dialogo, "Erro", "Todos os campos devem ser preenchidos.")
                 return
             
             dialogo.accept()
@@ -1320,25 +1327,7 @@ class TelaVeterinario(QWidget):
     def atualizarTabela(self):
         filtro = self.tutorInput.text().lower()
 
-        cursor.execute("SELECT * FROM Consultas")
-        self.consultas_db = cursor.fetchall()
 
-        self.table.setRowCount(0)
-        for consulta in self.consultas_db:
-            cursor.execute("SELECT Nome FROM Tutores WHERE ID = ?", (consulta[4],))
-            tutor_nome = cursor.fetchall()[0][0]
-            if filtro in consulta[1].lower() or filtro in tutor_nome.lower():
-                linha = self.table.rowCount()
-                self.table.insertRow(linha)
-                
-                cursor.execute("SELECT Nome FROM Racas WHERE ID = ?", (consulta[3],))
-                raca_nome = cursor.fetchall()[0][0]
-
-                self.table.setItem(linha, 0, QTableWidgetItem(str(consulta[0])))
-                self.table.setItem(linha, 1, QTableWidgetItem(consulta[1]))
-                self.table.setItem(linha, 2, QTableWidgetItem(consulta[2]))
-                self.table.setItem(linha, 3, QTableWidgetItem(raca_nome))
-                self.table.setItem(linha, 4, QTableWidgetItem(tutor_nome))
 
     def realizarDiagnostico(self):
         linha_selecionada = self.table.currentRow()
