@@ -1321,7 +1321,7 @@ class TelaVeterinario(QWidget):
     def atualizarTabela(self):
         filtro = self.tutorInput.text().lower()
 
-        cursor.execute("SELECT Pet_ID, Data, Horario FROM Consultas WHERE Perfil_Medico_ID = ?", (self.med_vet_id,))
+        cursor.execute("SELECT Pet_ID, Data, Horario FROM Consultas WHERE Perfil_Medico_ID = ? AND Data = ?", (self.med_vet_id, datetime.now().strftime('%d/%m/%Y')))
         consultas_bd = cursor.fetchall()
 
         self.table.setRowCount(0)
